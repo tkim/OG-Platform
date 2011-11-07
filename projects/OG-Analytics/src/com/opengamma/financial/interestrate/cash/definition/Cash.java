@@ -13,8 +13,8 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
- * A cash loan with a unit amount borrowed on some some trade date (which could be now), and an amount (1+r*t) paid at maturity, where r is the Libor rate and t is the time (in years) 
- * between the trade date and the maturity in some day count convention.  
+ * A cash loan with a unit amount borrowed on some some trade date (which could be now), and an amount (1+r*t) paid at maturity, where r is the Libor rate and t is the time (in years)
+ * between the trade date and the maturity in some day count convention.
  */
 public class Cash implements InterestRateDerivative {
   private final Currency _currency;
@@ -101,6 +101,14 @@ public class Cash implements InterestRateDerivative {
 
   public double getNotional() {
     return _notional;
+  }
+
+  /**
+   * Get the loan/deposit final amount: notional * (1 + yf * r)
+   * @return The amount.
+   */
+  public double getFinalAmount() {
+    return _notional * (1 + _yearFraction * _rate);
   }
 
   @Override

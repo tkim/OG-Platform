@@ -16,53 +16,53 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
-import com.opengamma.financial.interestrate.payments.CouponIborGearing;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Method to compute present value and present value sensitivity for Ibor coupon with gearing factor and spread.
+ * Method to compute present value and present value sensitivity for Ibor coupon with spread by discounting.
  */
-public final class CouponIborGearingDiscountingMarketMethod implements PricingMarketMethod {
+public final class CouponIborDiscountingMarketMethod implements PricingMarketMethod {
 
   /*
    * The unique instance of the method.
    */
-  private static final CouponIborGearingDiscountingMarketMethod INSTANCE = new CouponIborGearingDiscountingMarketMethod();
+  private static final CouponIborDiscountingMarketMethod INSTANCE = new CouponIborDiscountingMarketMethod();
 
   /*
    * Gets the method unique instance.
    */
-  public static CouponIborGearingDiscountingMarketMethod getInstance() {
+  public static CouponIborDiscountingMarketMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private CouponIborGearingDiscountingMarketMethod() {
+  private CouponIborDiscountingMarketMethod() {
   }
 
   /**
-   * Compute the present value of a Ibor coupon with gearing factor and spread by discounting.
+   * Compute the present value of a Ibor coupon with spread by discounting.
    * @param coupon The coupon.
    * @param market The market curves.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final CouponIborGearing coupon, final MarketBundle market) {
+  public CurrencyAmount presentValue(final CouponIbor coupon, final MarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
-    final double forward = market.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
+    final double forward = market.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingYearFraction());
     final double df = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    final double value = (coupon.getNotional() * coupon.getPaymentYearFraction() * (coupon.getFactor() * forward) + coupon.getSpreadAmount()) * df;
+    final double value = (coupon.getNotional() * coupon.getPaymentYearFraction() * forward + coupon.getSpreadAmount()) * df;
     return CurrencyAmount.of(coupon.getCurrency(), value);
   }
 
   @Override
   public CurrencyAmount presentValue(final InterestRateDerivative instrument, final MarketBundle market) {
-    Validate.isTrue(instrument instanceof CouponIborGearing, "Coupon Ibor Gearing");
-    return presentValue((CouponIborGearing) instrument, market);
+    Validate.isTrue(instrument instanceof CouponIbor, "CouponIborDiscountingMethod: The instrument should be of type CouponIbor");
+    return presentValue((CouponIbor) instrument, market);
   }
 
   /**
@@ -71,20 +71,20 @@ public final class CouponIborGearingDiscountingMarketMethod implements PricingMa
    * @param market The market curves.
    * @return The present value sensitivity.
    */
-  public PresentValueCurveSensitivityMarket presentValueCurveSensitivity(final CouponIborGearing coupon, final MarketBundle market) {
+  public PresentValueCurveSensitivityMarket presentValueCurveSensitivity(final CouponIbor coupon, final MarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Curves");
     final YieldAndDiscountCurve forwardCurve = market.getCurve(coupon.getIndex());
     final double df = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double dfForwardStart = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime());
     final double dfForwardEnd = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime());
-    final double forward = (dfForwardStart / dfForwardEnd - 1.0) / coupon.getFixingAccrualFactor();
+    final double forward = (dfForwardStart / dfForwardEnd - 1.0) / coupon.getFixingYearFraction();
     // Backward sweep
     final double pvBar = 1.0;
-    final double forwardBar = coupon.getNotional() * coupon.getPaymentYearFraction() * coupon.getFactor() * df * pvBar;
-    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingAccrualFactor() * forwardBar;
-    final double dfForwardStartBar = 1.0 / (coupon.getFixingAccrualFactor() * dfForwardEnd) * forwardBar;
-    final double dfBar = (coupon.getNotional() * coupon.getPaymentYearFraction() * (coupon.getFactor() * forward) + coupon.getSpreadAmount()) * pvBar;
+    final double forwardBar = coupon.getNotional() * coupon.getPaymentYearFraction()  * df * pvBar;
+    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingYearFraction() * forwardBar;
+    final double dfForwardStartBar = 1.0 / (coupon.getFixingYearFraction() * dfForwardEnd) * forwardBar;
+    final double dfBar = (coupon.getNotional() * coupon.getPaymentYearFraction() *  forward + coupon.getSpreadAmount()) * pvBar;
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));

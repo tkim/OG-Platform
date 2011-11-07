@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.model.interestrate.curve.PriceIndexCurve;
@@ -82,7 +81,7 @@ public class MarketBundle {
    * @param accuralFactor The Ibor accrual factor.
    * @return The forward rate.
    */
-  public double getForwardRate(IborIndex index, double startTime, double endTime, double accuralFactor) {
+  public double getForwardRate(IndexDeposit index, double startTime, double endTime, double accuralFactor) {
     if (_forwardCurves.containsKey(index)) {
       return (_forwardCurves.get(index).getDiscountFactor(startTime) / _forwardCurves.get(index).getDiscountFactor(endTime) - 1) / accuralFactor;
     }
@@ -119,7 +118,7 @@ public class MarketBundle {
    * @param index The Ibor index.
    * @return The curve.
    */
-  public YieldAndDiscountCurve getCurve(IborIndex index) {
+  public YieldAndDiscountCurve getCurve(IndexDeposit index) {
     if (_forwardCurves.containsKey(index)) {
       return _forwardCurves.get(index);
     }
@@ -201,7 +200,7 @@ public class MarketBundle {
    * @param index The index.
    * @param curve The curve.
    */
-  public void setCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
+  public void setCurve(final IndexDeposit index, final YieldAndDiscountCurve curve) {
     Validate.notNull(index, "index");
     Validate.notNull(curve, "curve");
     if (_forwardCurves.containsKey(index)) {
@@ -242,7 +241,7 @@ public class MarketBundle {
    * Replaces the discounting curve for a given currency.
    * @param ccy The currency.
    * @param curve The yield curve used for discounting.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
     Validate.notNull(ccy, "Currency");
@@ -257,7 +256,7 @@ public class MarketBundle {
    * Replaces the discounting curve for a price index.
    * @param index The price index.
    * @param curve The price curve for the index.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final PriceIndex index, final PriceIndexCurve curve) {
     Validate.notNull(index, "Price index");

@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.method.market;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
@@ -31,7 +31,7 @@ public class SensitivityFiniteDifferenceMarket {
    * @param nodeTimes The node times to be bumped.
    * @param deltaShift The bump size.
    * @param method The method to compute the present value sensitivity.
-   * @param differenceType {@link FiniteDifferenceType#FORWARD}, {@link FiniteDifferenceType#BACKWARD}, or {@link FiniteDifferenceType#CENTRAL}. 
+   * @param differenceType {@link FiniteDifferenceType#FORWARD}, {@link FiniteDifferenceType#BACKWARD}, or {@link FiniteDifferenceType#CENTRAL}.
    * Indicates how the finite difference is computed. Not null
    * @return The array of sensitivity with respect the to the given node times.
    */
@@ -87,7 +87,7 @@ public class SensitivityFiniteDifferenceMarket {
     return curveSensitivity(instrument, market, ccy, nodeTimes, deltaShift, method, FiniteDifferenceType.CENTRAL);
   }
 
-  public static double[] curveSensitivity(final InterestRateDerivative instrument, final MarketBundle market, IborIndex index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
+  public static double[] curveSensitivity(final InterestRateDerivative instrument, final MarketBundle market, IndexDeposit index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
       final FiniteDifferenceType differenceType) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(method, "Method");

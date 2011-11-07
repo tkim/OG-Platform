@@ -78,29 +78,32 @@ public class PresentValueCurveSensitivityMarket {
   }
 
   /**
-   * Create a copy of the sensitivity and add a given sensitivity to it.
-   * @param other The sensitivity to add.
+   * Create a new sensitivity which is the sum of two given sensitivities.
+   * @param pvcs1 The first sensitivity.
+   * @param pvcs2 The second sensitivity.
    * @return The total sensitivity.
    */
-  public PresentValueCurveSensitivityMarket add(PresentValueCurveSensitivityMarket other) {
-    Validate.notNull(other, "sensitivity");
+  public static PresentValueCurveSensitivityMarket plus(final PresentValueCurveSensitivityMarket pvcs1, final PresentValueCurveSensitivityMarket pvcs2) {
+    //TODO: improve the algorithm.
+    Validate.notNull(pvcs1, "First sensitivity");
+    Validate.notNull(pvcs2, "Second sensitivity");
     final Map<String, List<DoublesPair>> resultYield = new HashMap<String, List<DoublesPair>>();
-    for (final String name : _sensitivityYieldCurve.keySet()) {
+    for (final String name : pvcs1.getYieldCurveSensitivities().keySet()) {
       final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-      for (final DoublesPair pair : _sensitivityYieldCurve.get(name)) {
+      for (final DoublesPair pair : pvcs1.getYieldCurveSensitivities().get(name)) {
         temp.add(pair);
       }
-      if (other.getYieldCurveSensitivities().containsKey(name)) {
-        for (final DoublesPair pair : other._sensitivityYieldCurve.get(name)) {
+      if (pvcs2.getYieldCurveSensitivities().containsKey(name)) {
+        for (final DoublesPair pair : pvcs2.getYieldCurveSensitivities().get(name)) {
           temp.add(pair);
         }
       }
       resultYield.put(name, temp);
     }
-    for (final String name : other.getYieldCurveSensitivities().keySet()) {
+    for (final String name : pvcs2.getYieldCurveSensitivities().keySet()) {
       if (!resultYield.containsKey(name)) {
         final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-        for (final DoublesPair pair : other._sensitivityYieldCurve.get(name)) {
+        for (final DoublesPair pair : pvcs2._sensitivityYieldCurve.get(name)) {
           temp.add(pair);
         }
         resultYield.put(name, temp);
@@ -108,22 +111,22 @@ public class PresentValueCurveSensitivityMarket {
     }
 
     final Map<String, List<DoublesPair>> resultPrice = new HashMap<String, List<DoublesPair>>();
-    for (final String name : _sensitivityPriceCurve.keySet()) {
+    for (final String name : pvcs1._sensitivityPriceCurve.keySet()) {
       final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-      for (final DoublesPair pair : _sensitivityPriceCurve.get(name)) {
+      for (final DoublesPair pair : pvcs1._sensitivityPriceCurve.get(name)) {
         temp.add(pair);
       }
-      if (other.getPriceCurveSensitivities().containsKey(name)) {
-        for (final DoublesPair pair : other._sensitivityPriceCurve.get(name)) {
+      if (pvcs2.getPriceCurveSensitivities().containsKey(name)) {
+        for (final DoublesPair pair : pvcs2._sensitivityPriceCurve.get(name)) {
           temp.add(pair);
         }
       }
       resultPrice.put(name, temp);
     }
-    for (final String name : other.getPriceCurveSensitivities().keySet()) {
+    for (final String name : pvcs2.getPriceCurveSensitivities().keySet()) {
       if (!resultPrice.containsKey(name)) {
         final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-        for (final DoublesPair pair : other._sensitivityPriceCurve.get(name)) {
+        for (final DoublesPair pair : pvcs2._sensitivityPriceCurve.get(name)) {
           temp.add(pair);
         }
         resultPrice.put(name, temp);
@@ -133,23 +136,24 @@ public class PresentValueCurveSensitivityMarket {
   }
 
   /**
-   * Create a new sensitivity object containing the original sensitivity multiplied by a common factor.
+   * Create a new sensitivity object with a given sensitivity multiplied by a common factor.
+   * @param pvcs The sensitivity.
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */
-  public PresentValueCurveSensitivityMarket multiply(double factor) {
+  public static PresentValueCurveSensitivityMarket multiplyBy(final PresentValueCurveSensitivityMarket pvcs, double factor) {
     Map<String, List<DoublesPair>> resultYield = new HashMap<String, List<DoublesPair>>();
-    for (final String name : _sensitivityYieldCurve.keySet()) {
+    for (final String name : pvcs._sensitivityYieldCurve.keySet()) {
       final List<DoublesPair> curveSensi = new ArrayList<DoublesPair>();
-      for (final DoublesPair pair : _sensitivityYieldCurve.get(name)) {
+      for (final DoublesPair pair : pvcs._sensitivityYieldCurve.get(name)) {
         curveSensi.add(new DoublesPair(pair.first, pair.second * factor));
       }
       resultYield.put(name, curveSensi);
     }
     Map<String, List<DoublesPair>> resultPrice = new HashMap<String, List<DoublesPair>>();
-    for (final String name : _sensitivityPriceCurve.keySet()) {
+    for (final String name : pvcs._sensitivityPriceCurve.keySet()) {
       final List<DoublesPair> curveSensi = new ArrayList<DoublesPair>();
-      for (final DoublesPair pair : _sensitivityPriceCurve.get(name)) {
+      for (final DoublesPair pair : pvcs._sensitivityPriceCurve.get(name)) {
         curveSensi.add(new DoublesPair(pair.first, pair.second * factor));
       }
       resultPrice.put(name, curveSensi);
