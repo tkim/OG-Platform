@@ -22,6 +22,7 @@ import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
+import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarketCalculator;
 import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
 import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -58,6 +59,7 @@ public class CouponFixedDiscountingMarketMethodTest {
 
   private static final CouponFixedDiscountingMarketMethod METHOD = CouponFixedDiscountingMarketMethod.getInstance();
   private static final PresentValueMarketCalculator PVC = PresentValueMarketCalculator.getInstance();
+  private static final PresentValueCurveSensitivityMarketCalculator PVCSC = PresentValueCurveSensitivityMarketCalculator.getInstance();
 
   @Test
   /**
@@ -66,7 +68,7 @@ public class CouponFixedDiscountingMarketMethodTest {
   public void presentValue() {
     CurrencyAmount pv = METHOD.presentValue(COUPON, MARKET);
     double df = MARKET.getCurve(EUR).getDiscountFactor(COUPON.getPaymentTime());
-    double pvExpected = COUPON.getAmount()*df;
+    double pvExpected = COUPON.getAmount() * df;
     assertEquals("Coupon Fixed: pv by discounting", pvExpected, pv.getAmount(), 1.0E-2);
   }
 
@@ -97,6 +99,16 @@ public class CouponFixedDiscountingMarketMethodTest {
     final List<DoublesPair> sensiPvDisc = pvcs.getYieldCurveSensitivities().get(MARKET.getCurve(COUPON.getCurrency()).getCurve().getName());
     assertEquals("Sensitivity fixed coupon pv to dsc curve", nodeTimesDisc[0], sensiPvDisc.get(0).getFirst(), 1E-8);
     assertEquals("Sensitivity finite difference method: node sensitivity", sensiPvDisc.get(0).second, sensiDiscMethod[0], deltaTolerancePrice);
+  }
+
+  @Test
+  /**
+   * Compare the present value curve sensitivity from the method and from the standard calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    PresentValueCurveSensitivityMarket pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, MARKET);
+    PresentValueCurveSensitivityMarket pvcsCalculator = PVCSC.visit(COUPON, MARKET);
+    assertEquals("Sensitivity cash pv to curve", pvcsMethod, pvcsCalculator);
   }
 
 }

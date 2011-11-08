@@ -22,6 +22,7 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
+import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarketCalculator;
 import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
 import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -59,8 +60,12 @@ public class CashDiscountingMarketMethodTest {
 
   private static final CashDiscountingMarketMethod METHOD = CashDiscountingMarketMethod.getInstance();
   private static final PresentValueMarketCalculator PVC = PresentValueMarketCalculator.getInstance();
+  private static final PresentValueCurveSensitivityMarketCalculator PVCSC = PresentValueCurveSensitivityMarketCalculator.getInstance();
 
   @Test
+  /**
+   * Tests the present value.
+   */
   public void presentValue() {
     CurrencyAmount pv = METHOD.presentValue(DEPOSIT, MARKET);
     double dfPayment = MARKET.getCurve(EUR).getDiscountFactor(DEPOSIT.getMaturity());
@@ -70,6 +75,9 @@ public class CashDiscountingMarketMethodTest {
   }
 
   @Test
+  /**
+   * Compare the present value from the method and from the standard calculator.
+   */
   public void presentValueMethodVsCalculator() {
     CurrencyAmount pvMethod = METHOD.presentValue(DEPOSIT, MARKET);
     CurrencyAmount pvCalculator = PVC.visit(DEPOSIT, MARKET);
@@ -78,6 +86,9 @@ public class CashDiscountingMarketMethodTest {
   }
 
   @Test
+  /**
+   * Tests the present value curve sensitivity by discounting.
+   */
   public void presentValueCurveSensitivity() {
     PresentValueCurveSensitivityMarket pvcs = METHOD.presentValueCurveSensitivity(DEPOSIT, MARKET);
     pvcs = pvcs.clean();
@@ -89,9 +100,20 @@ public class CashDiscountingMarketMethodTest {
     final double[] sensiDiscMethod = SensitivityFiniteDifferenceMarket.curveSensitivity(DEPOSIT, MARKET, DEPOSIT.getCurrency(), nodeTimesDisc, deltaShift, METHOD, FiniteDifferenceType.CENTRAL);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiDiscMethod.length);
     final List<DoublesPair> sensiPvDisc = pvcs.getYieldCurveSensitivities().get(MARKET.getCurve(DEPOSIT.getCurrency()).getCurve().getName());
-    for(int looptime=0; looptime<nodeTimesDisc.length; looptime++){
+    for (int looptime = 0; looptime < nodeTimesDisc.length; looptime++) {
       assertEquals("Sensitivity cash pv to dsc curve: time", nodeTimesDisc[looptime], sensiPvDisc.get(looptime).getFirst(), 1E-8);
-      assertEquals("Sensitivity cash pv to dsc curve: value", sensiDiscMethod[looptime], sensiPvDisc.get(looptime ).second, deltaTolerancePrice);}
+      assertEquals("Sensitivity cash pv to dsc curve: value", sensiDiscMethod[looptime], sensiPvDisc.get(looptime).second, deltaTolerancePrice);
+    }
+  }
+
+  @Test
+  /**
+   * Compare the present value curve sensitivity from the method and from the standard calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    PresentValueCurveSensitivityMarket pvcsMethod = METHOD.presentValueCurveSensitivity(DEPOSIT, MARKET);
+    PresentValueCurveSensitivityMarket pvcsCalculator = PVCSC.visit(DEPOSIT, MARKET);
+    assertEquals("Sensitivity cash pv to curve", pvcsMethod, pvcsCalculator);
   }
 
 }

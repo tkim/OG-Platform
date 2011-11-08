@@ -33,6 +33,8 @@ import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Coupon;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.market.CouponFixedDiscountingMarketMethod;
 import com.opengamma.financial.interestrate.payments.market.CouponIborDiscountingMarketMethod;
@@ -40,14 +42,13 @@ import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * Tests related to the PresentValueMarket calculator (present value of linear instruments by discounting).
  */
-public class PresentValueMarketCalculatorTest {
+public class PresentValueCurveSensitivityMarketCalculatorTest {
 
   private static final MarketBundle MARKET = MarketDataSets.createMarket1();
   private static final IndexDeposit[] INDEXES = MarketDataSets.getDepositIndexes();
@@ -89,53 +90,50 @@ public class PresentValueMarketCalculatorTest {
 
   private static final CouponFixedDiscountingMarketMethod METHOD_FIXED = CouponFixedDiscountingMarketMethod.getInstance();
   private static final CouponIborDiscountingMarketMethod METHOD_IBOR = CouponIborDiscountingMarketMethod.getInstance();
-  private static final PresentValueMarketCalculator PVC = PresentValueMarketCalculator.getInstance();
+  private static final PresentValueCurveSensitivityMarketCalculator PVCSC = PresentValueCurveSensitivityMarketCalculator.getInstance();
 
   @Test
   /**
-   * Tests the present value of an annuity composed of fixed coupons.
+   * Tests the present value curve sensitivity of an annuity composed of fixed coupons.
    */
-  public void presentValueAnnuityFixed() {
-    CurrencyAmount pvCalculator = PVC.visit(ANNUITY_FIXED, MARKET);
-    CurrencyAmount pvExpected = CurrencyAmount.of(EUR, 0.0);
+  public void presentValueCurveSensitivityAnnuityFixed() {
+    PresentValueCurveSensitivityMarket pvcsCalculator = PVCSC.visit(ANNUITY_FIXED, MARKET);
+    PresentValueCurveSensitivityMarket pvcsExpected = new PresentValueCurveSensitivityMarket();
     for (int loopcpn = 0; loopcpn < ANNUITY_FIXED.getNumberOfPayments(); loopcpn++) {
-      pvExpected = pvExpected.plus(METHOD_FIXED.presentValue(ANNUITY_FIXED.getNthPayment(loopcpn), MARKET));
+      pvcsExpected = PresentValueCurveSensitivityMarket.plus(pvcsExpected, METHOD_FIXED.presentValueCurveSensitivity(ANNUITY_FIXED.getNthPayment(loopcpn), MARKET));
     }
-    assertEquals("Annuity Fixed: pv by discounting", pvExpected.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Annuity Fixed: pv by discounting", pvExpected.getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    assertEquals("Sensitivity annuity fixed pv to curve", pvcsExpected, pvcsCalculator);
   }
 
   @Test
   /**
-   * Tests the present value of an annuity created from a Ibor annuity (with a coupon already fixed).
+   * Tests the present value curve sensitivity of an annuity created from a Ibor annuity (with a coupon already fixed).
    */
-  public void presentValueAnnuityIbor() {
-    CurrencyAmount pvCalculator = PVC.visit(ANNUITY_IBOR, MARKET);
-    CurrencyAmount pvExpected = METHOD_FIXED.presentValue(ANNUITY_IBOR.getNthPayment(0), MARKET);
+  public void presentValueCurveSensitivityAnnuityIbor() {
+    PresentValueCurveSensitivityMarket pvcsCalculator = PVCSC.visit(ANNUITY_IBOR, MARKET);
+    PresentValueCurveSensitivityMarket pvcsExpected = METHOD_FIXED.presentValueCurveSensitivity((CouponFixed) ANNUITY_IBOR.getNthPayment(0), MARKET);
     for (int loopcpn = 1; loopcpn < ANNUITY_IBOR.getNumberOfPayments(); loopcpn++) {
-      pvExpected = pvExpected.plus(METHOD_IBOR.presentValue(ANNUITY_IBOR.getNthPayment(loopcpn), MARKET));
+      pvcsExpected = PresentValueCurveSensitivityMarket.plus(pvcsExpected, METHOD_IBOR.presentValueCurveSensitivity((CouponIbor) ANNUITY_IBOR.getNthPayment(loopcpn), MARKET));
     }
-    assertEquals("Annuity Ibor: pv by discounting", pvExpected.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Annuity Ibor: pv by discounting", pvExpected.getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    assertEquals("Sensitivity annuity ibor pv to curve", pvcsExpected, pvcsCalculator);
   }
 
   @Test
   /**
-   * Tests the present value of an swap created from a Fixed-Ibor swap (with a coupon already fixed on the Ibor leg).
+   * Tests the present value curve sensitivity of an swap created from a Fixed-Ibor swap (with a coupon already fixed on the Ibor leg).
    */
-  public void presentValueSwapFixedIbor() {
-    CurrencyAmount pvCalculator = PVC.visit(SWAP_FIXED_IBOR, MARKET);
-    CurrencyAmount pvFixed = PVC.visit(SWAP_FIXED_IBOR.getFixedLeg(), MARKET);
-    CurrencyAmount pvIbor = PVC.visit(SWAP_FIXED_IBOR.getSecondLeg(), MARKET);
-    assertEquals("Annuity Ibor: pv by discounting", pvFixed.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Annuity Ibor: pv by discounting", pvFixed.plus(pvIbor).getAmount(), pvCalculator.getAmount(), 1.0E-2);
+  public void presentValueCurveSensitivitySwapFixedIbor() {
+    PresentValueCurveSensitivityMarket pvcsCalculator = PVCSC.visit(SWAP_FIXED_IBOR, MARKET);
+    PresentValueCurveSensitivityMarket pvcsFixed = PVCSC.visit(SWAP_FIXED_IBOR.getFixedLeg(), MARKET);
+    PresentValueCurveSensitivityMarket pvcsIbor = PVCSC.visit(SWAP_FIXED_IBOR.getSecondLeg(), MARKET);
+    assertEquals("Sensitivity swap fixed-Ibor pv to curve", PresentValueCurveSensitivityMarket.plus(pvcsFixed, pvcsIbor), pvcsCalculator);
   }
 
   @Test
   /**
-   * Tests the present value of an swap created from a Fixed-Ibor swap. The swap has one coupon on Euribor 3M and one on Euribor 6M.
+   * Tests the present value curve sensitivity of an swap created from a Fixed-Ibor swap. The swap has one coupon on Euribor 3M and one on Euribor 6M.
    */
-  public void presentValueSwapFixedIborHeterogeneousIbor() {
+  public void presentValueCurveSensitivitySwapFixedIborHeterogeneousIbor() {
     CouponIborDefinition cpn3Definition = CouponIborDefinition.from(NOTIONAL, REFERENCE_DATE, EURIBOR3M);
     CouponIborDefinition cpn6Definition = CouponIborDefinition.from(NOTIONAL, ScheduleCalculator.getAdjustedDate(cpn3Definition.getPaymentDate(), CALENDAR_EUR, SETTLEMENT_DAYS), EURIBOR6M);
     CouponFixedDefinition cpnFDefinition = CouponFixedDefinition.from(EUR, cpn6Definition.getPaymentDate(), cpn3Definition.getAccrualStartDate(), cpn6Definition.getAccrualEndDate(),
@@ -147,24 +145,22 @@ public class PresentValueMarketCalculatorTest {
     Coupon cpn6 = cpn6Definition.toDerivative(REFERENCE_DATE, NOT_USED_2);
     Coupon cpnF = cpnFDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
     Swap<? extends Payment, ? extends Payment> swapHeterogeneous = swapHeterogeneousDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
-    CurrencyAmount pvSwap = PVC.visit(swapHeterogeneous, MARKET);
-    CurrencyAmount pvSum = PVC.visit(cpn3, MARKET);
-    pvSum = pvSum.plus(PVC.visit(cpn6, MARKET));
-    pvSum = pvSum.plus(PVC.visit(cpnF, MARKET));
-    assertEquals("Swap Heterogeneous: pv by discounting", pvSum.getCurrency(), pvSwap.getCurrency());
-    assertEquals("Swap Heterogeneous: pv by discounting", pvSum.getAmount(), pvSwap.getAmount(), 1.0E-2);
+    PresentValueCurveSensitivityMarket pvcsSwap = PVCSC.visit(swapHeterogeneous, MARKET);
+    PresentValueCurveSensitivityMarket pvcsSum = PVCSC.visit(cpnF, MARKET);
+    pvcsSum = PresentValueCurveSensitivityMarket.plus(pvcsSum, PVCSC.visit(cpn3, MARKET));
+    pvcsSum = PresentValueCurveSensitivityMarket.plus(pvcsSum, PVCSC.visit(cpn6, MARKET));
+    assertEquals("Sensitivity swap fixed-Ibor heterogeneous pv to curve", pvcsSum, pvcsSwap);
   }
 
   @Test
   /**
-   * Tests the present value of a swap created from a Fixed-OIS swap starting in the future.
+   * Tests the present value curve sensitivity of a swap created from a Fixed-OIS swap starting in the future.
    */
-  public void presentValueSwapOIS() {
-    CurrencyAmount pvCalculator = PVC.visit(SWAP_FIXED_OIS, MARKET);
-    CurrencyAmount pvFixed = PVC.visit(SWAP_FIXED_OIS.getFirstLeg(), MARKET);
-    CurrencyAmount pvIbor = PVC.visit(SWAP_FIXED_OIS.getSecondLeg(), MARKET);
-    assertEquals("Annuity Ibor: pv by discounting", pvFixed.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Annuity Ibor: pv by discounting", pvFixed.plus(pvIbor).getAmount(), pvCalculator.getAmount(), 1.0E-2);
+  public void presentValueCurveSensitivitySwapOIS() {
+    PresentValueCurveSensitivityMarket pvcsCalculator = PVCSC.visit(SWAP_FIXED_OIS, MARKET);
+    PresentValueCurveSensitivityMarket pvcsFixed = PVCSC.visit(SWAP_FIXED_OIS.getFirstLeg(), MARKET);
+    PresentValueCurveSensitivityMarket pvcsIbor = PVCSC.visit(SWAP_FIXED_OIS.getSecondLeg(), MARKET);
+    assertEquals("Sensitivity swap fixed-Ibor heterogeneous pv to curve", PresentValueCurveSensitivityMarket.plus(pvcsFixed, pvcsIbor), pvcsCalculator);
   }
 
 }

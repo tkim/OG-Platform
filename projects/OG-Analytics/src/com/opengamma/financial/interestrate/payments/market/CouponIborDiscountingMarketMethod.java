@@ -81,20 +81,23 @@ public final class CouponIborDiscountingMarketMethod implements PricingMarketMet
     final double forward = (dfForwardStart / dfForwardEnd - 1.0) / coupon.getFixingYearFraction();
     // Backward sweep
     final double pvBar = 1.0;
-    final double forwardBar = coupon.getNotional() * coupon.getPaymentYearFraction()  * df * pvBar;
+    final double forwardBar = coupon.getNotional() * coupon.getPaymentYearFraction() * df * pvBar;
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingYearFraction() * forwardBar;
     final double dfForwardStartBar = 1.0 / (coupon.getFixingYearFraction() * dfForwardEnd) * forwardBar;
-    final double dfBar = (coupon.getNotional() * coupon.getPaymentYearFraction() *  forward + coupon.getSpreadAmount()) * pvBar;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final double dfBar = (coupon.getNotional() * coupon.getPaymentYearFraction() * forward + coupon.getSpreadAmount()) * pvBar;
+
+    final Map<String, List<DoublesPair>> resultDsc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
-    resultMap.put(market.getCurve(coupon.getCurrency()).getCurve().getName(), listDiscounting);
+    resultDsc.put(market.getCurve(coupon.getCurrency()).getCurve().getName(), listDiscounting);
+    PresentValueCurveSensitivityMarket result = new PresentValueCurveSensitivityMarket(resultDsc);
+
+    final Map<String, List<DoublesPair>> resultFwd = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
     listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
-    resultMap.put(market.getCurve(coupon.getIndex()).getCurve().getName(), listForward);
-    final PresentValueCurveSensitivityMarket result = new PresentValueCurveSensitivityMarket(resultMap);
-    return result;
+    resultFwd.put(market.getCurve(coupon.getIndex()).getCurve().getName(), listForward);
+    return PresentValueCurveSensitivityMarket.plus(result, new PresentValueCurveSensitivityMarket(resultFwd));
   }
 
 }

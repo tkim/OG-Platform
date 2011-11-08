@@ -25,6 +25,7 @@ import com.opengamma.financial.instrument.payment.CouponOISSimplifiedDefinition;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
+import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarketCalculator;
 import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
 import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
@@ -58,22 +59,22 @@ public class CouponOISDiscountingMarketMethodTest {
   private static final double ACCRUAL_FACTOR_PAYMENT = DAY_COUNT_COUPON.getDayCountFraction(SPOT_DATE, PAYMENT_DATE);
   private static final double NOTIONAL = 100000000; // 100m
 
-  private static final CouponOISSimplifiedDefinition COUPON_DEFINITION = new CouponOISSimplifiedDefinition(EUR, PAYMENT_DATE, SPOT_DATE, PAYMENT_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, EONIA, SPOT_DATE, PAYMENT_DATE, ACCRUAL_FACTOR_PAYMENT);
-  private static final CouponOIS COUPON = COUPON_DEFINITION.toDerivative(REFERENCE_DATE_1, new String[]{"Not used", "Not used"});
-
+  private static final CouponOISSimplifiedDefinition COUPON_DEFINITION = new CouponOISSimplifiedDefinition(EUR, PAYMENT_DATE, SPOT_DATE, PAYMENT_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, EONIA,
+      SPOT_DATE, PAYMENT_DATE, ACCRUAL_FACTOR_PAYMENT);
+  private static final CouponOIS COUPON = COUPON_DEFINITION.toDerivative(REFERENCE_DATE_1, new String[] {"Not used", "Not used"});
 
   private static final ZonedDateTime REFERENCE_DATE_2 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 5);
-  private static final CouponOISDefinition EONIA_COUPON_2_DEFINITION = new CouponOISDefinition(EUR, PAYMENT_DATE, SPOT_DATE, PAYMENT_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, EONIA,
-      SPOT_DATE, PAYMENT_DATE);
+  private static final CouponOISDefinition EONIA_COUPON_2_DEFINITION = new CouponOISDefinition(EUR, PAYMENT_DATE, SPOT_DATE, PAYMENT_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, EONIA, SPOT_DATE,
+      PAYMENT_DATE);
 
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 1),
       ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 2), ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 3),
-      ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 4), ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 5)},
-      new double[] {0.01, 0.011, 0.012, 0.013, 0.014});
-  private static final CouponOIS EONIA_COUPON_2 = (CouponOIS) EONIA_COUPON_2_DEFINITION.toDerivative(REFERENCE_DATE_2, FIXING_TS, new String[]{"Not used", "Not used"});
+      ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 4), ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 5)}, new double[] {0.01, 0.011, 0.012, 0.013, 0.014});
+  private static final CouponOIS EONIA_COUPON_2 = (CouponOIS) EONIA_COUPON_2_DEFINITION.toDerivative(REFERENCE_DATE_2, FIXING_TS, new String[] {"Not used", "Not used"});
 
   private static final CouponOISDiscountingMarketMethod METHOD = CouponOISDiscountingMarketMethod.getInstance();
   private static final PresentValueMarketCalculator PVC = PresentValueMarketCalculator.getInstance();
+  private static final PresentValueCurveSensitivityMarketCalculator PVCSC = PresentValueCurveSensitivityMarketCalculator.getInstance();
 
   @Test
   /**
@@ -155,6 +156,16 @@ public class CouponOISDiscountingMarketMethodTest {
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDiscMethod[loopnode], deltaTolerancePrice);
     }
+  }
+
+  @Test
+  /**
+   * Compare the present value curve sensitivity from the method and from the standard calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    PresentValueCurveSensitivityMarket pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, MARKET);
+    PresentValueCurveSensitivityMarket pvcsCalculator = PVCSC.visit(COUPON, MARKET);
+    assertEquals("Sensitivity cash pv to curve", pvcsMethod, pvcsCalculator);
   }
 
 }

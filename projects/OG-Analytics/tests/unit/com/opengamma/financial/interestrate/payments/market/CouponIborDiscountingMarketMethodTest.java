@@ -22,6 +22,7 @@ import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
+import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarketCalculator;
 import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
 import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -53,6 +54,7 @@ public class CouponIborDiscountingMarketMethodTest {
 
   private static final CouponIborDiscountingMarketMethod METHOD = CouponIborDiscountingMarketMethod.getInstance();
   private static final PresentValueMarketCalculator PVC = PresentValueMarketCalculator.getInstance();
+  private static final PresentValueCurveSensitivityMarketCalculator PVCSC = PresentValueCurveSensitivityMarketCalculator.getInstance();
 
   @Test
   /**
@@ -107,6 +109,16 @@ public class CouponIborDiscountingMarketMethodTest {
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDiscMethod[loopnode], deltaTolerancePrice);
     }
+  }
+
+  @Test
+  /**
+   * Compare the present value curve sensitivity from the method and from the standard calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    PresentValueCurveSensitivityMarket pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, MARKET);
+    PresentValueCurveSensitivityMarket pvcsCalculator = PVCSC.visit(COUPON, MARKET);
+    assertEquals("Sensitivity cash pv to curve", pvcsMethod, pvcsCalculator);
   }
 
 }
