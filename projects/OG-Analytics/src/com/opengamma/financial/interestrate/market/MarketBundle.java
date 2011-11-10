@@ -61,6 +61,29 @@ public class MarketBundle {
   }
 
   /**
+   * Build a new market from an existing one. New maps are created to hold the different curves. 
+   * The curves of the existing market are used for the new one (the same curve are used, not copied).
+   * @param market The existing market.
+   * @return The new market.
+   */
+  public static MarketBundle from(MarketBundle market) {
+    MarketBundle newMarket = new MarketBundle();
+    for (Currency ccy : market.getCurrencies()) {
+      newMarket.setCurve(ccy, market.getCurve(ccy));
+    }
+    for (IndexDeposit index : market.getIndexesDeposit()) {
+      newMarket.setCurve(index, market.getCurve(index));
+    }
+    for (PriceIndex index : market.getPriceIndexes()) {
+      newMarket.setCurve(index, market.getCurve(index));
+    }
+    for (String issuer : market.getIssuers()) {
+      newMarket.setCurve(issuer, market.getCurve(issuer));
+    }
+    return newMarket;
+  }
+
+  /**
    * Gets the discount factor for one currency at a given time to maturity.
    * @param ccy The currency.
    * @param time The time.
@@ -161,7 +184,7 @@ public class MarketBundle {
    * Gets the set of Ibor indexes defined in the market.
    * @return The set of index.
    */
-  public Set<IndexDeposit> getIborIndexes() {
+  public Set<IndexDeposit> getIndexesDeposit() {
     return _forwardCurves.keySet();
   }
 

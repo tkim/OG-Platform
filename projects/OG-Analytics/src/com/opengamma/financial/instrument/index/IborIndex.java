@@ -55,6 +55,17 @@ public class IborIndex extends IndexDeposit {
     _endOfMonth = endOfMonth;
   }
 
+  public IborIndex(Currency currency, Period tenor, int spotLag, Calendar calendar, DayCount dayCount, BusinessDayConvention businessDayConvention, boolean endOfMonth, String name) {
+    super(name, currency, calendar); // currency.toString() + tenor.toString()
+    Validate.notNull(tenor, "tenor");
+    _tenor = tenor;
+    Validate.notNull(calendar, "calendar");
+    Validate.notNull(dayCount, "day count");
+    Validate.notNull(businessDayConvention, "business day convention");
+    _convention = new Convention(spotLag, dayCount, businessDayConvention, calendar, "Ibor conventions");
+    _endOfMonth = endOfMonth;
+  }
+
   /**
    * Gets the tenor field.
    * @return the tenor

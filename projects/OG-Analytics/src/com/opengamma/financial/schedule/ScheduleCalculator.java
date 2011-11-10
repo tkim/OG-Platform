@@ -349,7 +349,10 @@ public final class ScheduleCalculator {
     if (!stubShort && adjustedDates.size() >= 1) {
       adjustedDates.remove(adjustedDates.size() - 1);
     }
-    adjustedDates.add(actualBDC.adjustDate(calendar, endDate)); // the end date
+    ZonedDateTime endDateAjusted = actualBDC.adjustDate(calendar, endDate);
+    if ((adjustedDates.isEmpty()) || (endDateAjusted.isAfter(adjustedDates.get(adjustedDates.size() - 1)))) {
+      adjustedDates.add(endDateAjusted); // the end date
+    }
     return adjustedDates.toArray(EMPTY_ARRAY);
   }
 

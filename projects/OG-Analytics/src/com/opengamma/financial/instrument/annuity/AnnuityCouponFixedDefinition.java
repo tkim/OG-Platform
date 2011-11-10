@@ -102,6 +102,8 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     final double sign = isPayer ? -1.0 : 1.0;
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, frequency);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
+    //        final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(),
+    //            index.isEndOfMonth(), true); // Review 9-Nov - MH
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date
     coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional, fixedRate);
