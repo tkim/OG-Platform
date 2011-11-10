@@ -6,8 +6,9 @@
 package com.opengamma.financial.interestrate.market.curvebuilding;
 
 import com.opengamma.financial.instrument.index.IndexDeposit;
+import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.interestrate.market.MarketBundle;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -25,24 +26,37 @@ public class MarketBundleBuildingFunction {
    * @return The market.
    */
   public static MarketBundle build(final MarketFinderDataBundle data, final DoubleMatrix1D x) {
-    YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[data.getNbYieldCurve()];
+    MarketBundle market = MarketBundle.from(data.getKnownMarket());
+    // Yield curves
+    YieldCurve[] curvesYield = new YieldCurve[data.getNbYieldCurve()];
     int p = 0;
     for (int loopcurve = 0; loopcurve < data.getNbYieldCurve(); loopcurve++) {
       int l = data.getNodePointsYieldCurve()[loopcurve].length;
       double[] y = new double[l];
       System.arraycopy(x.getData(), p, y, 0, l);
       p += l;
-      InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(data.getNodePointsYieldCurve()[loopcurve], y, data.getInterpolatorsYieldCurve()[loopcurve], true);
-      curves[loopcurve] = new YieldCurve(curve);
+      InterpolatedDoublesCurve curveTmp = new InterpolatedDoublesCurve(data.getNodePointsYieldCurve()[loopcurve], y, data.getInterpolatorsYieldCurve()[loopcurve], true);
+      curvesYield[loopcurve] = new YieldCurve(curveTmp);
     }
-    MarketBundle market = MarketBundle.from(data.getKnownMarket());
     for (Currency cur : data.getDiscountingReferences().keySet()) {
-      market.setCurve(cur, curves[data.getDiscountingReferences().get(cur)]);
+      market.setCurve(cur, curvesYield[data.getDiscountingReferences().get(cur)]);
     }
     for (IndexDeposit index : data.getForwardReferences().keySet()) {
-      market.setCurve(index, curves[data.getForwardReferences().get(index)]);
+      market.setCurve(index, curvesYield[data.getForwardReferences().get(index)]);
+    }
+    // Price index curves
+    PriceIndexCurve[] curvesPrice = new PriceIndexCurve[data.getNbPriceCurve()];
+    for (int loopcurve = 0; loopcurve < data.getNbPriceCurve(); loopcurve++) {
+      int l = data.getNodePointsPriceCurve()[loopcurve].length;
+      double[] y = new double[l];
+      System.arraycopy(x.getData(), p, y, 0, l);
+      p += l;
+      InterpolatedDoublesCurve curveTmp = new InterpolatedDoublesCurve(data.getNodePointsPriceCurve()[loopcurve], y, data.getInterpolatorsPriceCurve()[loopcurve], true);
+      curvesPrice[loopcurve] = new PriceIndexCurve(curveTmp);
+    }
+    for (PriceIndex index : data.getPriceIndexReferences().keySet()) {
+      market.setCurve(index, curvesPrice[data.getPriceIndexReferences().get(index)]);
     }
     return market;
   }
-
 }

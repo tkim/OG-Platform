@@ -179,6 +179,12 @@ public class CurveBuildingInstrumentsDataSets {
     }
   }
 
+  // ===== SWAP INFLATION ZERO-COUPON EUR
+  private static final int[] INFLZC_EUR_TENOR_YEAR = new int[] {1, 2, 3, 4, 5};
+  private static final double[] INFLZC_EUR_RATE = new double[] {0.0201, 0.0202, 0.0203, 0.0204, 0.0205};
+  private static final int INFLZC_EUR_NB = INFLZC_EUR_TENOR_YEAR.length;
+  //  private static final 
+
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_2 = new String[] {NOT_USED, NOT_USED};
 

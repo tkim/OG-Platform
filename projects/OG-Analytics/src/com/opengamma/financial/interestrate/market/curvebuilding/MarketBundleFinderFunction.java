@@ -40,7 +40,7 @@ public class MarketBundleFinderFunction extends Function1D<DoubleMatrix1D, Doubl
     MarketBundle market = MarketBundleBuildingFunction.build(_data, x);
     final double[] residual = new double[_data.getNbInstruments()];
     for (int loopins = 0; loopins < _data.getNbInstruments(); loopins++) {
-      residual[loopins] = _calculator.visit(_data.getInstruments()[loopins], market).getAmount();
+      residual[loopins] = _calculator.visit(_data.getInstruments()[loopins], market).getAmount() - _data.getMarketValue()[loopins];
     }
     return new DoubleMatrix1D(residual);
   }

@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.interestrate.market.curvebuilding;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.financial.instrument.index.IndexDeposit;
+import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -37,6 +39,10 @@ public class MarketFinderDataBundle {
    */
   private final Map<IndexDeposit, Integer> _forwardReferences;
   /**
+   * The links between the price indexes and the order of the price curves to be constructed.
+   */
+  private final Map<PriceIndex, Integer> _priceIndexReferences;
+  /**
    * The points on which each interpolated yield curve is constructed.
    */
   private final double[][] _nodePointsYieldCurve;
@@ -45,9 +51,21 @@ public class MarketFinderDataBundle {
    */
   private final Interpolator1D[] _interpolatorsYieldCurve;
   /**
+   * The points on which each interpolated price curve is constructed.
+   */
+  private final double[][] _nodePointsPriceCurve;
+  /**
+   * The interpolators for each price curve to be constructed.
+   */
+  private final Interpolator1D[] _interpolatorsPriceCurve;
+  /**
    * The number of yield curves to be constructed.
    */
   private final int _nbYieldCurve;
+  /**
+   * The number of price curves to be constructed.
+   */
+  private final int _nbPriceCurve;
   /**
    * The number of currencies for which the discounting curves are constructed.
    */
@@ -86,11 +104,15 @@ public class MarketFinderDataBundle {
     _forwardReferences = forwardReferences;
     _nodePointsYieldCurve = nodePointsYieldCurve;
     _interpolatorsYieldCurve = interpolatorsYieldCurve;
+    _nodePointsPriceCurve = new double[0][0];
+    _interpolatorsPriceCurve = new Interpolator1D[0];
     _nbYieldCurve = nodePointsYieldCurve.length;
+    _nbPriceCurve = 0;
     _nbCurrencies = discountingReferences.size();
     _nbIndexDeposit = forwardReferences.size();
     _nbInstruments = _instruments.length;
     _knownMarket = new MarketBundle();
+    _priceIndexReferences = new HashMap<PriceIndex, Integer>();
   }
 
   public MarketFinderDataBundle(MarketBundle knownMarket, InterestRateDerivative[] instruments, double[] marketValue, Map<Currency, Integer> discountingReferences,
@@ -102,11 +124,36 @@ public class MarketFinderDataBundle {
     _forwardReferences = forwardReferences;
     _nodePointsYieldCurve = nodePointsYieldCurve;
     _interpolatorsYieldCurve = interpolatorsYieldCurve;
+    _nodePointsPriceCurve = new double[0][0];
+    _interpolatorsPriceCurve = new Interpolator1D[0];
     _nbYieldCurve = nodePointsYieldCurve.length;
+    _nbPriceCurve = 0;
     _nbCurrencies = discountingReferences.size();
     _nbIndexDeposit = forwardReferences.size();
     _nbInstruments = _instruments.length;
     _knownMarket = knownMarket;
+    _priceIndexReferences = new HashMap<PriceIndex, Integer>();
+  }
+
+  public MarketFinderDataBundle(MarketBundle knownMarket, InterestRateDerivative[] instruments, double[] marketValue, Map<Currency, Integer> discountingReferences,
+      Map<IndexDeposit, Integer> forwardReferences, Map<PriceIndex, Integer> priceIndexReferences, double[][] nodePointsYieldCurve, Interpolator1D[] interpolatorsYieldCurve,
+      double[][] nodePointsPriceCurve, Interpolator1D[] interpolatorsPriceCurve) {
+    // TODO: validate the input (length, references, ...)
+    _instruments = instruments;
+    _marketValue = marketValue;
+    _discountingReferences = discountingReferences;
+    _forwardReferences = forwardReferences;
+    _nodePointsYieldCurve = nodePointsYieldCurve;
+    _interpolatorsYieldCurve = interpolatorsYieldCurve;
+    _nodePointsPriceCurve = nodePointsPriceCurve;
+    _interpolatorsPriceCurve = interpolatorsPriceCurve;
+    _nbYieldCurve = nodePointsYieldCurve.length;
+    _nbPriceCurve = nodePointsPriceCurve.length;
+    _nbCurrencies = discountingReferences.size();
+    _nbIndexDeposit = forwardReferences.size();
+    _nbInstruments = _instruments.length;
+    _knownMarket = knownMarket;
+    _priceIndexReferences = priceIndexReferences;
   }
 
   /**
@@ -142,6 +189,14 @@ public class MarketFinderDataBundle {
   }
 
   /**
+   * Gets the links between the price indexes and the order of the price curves to be constructed.
+   * @return The price curves links.
+   */
+  public Map<PriceIndex, Integer> getPriceIndexReferences() {
+    return _priceIndexReferences;
+  }
+
+  /**
    * Gets the points on which each interpolated yield curve is constructed.
    * @return The yield curve points.
    */
@@ -158,11 +213,35 @@ public class MarketFinderDataBundle {
   }
 
   /**
+   * Gets the points on which each interpolated price curve is constructed.
+   * @return The yield curve points.
+   */
+  public double[][] getNodePointsPriceCurve() {
+    return _nodePointsPriceCurve;
+  }
+
+  /**
+   * Gets the interpolators for each price curve to be constructed.
+   * @return The interpolators.
+   */
+  public Interpolator1D[] getInterpolatorsPriceCurve() {
+    return _interpolatorsPriceCurve;
+  }
+
+  /**
    * Gets the number of yield curves to be constructed.
    * @return The number of yield curves.
    */
   public int getNbYieldCurve() {
     return _nbYieldCurve;
+  }
+
+  /**
+   * Gets the number of price curves to be constructed.
+   * @return The number of price curves.
+   */
+  public int getNbPriceCurve() {
+    return _nbPriceCurve;
   }
 
   /**
