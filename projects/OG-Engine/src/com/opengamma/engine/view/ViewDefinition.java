@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -21,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.livedata.UserPrincipal;
@@ -43,7 +43,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   private UniqueId _uniqueIdentifier;
   private final String _name;
-  private final ObjectId _portfolioOid;
+  private final UniqueId _portfolioId;
   private final UserPrincipal _marketDataUser;
 
   private final ResultModelDefinition _resultModelDefinition;
@@ -68,13 +68,12 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Constructs an instance, including a reference portfolio.
    * 
    * @param name  the name of the view definition
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if no
-   *                           portfolio reference is required
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
    * @param userName  the name of the user who owns the view definition
    */
-
-  public ViewDefinition(String name, ObjectId portfolioOid, String userName) {
-    this(null, name, portfolioOid, userName);
+  public ViewDefinition(String name, UniqueId portfolioId, String userName) {
+    this(null, name, portfolioId, userName);
   }
 
   /**
@@ -83,7 +82,6 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * @param name  the name of the view definition
    * @param userName  the name of the user who owns the view definition
    */
-
   public ViewDefinition(String name, String userName) {
     this(null, name, userName);
   }
@@ -94,7 +92,6 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * @param name  the name of the view definition
    * @param marketDataUser  the user who owns the view definition
    */
-
   public ViewDefinition(String name, UserPrincipal marketDataUser) {
     this(null, name, marketDataUser);
   }
@@ -106,7 +103,6 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * @param marketDataUser  the user who owns the view definition
    * @param resultModelDefinition  configuration of the results from the view
    */
-
   public ViewDefinition(String name, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
     this(null, name, marketDataUser, resultModelDefinition);
   }
@@ -115,41 +111,40 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Constructs an instance
    * 
    * @param name  the name of the view definition
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if no
-   *                           portfolio reference is required
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
    * @param marketDataUser  the user who owns the view definition
    */
 
-  public ViewDefinition(String name, ObjectId portfolioOid, UserPrincipal marketDataUser) {
-    this(null, name, portfolioOid, marketDataUser);
+  public ViewDefinition(String name, UniqueId portfolioId, UserPrincipal marketDataUser) {
+    this(null, name, portfolioId, marketDataUser);
   }
 
   /**
    * Constructs an instance
    * 
-   * @param name  the name of the view definition, cannot be null
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if
-   *                           no portfolio reference is required
-   * @param marketDataUser  the user who owns the view definition, cannot be null
-   * @param resultModelDefinition  configuration of the results from the view, cannot be null
+   * @param name  the name of the view definition, not null
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
+   * @param marketDataUser  the user who owns the view definition, not null
+   * @param resultModelDefinition  configuration of the results from the view, not null
    */
-
-  public ViewDefinition(String name, ObjectId portfolioOid, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
-    this(null, name, portfolioOid, marketDataUser, resultModelDefinition);
+  public ViewDefinition(String name, UniqueId portfolioId, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
+    this(null, name, portfolioId, marketDataUser, resultModelDefinition);
   }
 
-  // --------------------------------------------------------------------------
+  //------------------------------------------------------------------------
   /**
    * Constructs an instance, including a reference portfolio.
    * 
    * @param uniqueId  the unique id of the view definition
    * @param name  the name of the view definition
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if no
-   *                           portfolio reference is required
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
    * @param userName  the name of the user who owns the view definition
    */
-  public ViewDefinition(UniqueId uniqueId, String name, ObjectId portfolioOid, String userName) {
-    this(uniqueId, name, portfolioOid, UserPrincipal.getLocalUser(userName), new ResultModelDefinition());
+  public ViewDefinition(UniqueId uniqueId, String name, UniqueId portfolioId, String userName) {
+    this(uniqueId, name, portfolioId, UserPrincipal.getLocalUser(userName), new ResultModelDefinition());
   }
 
   /**
@@ -191,38 +186,62 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * 
    * @param uniqueId  the unique id of the view definition
    * @param name  the name of the view definition
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if no
-   *                           portfolio reference is required
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
    * @param marketDataUser  the user who owns the view definition
    */
-  public ViewDefinition(UniqueId uniqueId, String name, ObjectId portfolioOid, UserPrincipal marketDataUser) {
-    this(uniqueId, name, portfolioOid, marketDataUser, new ResultModelDefinition());
+  public ViewDefinition(UniqueId uniqueId, String name, UniqueId portfolioId, UserPrincipal marketDataUser) {
+    this(uniqueId, name, portfolioId, marketDataUser, new ResultModelDefinition());
   }
 
   /**
    * Constructs an instance
    * 
    * @param uniqueId  the unique id of the view definition
-   * @param name  the name of the view definition, cannot be null
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if
-   *                           no portfolio reference is required
-   * @param marketDataUser  the user who owns the view definition, cannot be null
-   * @param resultModelDefinition  configuration of the results from the view, cannot be null
+   * @param name  the name of the view definition, not null
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
+   * @param marketDataUser  the user who owns the view definition, not null
+   * @param resultModelDefinition  configuration of the results from the view, not null
    */
-  public ViewDefinition(UniqueId uniqueId, String name, ObjectId portfolioOid, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
+  public ViewDefinition(UniqueId uniqueId, String name, UniqueId portfolioId, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
     ArgumentChecker.notNull(name, "View name");
     ArgumentChecker.notNull(marketDataUser, "User name");
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
 
     _name = name;
-    _portfolioOid = portfolioOid;
+    _portfolioId = portfolioId;
     _marketDataUser = marketDataUser;
     _resultModelDefinition = resultModelDefinition;
 
     _uniqueIdentifier = uniqueId;
   }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Performs a deep copy of the given view definition, with the opportunity to change its immutable fields.
+   * 
+   * @param name  the name of the new view definition, not null
+   * @param portfolioId  the unique identifier of the portfolio referenced by the new view definition, null if no
+   *                     portfolio reference is required
+   * @param marketDataUser  the user who owns the new view definition, not null
+   * @return a copy of the base view definition with its immutable fields set to the new values, not null
+   */
+  public ViewDefinition copyWith(String name, UniqueId portfolioId, UserPrincipal marketDataUser) {
+    ViewDefinition result = new ViewDefinition(name, portfolioId, marketDataUser);
+    result.setDefaultCurrency(getDefaultCurrency());
+    result.setDumpComputationCacheToDisk(isDumpComputationCacheToDisk());
+    result.setMinDeltaCalculationPeriod(getMinDeltaCalculationPeriod());
+    result.setMaxDeltaCalculationPeriod(getMaxDeltaCalculationPeriod());
+    result.setMinFullCalculationPeriod(getMinFullCalculationPeriod());
+    result.setMaxFullCalculationPeriod(getMaxFullCalculationPeriod());
+    for (ViewCalculationConfiguration baseCalcConfig : getAllCalculationConfigurations()) {
+      baseCalcConfig.copyTo(result);
+    }
+    return result;
+  }
 
-  // --------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets a set containing every portfolio output that is required, across all calculation configurations, regardless
    * of the security type(s) on which the output is required. These are outputs produced at the position and aggregate
@@ -248,14 +267,14 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   }
 
   /**
-   * Gets the object identifier of the portfolio referenced by this view definition. This is the portfolio on which
+   * Gets the unique identifier of the portfolio referenced by this view definition. This is the portfolio on which
    * position-level calculations should be performed. 
    * 
-   * @return  the object identifier of the portfolio referenced by this view definition, null if no portfolio is
+   * @return  the unique identifier of the portfolio referenced by this view definition, null if no portfolio is
    *          referenced
    */
-  public ObjectId getPortfolioOid() {
-    return _portfolioOid;
+  public UniqueId getPortfolioId() {
+    return _portfolioId;
   }
 
   /**
@@ -366,7 +385,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     addPortfolioRequirement(calculationConfigurationName, securityType, requirementName, ValueProperties.none());
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the minimum period, in milliseconds, which must have elapsed since the start of the last delta calculation
    * before another cycle may be triggered. Delta calculations involve only those nodes in the dependency graph whose
@@ -470,7 +489,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     _maxFullCalculationPeriod = maxFullCalculationPeriod;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Returns the result model definition, describing how the results should be constructed and returned after execution
    * of the view.
@@ -510,7 +529,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     final int prime = 31;
     int result = 1;
     result = prime * result + ObjectUtils.hashCode(getName());
-    result = prime * result + ObjectUtils.hashCode(getPortfolioOid());
+    result = prime * result + ObjectUtils.hashCode(getPortfolioId());
     result = prime * result + ObjectUtils.hashCode(getMarketDataUser());
     return result;
   }
@@ -526,7 +545,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     }
 
     ViewDefinition other = (ViewDefinition) obj;
-    boolean basicPropertiesEqual = ObjectUtils.equals(getName(), other.getName()) && ObjectUtils.equals(getPortfolioOid(), other.getPortfolioOid())
+    boolean basicPropertiesEqual = ObjectUtils.equals(getName(), other.getName()) && ObjectUtils.equals(getPortfolioId(), other.getPortfolioId())
         && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition()) && ObjectUtils.equals(getMarketDataUser(), other.getMarketDataUser())
         && ObjectUtils.equals(_minDeltaCalculationPeriod, other._minDeltaCalculationPeriod) && ObjectUtils.equals(_maxDeltaCalculationPeriod, other._maxDeltaCalculationPeriod)
         && ObjectUtils.equals(_minFullCalculationPeriod, other._minFullCalculationPeriod) && ObjectUtils.equals(_maxFullCalculationPeriod, other._maxFullCalculationPeriod)

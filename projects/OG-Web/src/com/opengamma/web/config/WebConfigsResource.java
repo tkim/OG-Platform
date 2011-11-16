@@ -28,6 +28,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.google.common.collect.BiMap;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
@@ -51,7 +52,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 @Path("/configs")
 public class WebConfigsResource extends AbstractWebConfigResource {
-
+  
   /**
    * Creates the resource.
    * @param configMaster  the config master, not null
@@ -281,6 +282,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     searchRequest.setType(Object.class);
     out.put("searchRequest", searchRequest);
     out.put("typeMap", data().getTypeMap());
+    out.put("curveSpecs", CurveSpecificationBuilderConfiguration.s_curveSpecNames);
     return out;
   }
 

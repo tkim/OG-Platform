@@ -5,21 +5,25 @@
  */
 package com.opengamma.engine.view.calc;
 
+import static com.opengamma.util.functional.Functional.flatMap;
+import static com.opengamma.util.functional.Functional.submapByKeySet;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.AbstractQueue;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -28,12 +32,7 @@ import java.util.concurrent.TimeoutException;
 import javax.time.Duration;
 import javax.time.Instant;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
-import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
-import com.opengamma.engine.view.listener.ComputationCycleResultListener;
-import com.opengamma.util.TerminatableJob;
-import com.opengamma.util.functional.Function1;
+import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,22 +50,24 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
+import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.ComputationCycleResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.TerminatableJob;
+import com.opengamma.util.functional.Function1;
 import com.opengamma.util.tuple.Pair;
-
-import static com.opengamma.util.functional.Functional.flatMap;
-import static com.opengamma.util.functional.Functional.map;
-import static com.opengamma.util.functional.Functional.submapByKeySet;
 
 /**
  * Holds all data and actions for a single computation pass. The view cycle may be executed at most once.
@@ -83,6 +84,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final ViewProcessContext _viewProcessContext;
   private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
+  private final VersionCorrection _versionCorrection;
   
   private final ComputationCycleResultListener _computationCycleResultListener;
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
@@ -101,7 +103,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(UniqueId cycleId, UniqueId viewProcessId, ComputationCycleResultListener computationCycleResultListener,
-
       ViewProcessContext viewProcessContext, CompiledViewDefinitionWithGraphsImpl compiledViewDefinition,
       ViewCycleExecutionOptions executionOptions, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(cycleId, "cycleId");
@@ -120,24 +121,30 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _computationCycleResultListener = computationCycleResultListener;
 
     _executionOptions = executionOptions;
+    _versionCorrection = versionCorrection;
 
-    _resultModel = new InMemoryViewComputationResultModel();
-    _resultModel.setCalculationConfigurationNames(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
-    if (getCompiledViewDefinition().getPortfolio() != null) {
-      _resultModel.setPortfolio(getCompiledViewDefinition().getPortfolio());
-    }
-    _resultModel.setViewCycleId(cycleId);
-    _resultModel.setViewProcessId(getViewProcessId());
-    _resultModel.setValuationTime(executionOptions.getValuationTime());
-    _resultModel.setVersionCorrection(versionCorrection);
+    _resultModel = constructTemplateResultModel();
 
     _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
   }
 
+  private InMemoryViewComputationResultModel constructTemplateResultModel() {
+    InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
+    result.setCalculationConfigurationNames(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
+    if (getCompiledViewDefinition().getPortfolio() != null) {
+      result.setPortfolio(getCompiledViewDefinition().getPortfolio());
+    }
+    result.setViewCycleId(getCycleId());
+    result.setViewProcessId(getViewProcessId());
+    result.setValuationTime(getExecutionOptions().getValuationTime());
+    result.setVersionCorrection(getVersionCorrection());
+    return result;
+  }
+
   //-------------------------------------------------------------------------
   public Instant getValuationTime() {
-    return _executionOptions.getValuationTime();
+    return getExecutionOptions().getValuationTime();
   }
 
   public long getFunctionInitId() {
@@ -187,6 +194,19 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   public Set<String> getAllCalculationConfigurationNames() {
     return new HashSet<String>(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
+  }
+  
+  //-------------------------------------------------------------------------
+  private UniqueId getCycleId() {
+    return _cycleId;
+  }
+  
+  private VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
+  }
+  
+  private ViewCycleExecutionOptions getExecutionOptions() {
+    return _executionOptions;
   }
 
   //-------------------------------------------------------------------------
@@ -256,7 +276,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    *                               Execution of any outstanding jobs will be cancelled, but {@link #release()}
    *                               still must be called.
    */
-  public void execute(SingleComputationCycle previousCycle, MarketDataSnapshot marketDataSnapshot) throws InterruptedException {
+  public void execute(SingleComputationCycle previousCycle, MarketDataSnapshot marketDataSnapshot, ExecutorService calcJobResultExecutorService) throws InterruptedException {
     if (_state != ViewCycleState.AWAITING_EXECUTION) {
       throw new IllegalStateException("State must be " + ViewCycleState.AWAITING_EXECUTION);
     }
@@ -273,32 +293,40 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     // This job is consuming calculation jobs from the queue, which are enqueued by dependency graph executor
     // the job results are streamed to the ViewProcesor without waitout waiting for the current cycle to complete
     final BlockingQueue<CalculationJobResult> calcJobResultQueue = new LinkedBlockingQueue<CalculationJobResult>();
+    class PoisonedCalculationJobResult extends CalculationJobResult{
+      PoisonedCalculationJobResult() {
+        super(new CalculationJobSpecification(null, null, null, 0), 0, new LinkedList<CalculationJobResultItem>(), "");
+      }
+    }
     class StreamCalculationJobResultConsumer extends TerminatableJob {
-      boolean completeAndExit = false;
       @Override
       protected void runOneCycle() {
         try {
-          if(completeAndExit){
-
-          }
-          CalculationJobResult jobResult = calcJobResultQueue.poll(50, TimeUnit.MILLISECONDS);
-          if(jobResult != null){
+          CalculationJobResult jobResult = calcJobResultQueue.take();
+          if (jobResult instanceof PoisonedCalculationJobResult) {
+            //queue is poisoned
+            super.terminate();
+          } else {
             _computationCycleResultListener.jobResultReceived(populateResultModel(jobResult));
-          }else if(completeAndExit){
-            this.terminate();
           }
         } catch (InterruptedException e) {
-          this.terminate();
+          Thread.currentThread().interrupt();
         }
       }
 
-      public void completeAndExit(){
-        completeAndExit = true;
+      public void terminate() {
+        try {
+          //poison the queue
+          calcJobResultQueue.put(new PoisonedCalculationJobResult());
+        } catch (InterruptedException e) {
+          super.terminate();
+        }
       }
     }
+
     StreamCalculationJobResultConsumer streamCalculationJobResultConsumer =  new StreamCalculationJobResultConsumer();
-    Thread streamCalculationJobResultConsumerThread = new Thread(streamCalculationJobResultConsumer, "Computation job for " + this);
-    streamCalculationJobResultConsumerThread.start();
+    //calcJobResultExecutorService.shutdown();
+    Future calcJobResultInProgress = calcJobResultExecutorService.submit(streamCalculationJobResultConsumer);
     // ~
 
     LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
@@ -339,8 +367,13 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
     _endTime = Instant.now();
 
-    streamCalculationJobResultConsumer.completeAndExit();
-    streamCalculationJobResultConsumerThread.join();
+    streamCalculationJobResultConsumer.terminate();
+    //wait for StreamCalculationJobResultConsumer to finish
+    try {
+      calcJobResultInProgress.get();
+    } catch (ExecutionException e) {
+      Thread.currentThread().interrupt();
+    }
 
     populateResultModel();
     _state = ViewCycleState.EXECUTED;
@@ -533,21 +566,22 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
   
   private ViewComputationResultModel populateResultModel(CalculationJobResult calculationJobResult) {
-    InMemoryViewComputationResultModel resultModel = new InMemoryViewComputationResultModel();
+    InMemoryViewComputationResultModel resultModel = constructTemplateResultModel();
     String calcConfigurationName = calculationJobResult.getSpecification().getCalcConfigName();
     DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
 
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
 
     //extracts set of ValueSpecification out of calculation job result items.
-    Set<ValueSpecification> specifications = flatMap(new HashSet<ValueSpecification>(), calculationJobResult.getResultItems(), new Function1<CalculationJobResultItem, Collection<ValueSpecification>>() {
-      @Override
-      public Set<ValueSpecification> execute(CalculationJobResultItem calculationJobResultItem) {
-        calculationJobResultItem.getItem().getDesiredValues();
-        calculationJobResultItem.getItem().getDesiredValues();
-        return calculationJobResultItem.getOutputs();
-      }
-    });
+    Set<ValueSpecification> specifications = flatMap(new HashSet<ValueSpecification>(),
+        calculationJobResult.getResultItems(), new Function1<CalculationJobResultItem, Collection<ValueSpecification>>() {
+          @Override
+          public Set<ValueSpecification> execute(CalculationJobResultItem calculationJobResultItem) {
+            calculationJobResultItem.getItem().getDesiredValues();
+            calculationJobResultItem.getItem().getDesiredValues();
+            return calculationJobResultItem.getOutputs();
+          }
+        });
     
     for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
       if (value.getValue() == null) {
@@ -581,7 +615,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   /**
    * @param calcConfName  calculation configuration name
-   * @return a dependency graph with any nodes which have already been satisfied filtered out, not {@code null}
+   * @return a dependency graph with any nodes which have already been satisfied filtered out, not null
    * See {@link #computeDelta} and how it calls {@link #markExecuted}.
    */
   protected DependencyGraph getExecutableDependencyGraph(String calcConfName) {
