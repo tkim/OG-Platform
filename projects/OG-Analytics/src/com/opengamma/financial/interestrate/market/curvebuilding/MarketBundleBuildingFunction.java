@@ -35,7 +35,8 @@ public class MarketBundleBuildingFunction {
       double[] y = new double[l];
       System.arraycopy(x.getData(), p, y, 0, l);
       p += l;
-      InterpolatedDoublesCurve curveTmp = new InterpolatedDoublesCurve(data.getNodePointsYieldCurve()[loopcurve], y, data.getInterpolatorsYieldCurve()[loopcurve], true);
+      InterpolatedDoublesCurve curveTmp = new InterpolatedDoublesCurve(data.getNodePointsYieldCurve()[loopcurve], y, data.getInterpolatorsYieldCurve()[loopcurve], true,
+          data.getYieldCurveName()[loopcurve]);
       curvesYield[loopcurve] = new YieldCurve(curveTmp);
     }
     for (Currency cur : data.getDiscountingReferences().keySet()) {
@@ -48,10 +49,13 @@ public class MarketBundleBuildingFunction {
     PriceIndexCurve[] curvesPrice = new PriceIndexCurve[data.getNbPriceCurve()];
     for (int loopcurve = 0; loopcurve < data.getNbPriceCurve(); loopcurve++) {
       int l = data.getNodePointsPriceCurve()[loopcurve].length;
+      int lk = data.getKnownPointsPriceCurve()[loopcurve].length;
       double[] y = new double[l];
-      System.arraycopy(x.getData(), p, y, 0, l);
-      p += l;
-      InterpolatedDoublesCurve curveTmp = new InterpolatedDoublesCurve(data.getNodePointsPriceCurve()[loopcurve], y, data.getInterpolatorsPriceCurve()[loopcurve], true);
+      System.arraycopy(data.getKnownPointsPriceCurve()[loopcurve], 0, y, 0, lk);
+      System.arraycopy(x.getData(), p, y, lk, l - lk);
+      p += l - lk;
+      InterpolatedDoublesCurve curveTmp = new InterpolatedDoublesCurve(data.getNodePointsPriceCurve()[loopcurve], y, data.getInterpolatorsPriceCurve()[loopcurve], true,
+          data.getPriceCurveName()[loopcurve]);
       curvesPrice[loopcurve] = new PriceIndexCurve(curveTmp);
     }
     for (PriceIndex index : data.getPriceIndexReferences().keySet()) {
@@ -59,4 +63,5 @@ public class MarketBundleBuildingFunction {
     }
     return market;
   }
+
 }

@@ -17,8 +17,13 @@ import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
+import com.opengamma.financial.instrument.payment.CouponDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.payments.Coupon;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -32,7 +37,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
    * @param fixedLeg The swap fixed leg.
    * @param inflationLeg The swap inflation leg.
    */
-  public SwapFixedInflationZeroCouponDefinition(final AnnuityCouponFixedDefinition fixedLeg, final AnnuityDefinition<? extends PaymentDefinition> inflationLeg) {
+  public SwapFixedInflationZeroCouponDefinition(final AnnuityCouponFixedDefinition fixedLeg, final AnnuityDefinition<? extends CouponDefinition> inflationLeg) {
     super(fixedLeg, inflationLeg);
   }
 
@@ -74,6 +79,24 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
     CouponInflationZeroCouponInterpolationDefinition inflationCpn = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate, (isPayer ? 1.0 : -1.0) * notional, index,
         priceIndexTimeSeries, monthLag, false);
     return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
+  }
+
+  /**
+   * The fixed leg of the swap.
+   * @return Fixed leg.
+   */
+  public AnnuityCouponFixedDefinition getFixedLeg() {
+    return (AnnuityCouponFixedDefinition) getFirstLeg();
+  }
+
+  @Override
+  public FixedCouponSwap<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
+    Validate.notNull(indexDataTS, "index data time series array");
+    Validate.isTrue(indexDataTS.length > 0, "index data time series must contain at least one element");
+    final GenericAnnuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date, yieldCurveNames);
+    @SuppressWarnings("unchecked")
+    final GenericAnnuity<Coupon> inflLeg = (GenericAnnuity<Coupon>) this.getSecondLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
+    return new FixedCouponSwap<Coupon>(fixedLeg, inflLeg);
   }
 
 }

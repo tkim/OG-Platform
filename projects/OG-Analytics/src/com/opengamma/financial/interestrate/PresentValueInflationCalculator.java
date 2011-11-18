@@ -27,7 +27,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
+ * @deprecated Should be replaced by the PresentValueMarketCalculator.
  */
+@Deprecated
 public class PresentValueInflationCalculator extends AbstractInterestRateDerivativeVisitor<MarketBundle, CurrencyAmount> {
 
   /**
@@ -37,7 +39,7 @@ public class PresentValueInflationCalculator extends AbstractInterestRateDerivat
   /**
    * Pricing method for zero-coupon with interpolated reference index.
    */
-  private static final CouponInflationZeroCouponInterpolationDiscountingMethod METHOD_ZC_INTERPOLATION = new CouponInflationZeroCouponInterpolationDiscountingMethod();
+  private static final CouponInflationZeroCouponInterpolationDiscountingMethod METHOD_ZC_INTERPOLATION = CouponInflationZeroCouponInterpolationDiscountingMethod.getInstance();
   /**
    * Pricing method for zero-coupon with monthly reference index.
    */

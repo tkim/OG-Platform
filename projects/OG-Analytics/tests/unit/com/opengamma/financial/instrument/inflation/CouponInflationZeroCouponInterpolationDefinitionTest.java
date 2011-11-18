@@ -66,7 +66,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   private static final String PRICE_INDEX_CURVE_NAME = "Price index";
   private static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, PRICE_INDEX_CURVE_NAME};
   //  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final DoubleTimeSeries<ZonedDateTime> HICPX_TS = MarketDataSets.euroHICPXFrom2009();
+  private static final DoubleTimeSeries<ZonedDateTime> HICPX_TS = MarketDataSets.eurolandHICPXTFrom2005();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {

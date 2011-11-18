@@ -23,7 +23,25 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Pricing method for inflation zero-coupon. The price is computed by index estimation and discounting.
  */
-public class CouponInflationZeroCouponInterpolationDiscountingMethod implements PricingMarketMethod {
+public final class CouponInflationZeroCouponInterpolationDiscountingMethod implements PricingMarketMethod {
+
+  /*
+   * The unique instance of the method.
+   */
+  private static final CouponInflationZeroCouponInterpolationDiscountingMethod INSTANCE = new CouponInflationZeroCouponInterpolationDiscountingMethod();
+
+  /*
+   * Gets the method unique instance.
+   */
+  public static CouponInflationZeroCouponInterpolationDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * Private constructor.
+   */
+  private CouponInflationZeroCouponInterpolationDiscountingMethod() {
+  }
 
   /**
    * Computes the present value of the zero-coupon coupon with reference index at start of the month.

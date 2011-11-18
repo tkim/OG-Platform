@@ -39,4 +39,22 @@ public abstract class TimeCalculator {
     }
     return -1.0 * ACT_ACT.getDayCountFraction(date2, date1);
   }
+
+  /**
+   * Return the time between a given date and a array of dates.
+   * @param date1 The first date.
+   * @param date2 The date array.
+   * @return The array of time. Each item is computed as the time between the first date and the corresponding date in the date array.
+   */
+  public static double[] getTimeBetween(final ZonedDateTime date1, final ZonedDateTime[] date2) {
+    Validate.notNull(date1, "date1");
+    Validate.notNull(date1, "date2");
+    final int nbDate = date2.length;
+    final double[] result = new double[nbDate];
+    for (int loopdate = 0; loopdate < nbDate; loopdate++) {
+      result[loopdate] = getTimeBetween(date1, date2[loopdate]);
+    }
+    return result;
+  }
+
 }

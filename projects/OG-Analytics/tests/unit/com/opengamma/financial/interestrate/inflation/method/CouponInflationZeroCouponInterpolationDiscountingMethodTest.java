@@ -57,7 +57,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
       PRICE_INDEX_EUR, INDEX_MAY_2008_INT, MONTH_LAG, false);
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
   private static final CouponInflationZeroCouponInterpolation ZERO_COUPON_1 = ZERO_COUPON_1_DEFINITION.toDerivative(PRICING_DATE, "not used");
-  private static final CouponInflationZeroCouponInterpolationDiscountingMethod METHOD = new CouponInflationZeroCouponInterpolationDiscountingMethod();
+  private static final CouponInflationZeroCouponInterpolationDiscountingMethod METHOD = CouponInflationZeroCouponInterpolationDiscountingMethod.getInstance();
   private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();
 
   @Test

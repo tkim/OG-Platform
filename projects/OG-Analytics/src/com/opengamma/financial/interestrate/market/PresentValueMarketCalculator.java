@@ -15,6 +15,14 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.cash.market.CashDiscountingMarketMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.market.ForwardRateAgreementDiscountingMarketMethod;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthlyGearing;
+import com.opengamma.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationDiscountingMethod;
+import com.opengamma.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationGearingDiscountingMethod;
+import com.opengamma.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyDiscountingMethod;
+import com.opengamma.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyGearingDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
@@ -26,7 +34,6 @@ import com.opengamma.financial.interestrate.payments.market.CouponOISDiscounting
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.util.money.CurrencyAmount;
-
 
 /**
  * Calculates the present value of instruments for a given MarketBundle (set of yield and price curves).
@@ -60,6 +67,10 @@ public final class PresentValueMarketCalculator extends AbstractInterestRateDeri
   private static final CouponIborDiscountingMarketMethod METHOD_IBOR = CouponIborDiscountingMarketMethod.getInstance();
   private static final CouponFixedDiscountingMarketMethod METHOD_FIXED = CouponFixedDiscountingMarketMethod.getInstance();
   private static final CouponOISDiscountingMarketMethod METHOD_OIS = CouponOISDiscountingMarketMethod.getInstance();
+  private static final CouponInflationZeroCouponMonthlyDiscountingMethod METHOD_ZC_MONTHLY = new CouponInflationZeroCouponMonthlyDiscountingMethod();
+  private static final CouponInflationZeroCouponInterpolationDiscountingMethod METHOD_ZC_INTERPOLATION = CouponInflationZeroCouponInterpolationDiscountingMethod.getInstance();
+  private static final CouponInflationZeroCouponMonthlyGearingDiscountingMethod METHOD_ZC_MONTHLY_GEARING = new CouponInflationZeroCouponMonthlyGearingDiscountingMethod();
+  private static final CouponInflationZeroCouponInterpolationGearingDiscountingMethod METHOD_ZC_INTERPOLATION_GEARING = new CouponInflationZeroCouponInterpolationGearingDiscountingMethod();
 
   @Override
   public CurrencyAmount visit(final InterestRateDerivative derivative, final MarketBundle market) {
@@ -124,6 +135,26 @@ public final class PresentValueMarketCalculator extends AbstractInterestRateDeri
   @Override
   public CurrencyAmount visitFixedCouponSwap(final FixedCouponSwap<?> swap, final MarketBundle market) {
     return visitSwap(swap, market);
+  }
+
+  @Override
+  public CurrencyAmount visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final MarketBundle market) {
+    return METHOD_ZC_MONTHLY.presentValue(coupon, market);
+  }
+
+  @Override
+  public CurrencyAmount visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final MarketBundle market) {
+    return METHOD_ZC_INTERPOLATION.presentValue(coupon, market);
+  }
+
+  @Override
+  public CurrencyAmount visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final MarketBundle market) {
+    return METHOD_ZC_MONTHLY_GEARING.presentValue(coupon, market);
+  }
+
+  @Override
+  public CurrencyAmount visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final MarketBundle market) {
+    return METHOD_ZC_INTERPOLATION_GEARING.presentValue(coupon, market);
   }
 
 }

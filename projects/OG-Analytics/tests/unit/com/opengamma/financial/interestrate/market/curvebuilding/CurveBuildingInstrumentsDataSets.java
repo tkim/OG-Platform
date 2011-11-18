@@ -19,23 +19,29 @@ import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexOIS;
+import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.instrument.index.SwapGenerator;
 import com.opengamma.financial.instrument.index.iborindex.Eonia;
 import com.opengamma.financial.instrument.index.iborindex.Euribor3M;
 import com.opengamma.financial.instrument.index.iborindex.Euribor6M;
+import com.opengamma.financial.instrument.index.priceindex.EurolandHicpXT;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
+import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * To create different instrument sets for curve construction testing.
@@ -46,13 +52,14 @@ public class CurveBuildingInstrumentsDataSets {
   private static final IborIndex EURIBOR_3M = new Euribor3M(CALENDAR_EUR);
   private static final IborIndex EURIBOR_6M = new Euribor6M(CALENDAR_EUR);
   private static final IndexOIS EONIA = new Eonia(CALENDAR_EUR);
+  private static final PriceIndex EUR_HICPXT = new EurolandHicpXT();
   private static final Currency EUR = EURIBOR_3M.getCurrency();
   private static final int SETTLEMENT_DAYS_EUR = EURIBOR_3M.getSettlementDays();
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 11, 9);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS_EUR);
 
-  private static final double NOTIONAL_DEFAULT = 1.0;
+  private static final double NOTIONAL_DEFAULT = 1000000.0;
 
   // ===== DEPOSIT
   private static final Period[] DEPOSIT_TENOR = new Period[] {Period.ofDays(1), Period.ofDays(1)};
@@ -180,11 +187,18 @@ public class CurveBuildingInstrumentsDataSets {
   }
 
   // ===== SWAP INFLATION ZERO-COUPON EUR
-  private static final int[] INFLZC_EUR_TENOR_YEAR = new int[] {1, 2, 3, 4, 5};
-  private static final double[] INFLZC_EUR_RATE = new double[] {0.0201, 0.0202, 0.0203, 0.0204, 0.0205};
+  private static final int[] INFLZC_EUR_TENOR_YEAR = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20};
+  private static final double[] INFLZC_EUR_RATE = new double[] {0.0201, 0.0202, 0.0203, 0.0204, 0.0205, 0.0206, 0.0207, 0.0208, 0.0209, 0.0210, 0.0211, 0.0212};
   private static final int INFLZC_EUR_NB = INFLZC_EUR_TENOR_YEAR.length;
-  //  private static final 
-
+  private static final SwapFixedInflationZeroCouponDefinition[] INFLZC_EUR_DEFINITION = new SwapFixedInflationZeroCouponDefinition[INFLZC_EUR_NB];
+  private static final int EUR_MONTH_LAG = 3;
+  private static final ArrayZonedDateTimeDoubleTimeSeries EUR_HICPXT_TS = MarketDataSets.eurolandHICPXTFrom2005();
+  static {
+    for (int loopzc = 0; loopzc < INFLZC_EUR_NB; loopzc++) {
+      INFLZC_EUR_DEFINITION[loopzc] = SwapFixedInflationZeroCouponDefinition.fromInterpolation(EUR_HICPXT, SPOT_DATE, INFLZC_EUR_TENOR_YEAR[loopzc], INFLZC_EUR_RATE[loopzc], NOTIONAL_DEFAULT, true,
+          EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth(), EUR_MONTH_LAG, EUR_HICPXT_TS);
+    }
+  }
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_2 = new String[] {NOT_USED, NOT_USED};
 
@@ -194,6 +208,7 @@ public class CurveBuildingInstrumentsDataSets {
   private static final InterestRateDerivative[] SWAP_EUR6 = new InterestRateDerivative[SWAP_FAKE_EUR6_NB + SWAP_EUR6_NB];
   private static final ForwardRateAgreement[] FRA_EUR3 = new ForwardRateAgreement[FRA_EUR3_NB];
   private static final ForwardRateAgreement[] FRA_EUR6 = new ForwardRateAgreement[FRA_EUR6_NB];
+  private static final InterestRateDerivative[] INFLZC_EUR = new InterestRateDerivative[INFLZC_EUR_NB];
   static {
     for (int loopdepo = 0; loopdepo < DEPOSIT_NB; loopdepo++) {
       DEPOSIT[loopdepo] = DEPOSIT_DEFINITION[loopdepo].toDerivative(REFERENCE_DATE, NOT_USED);
@@ -213,6 +228,13 @@ public class CurveBuildingInstrumentsDataSets {
     for (int loopfra = 0; loopfra < FRA_EUR6_NB; loopfra++) {
       FRA_EUR6[loopfra] = (ForwardRateAgreement) FRA_EUR6_DEFINITION[loopfra].toDerivative(REFERENCE_DATE, NOT_USED_2);
     }
+    for (int loopzc = 0; loopzc < INFLZC_EUR_NB; loopzc++) {
+      INFLZC_EUR[loopzc] = INFLZC_EUR_DEFINITION[loopzc].toDerivative(REFERENCE_DATE, new ArrayZonedDateTimeDoubleTimeSeries[] {EUR_HICPXT_TS}, NOT_USED_2);
+    }
+  }
+
+  public static ZonedDateTime referenceDate() {
+    return REFERENCE_DATE;
   }
 
   /**
@@ -347,6 +369,28 @@ public class CurveBuildingInstrumentsDataSets {
     System.arraycopy(FRA_EUR3_RATE, 0, rate, nbShort, nbFra);
     System.arraycopy(SWAP_EUR3_RATE, indexStartSwap, rate, nbShort + nbFra, SWAP_EUR3_NB - indexStartSwap);
     return rate;
+  }
+
+  public static InterestRateDerivative[] instrumentsInflation() {
+    return INFLZC_EUR;
+  }
+
+  /**
+   * Return the last times related to the inflation curve used in pricing (reference end time, component 1).
+   * @return The times.
+   */
+  public static double[] timeInflation() {
+    double[] times = new double[INFLZC_EUR_NB];
+    for (int loopzc = 0; loopzc < INFLZC_EUR_NB; loopzc++) {
+      @SuppressWarnings("unchecked")
+      GenericAnnuity<Coupon> leg = ((Swap<Coupon, Coupon>) INFLZC_EUR[loopzc]).getSecondLeg();
+      times[loopzc] = ((CouponInflationZeroCouponInterpolation) (leg.getNthPayment(leg.getNumberOfPayments() - 1))).getReferenceEndTime()[1];
+    }
+    return times;
+  }
+
+  public static double[] marketRateInflation() {
+    return INFLZC_EUR_RATE;
   }
 
 }
