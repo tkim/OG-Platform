@@ -52,7 +52,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   private static final ZonedDateTime ACCRUAL_END_DATE = PAYMENT_DATE.minusDays(1); // For getter test
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
-  private static final double INDEX_MAY_2008 = 108.45483870967742; // May index: 108.23 - June Index = 108.64
+  private static final double INDEX_MAY_2008 = 108.37032258064517; // 18-May-2008
   private static final ZonedDateTime REFERENCE_START_DATE = DateUtils.getUTCDate(2008, 5, 18);
   private static final ZonedDateTime[] REFERENCE_END_DATE = new ZonedDateTime[2];
   static {
