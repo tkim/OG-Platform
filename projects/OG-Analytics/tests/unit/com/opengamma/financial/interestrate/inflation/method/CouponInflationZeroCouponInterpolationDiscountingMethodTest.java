@@ -21,11 +21,11 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
-import com.opengamma.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
+import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
 import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
@@ -58,7 +58,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
   private static final CouponInflationZeroCouponInterpolation ZERO_COUPON_1 = ZERO_COUPON_1_DEFINITION.toDerivative(PRICING_DATE, "not used");
   private static final CouponInflationZeroCouponInterpolationDiscountingMethod METHOD = CouponInflationZeroCouponInterpolationDiscountingMethod.getInstance();
-  private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();
+  private static final PresentValueMarketCalculator PVC = PresentValueMarketCalculator.getInstance();
 
   @Test
   /**
@@ -80,7 +80,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     CurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_1, MARKET);
-    CurrencyAmount pvCalculator = PVIC.visit(ZERO_COUPON_1, MARKET);
+    CurrencyAmount pvCalculator = PVC.visit(ZERO_COUPON_1, MARKET);
     assertEquals("Zero-coupon inflation: Present value", pvMethod, pvCalculator);
   }
 

@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.interestrate.market.curvebuilding;
 
+import javax.time.calendar.DateAdjusters;
+import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -16,6 +18,7 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexOIS;
@@ -186,6 +189,21 @@ public class CurveBuildingInstrumentsDataSets {
     }
   }
 
+  // ===== FUTURES 3M
+  private static final ZonedDateTime FUT_EUR3_FIRST_MONTH = DateUtils.getUTCDate(2011, 12, 1);
+  private static final double FUT_EUR3_NOTIONAL = 1000000;
+  private static final double[] FUT_EUR3_PRICE = new double[] {0.9900, 0.9875, 0.9850, 0.9825};
+  private static final int FUT_EUR3_NB = FUT_EUR3_PRICE.length;
+  private static final ZonedDateTime[] FUT_EUR3_LAST_TRADING = new ZonedDateTime[FUT_EUR3_NB];
+  private static final InterestRateFutureDefinition[] FUT_EUR3_DEFINITION = new InterestRateFutureDefinition[FUT_EUR3_NB];
+  static {
+    for (int loopfut = 0; loopfut < FUT_EUR3_NB; loopfut++) {
+      FUT_EUR3_LAST_TRADING[loopfut] = ScheduleCalculator.getAdjustedDate(FUT_EUR3_FIRST_MONTH.plusMonths(3 * loopfut).with(DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY)), CALENDAR_EUR,
+          -EURIBOR_3M.getSettlementDays());
+      FUT_EUR3_DEFINITION[loopfut] = new InterestRateFutureDefinition(FUT_EUR3_LAST_TRADING[loopfut], EURIBOR_3M, FUT_EUR3_PRICE[loopfut], FUT_EUR3_NOTIONAL, 0.25, "ER");
+    }
+  }
+
   // ===== SWAP INFLATION ZERO-COUPON EUR
   private static final int[] INFLZC_EUR_TENOR_YEAR = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20};
   private static final double[] INFLZC_EUR_RATE = new double[] {0.0201, 0.0202, 0.0203, 0.0204, 0.0205, 0.0206, 0.0207, 0.0208, 0.0209, 0.0210, 0.0211, 0.0212};
@@ -209,6 +227,7 @@ public class CurveBuildingInstrumentsDataSets {
   private static final ForwardRateAgreement[] FRA_EUR3 = new ForwardRateAgreement[FRA_EUR3_NB];
   private static final ForwardRateAgreement[] FRA_EUR6 = new ForwardRateAgreement[FRA_EUR6_NB];
   private static final InterestRateDerivative[] INFLZC_EUR = new InterestRateDerivative[INFLZC_EUR_NB];
+  private static final InterestRateDerivative[] FUT_EUR3 = new InterestRateDerivative[FUT_EUR3_NB];
   static {
     for (int loopdepo = 0; loopdepo < DEPOSIT_NB; loopdepo++) {
       DEPOSIT[loopdepo] = DEPOSIT_DEFINITION[loopdepo].toDerivative(REFERENCE_DATE, NOT_USED);
@@ -230,6 +249,9 @@ public class CurveBuildingInstrumentsDataSets {
     }
     for (int loopzc = 0; loopzc < INFLZC_EUR_NB; loopzc++) {
       INFLZC_EUR[loopzc] = INFLZC_EUR_DEFINITION[loopzc].toDerivative(REFERENCE_DATE, new ArrayZonedDateTimeDoubleTimeSeries[] {EUR_HICPXT_TS}, NOT_USED_2);
+    }
+    for (int loopfut = 0; loopfut < INFLZC_EUR_NB; loopfut++) {
+      FUT_EUR3[loopfut] = FUT_EUR3_DEFINITION[loopfut].toDerivative(REFERENCE_DATE, FUT_EUR3_PRICE[loopfut], NOT_USED_2);
     }
   }
 

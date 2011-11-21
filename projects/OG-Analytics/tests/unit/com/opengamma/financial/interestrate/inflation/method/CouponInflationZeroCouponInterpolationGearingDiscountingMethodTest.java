@@ -21,11 +21,11 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
-import com.opengamma.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
+import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
 import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
@@ -56,7 +56,7 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
   private static final CouponInflationZeroCouponInterpolationGearing ZERO_COUPON_1 = ZERO_COUPON_1_DEFINITION.toDerivative(PRICING_DATE, "not used");
   private static final CouponInflationZeroCouponInterpolationGearingDiscountingMethod METHOD = new CouponInflationZeroCouponInterpolationGearingDiscountingMethod();
-  private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();
+  private static final PresentValueMarketCalculator PVIC = PresentValueMarketCalculator.getInstance();
 
   @Test
   /**

@@ -21,11 +21,11 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
-import com.opengamma.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
+import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
 import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
@@ -59,7 +59,7 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethodTest {
       PRICE_INDEX_EUR, INDEX_1MAY_2008, MONTH_LAG, true, FACTOR);
   private static final CouponInflationZeroCouponMonthlyGearing ZERO_COUPON_WITH = ZERO_COUPON_WITH_DEFINITION.toDerivative(PRICING_DATE, "not used");
   private static final CouponInflationZeroCouponMonthlyGearingDiscountingMethod METHOD = new CouponInflationZeroCouponMonthlyGearingDiscountingMethod();
-  private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();
+  private static final PresentValueMarketCalculator PVIC = PresentValueMarketCalculator.getInstance();
 
   @Test
   /**
@@ -108,7 +108,7 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethodTest {
     // 2. Discounting curve sensitivity
     final double[] nodeTimesDisc = new double[] {ZERO_COUPON_NO.getPaymentTime()};
     final double[] sensiDisc = SensitivityFiniteDifferenceMarket
-    .curveSensitivity(ZERO_COUPON_NO, MARKET, ZERO_COUPON_NO.getCurrency(), nodeTimesDisc, deltaShift, METHOD, FiniteDifferenceType.CENTRAL);
+        .curveSensitivity(ZERO_COUPON_NO, MARKET, ZERO_COUPON_NO.getCurrency(), nodeTimesDisc, deltaShift, METHOD, FiniteDifferenceType.CENTRAL);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiDisc.length);
     final List<DoublesPair> sensiPvDisc = pvs.getYieldCurveSensitivities().get(MARKET.getCurve(ZERO_COUPON_NO.getCurrency()).getCurve().getName());
     for (int loopnode = 0; loopnode < sensiDisc.length; loopnode++) {
