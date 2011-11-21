@@ -37,6 +37,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.payments.Coupon;
@@ -192,7 +193,7 @@ public class CurveBuildingInstrumentsDataSets {
   // ===== FUTURES 3M
   private static final ZonedDateTime FUT_EUR3_FIRST_MONTH = DateUtils.getUTCDate(2011, 12, 1);
   private static final double FUT_EUR3_NOTIONAL = 1000000;
-  private static final double[] FUT_EUR3_PRICE = new double[] {0.9900, 0.9875, 0.9850, 0.9825};
+  private static final double[] FUT_EUR3_PRICE = new double[] {0.9900, 0.9875, 0.9850, 0.9825, 0.9825, 0.9825, 0.9825, 0.9825};
   private static final int FUT_EUR3_NB = FUT_EUR3_PRICE.length;
   private static final ZonedDateTime[] FUT_EUR3_LAST_TRADING = new ZonedDateTime[FUT_EUR3_NB];
   private static final InterestRateFutureDefinition[] FUT_EUR3_DEFINITION = new InterestRateFutureDefinition[FUT_EUR3_NB];
@@ -227,7 +228,7 @@ public class CurveBuildingInstrumentsDataSets {
   private static final ForwardRateAgreement[] FRA_EUR3 = new ForwardRateAgreement[FRA_EUR3_NB];
   private static final ForwardRateAgreement[] FRA_EUR6 = new ForwardRateAgreement[FRA_EUR6_NB];
   private static final InterestRateDerivative[] INFLZC_EUR = new InterestRateDerivative[INFLZC_EUR_NB];
-  private static final InterestRateDerivative[] FUT_EUR3 = new InterestRateDerivative[FUT_EUR3_NB];
+  private static final InterestRateFuture[] FUT_EUR3 = new InterestRateFuture[FUT_EUR3_NB];
   static {
     for (int loopdepo = 0; loopdepo < DEPOSIT_NB; loopdepo++) {
       DEPOSIT[loopdepo] = DEPOSIT_DEFINITION[loopdepo].toDerivative(REFERENCE_DATE, NOT_USED);
@@ -250,7 +251,7 @@ public class CurveBuildingInstrumentsDataSets {
     for (int loopzc = 0; loopzc < INFLZC_EUR_NB; loopzc++) {
       INFLZC_EUR[loopzc] = INFLZC_EUR_DEFINITION[loopzc].toDerivative(REFERENCE_DATE, new ArrayZonedDateTimeDoubleTimeSeries[] {EUR_HICPXT_TS}, NOT_USED_2);
     }
-    for (int loopfut = 0; loopfut < INFLZC_EUR_NB; loopfut++) {
+    for (int loopfut = 0; loopfut < FUT_EUR3_NB; loopfut++) {
       FUT_EUR3[loopfut] = FUT_EUR3_DEFINITION[loopfut].toDerivative(REFERENCE_DATE, FUT_EUR3_PRICE[loopfut], NOT_USED_2);
     }
   }
@@ -390,6 +391,51 @@ public class CurveBuildingInstrumentsDataSets {
     System.arraycopy(SWAP_FAKE_EUR3_RATE, 0, rate, 0, nbShort);
     System.arraycopy(FRA_EUR3_RATE, 0, rate, nbShort, nbFra);
     System.arraycopy(SWAP_EUR3_RATE, indexStartSwap, rate, nbShort + nbFra, SWAP_EUR3_NB - indexStartSwap);
+    return rate;
+  }
+
+  public static InterestRateDerivative[] instrumentsForward3FutSwap() {
+    int indexStartSwap = 4;
+    InterestRateDerivative[] result = new InterestRateDerivative[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
+    for (int loopins = 0; loopins < SWAP_FAKE_EUR3_NB; loopins++) {
+      result[loopins] = SWAP_EUR3[loopins];
+    }
+    for (int loopins = 0; loopins < FUT_EUR3_NB; loopins++) {
+      result[SWAP_FAKE_EUR3_NB + loopins] = FUT_EUR3[loopins];
+    }
+    for (int loopins = 0; loopins < SWAP_EUR3_NB - indexStartSwap; loopins++) {
+      result[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + loopins] = SWAP_EUR3[SWAP_FAKE_EUR3_NB + indexStartSwap + loopins];
+    }
+    return result;
+  }
+
+  public static double[] timeForward3FutSwap() {
+    int indexStartSwap = 4;
+    double[] times = new double[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
+    for (int loopins = 0; loopins < SWAP_FAKE_EUR3_NB; loopins++) {
+      @SuppressWarnings("unchecked")
+      GenericAnnuity<Coupon> leg = ((Swap<Coupon, Coupon>) SWAP_EUR3[loopins]).getFirstLeg();
+      times[loopins] = leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime();
+    }
+    for (int loopins = 0; loopins < FUT_EUR3_NB; loopins++) {
+      times[SWAP_FAKE_EUR3_NB + loopins] = FUT_EUR3[loopins].getFixingPeriodEndTime();
+    }
+    for (int loopins = 0; loopins < SWAP_EUR3_NB - indexStartSwap; loopins++) {
+      @SuppressWarnings("unchecked")
+      GenericAnnuity<Coupon> leg = ((Swap<Coupon, Coupon>) SWAP_EUR3[SWAP_FAKE_EUR3_NB + indexStartSwap + loopins]).getFirstLeg();
+      times[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + loopins] = leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime();
+    }
+    return times;
+  }
+
+  public static double[] marketRateForward3FutSwap() {
+    int indexStartSwap = 4;
+    double[] rate = new double[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
+    System.arraycopy(SWAP_FAKE_EUR3_RATE, 0, rate, 0, SWAP_FAKE_EUR3_NB);
+    for (int loopins = 0; loopins < FUT_EUR3_NB; loopins++) {
+      rate[SWAP_FAKE_EUR3_NB + loopins] = 1.0 - FUT_EUR3_PRICE[loopins];
+    }
+    System.arraycopy(SWAP_EUR3_RATE, indexStartSwap, rate, SWAP_FAKE_EUR3_NB + FUT_EUR3_NB, SWAP_EUR3_NB - indexStartSwap);
     return rate;
   }
 

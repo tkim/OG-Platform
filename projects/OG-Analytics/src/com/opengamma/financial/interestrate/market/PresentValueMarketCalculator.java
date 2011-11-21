@@ -15,6 +15,8 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.cash.market.CashDiscountingMarketMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.market.ForwardRateAgreementDiscountingMarketMethod;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.market.InterestRateFutureDiscountingMarketMethod;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
@@ -67,6 +69,8 @@ public final class PresentValueMarketCalculator extends AbstractInterestRateDeri
   private static final CouponIborDiscountingMarketMethod METHOD_IBOR = CouponIborDiscountingMarketMethod.getInstance();
   private static final CouponFixedDiscountingMarketMethod METHOD_FIXED = CouponFixedDiscountingMarketMethod.getInstance();
   private static final CouponOISDiscountingMarketMethod METHOD_OIS = CouponOISDiscountingMarketMethod.getInstance();
+  private static final InterestRateFutureDiscountingMarketMethod METHOD_FUT = InterestRateFutureDiscountingMarketMethod.getInstance();
+
   private static final CouponInflationZeroCouponMonthlyDiscountingMethod METHOD_ZC_MONTHLY = new CouponInflationZeroCouponMonthlyDiscountingMethod();
   private static final CouponInflationZeroCouponInterpolationDiscountingMethod METHOD_ZC_INTERPOLATION = CouponInflationZeroCouponInterpolationDiscountingMethod.getInstance();
   private static final CouponInflationZeroCouponMonthlyGearingDiscountingMethod METHOD_ZC_MONTHLY_GEARING = new CouponInflationZeroCouponMonthlyGearingDiscountingMethod();
@@ -135,6 +139,11 @@ public final class PresentValueMarketCalculator extends AbstractInterestRateDeri
   @Override
   public CurrencyAmount visitFixedCouponSwap(final FixedCouponSwap<?> swap, final MarketBundle market) {
     return visitSwap(swap, market);
+  }
+
+  @Override
+  public CurrencyAmount visitInterestRateFuture(final InterestRateFuture future, final MarketBundle market) {
+    return METHOD_FUT.presentValue(future, market);
   }
 
   @Override

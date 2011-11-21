@@ -336,6 +336,50 @@ public class MarketBundleBuildingTest {
 
   @Test
   /**
+   * Build the discounting curve in EUR from ON and TN deposits and OIS swaps and forward 3M curve from Euribor futures and Euribor 3M swaps. 
+   * The same curve is used for discounting and OIS forward projection.
+   */
+  public void forward3FutAfterDiscounting() {
+    // Discounting
+    InterestRateDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    int nbInstrumentsDsc = instrumentsDsc.length;
+    Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
+    @SuppressWarnings("unchecked")
+    IndexDeposit eonia = ((CouponOIS) ((Swap<Payment, Payment>) instrumentsDsc[2]).getSecondLeg().getNthPayment(0)).getIndex();
+    Map<Currency, Integer> discountingReferences = new HashMap<Currency, Integer>();
+    discountingReferences.put(eur, 0);
+    Map<IndexDeposit, Integer> forwardReferences = new HashMap<IndexDeposit, Integer>();
+    forwardReferences.put(eonia, 0);
+    // Forward 3M
+    InterestRateDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FutSwap();
+    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FutSwap();
+    double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FutSwap();
+    int nbInstrumentsFwd3 = instrumentsFwd3.length;
+    @SuppressWarnings("unchecked")
+    IndexDeposit euribor3m = ((CouponIbor) ((Swap<Payment, Payment>) instrumentsFwd3[0]).getSecondLeg().getNthPayment(0)).getIndex();
+    Map<Currency, Integer> discountingReferencesFwd = new HashMap<Currency, Integer>();
+    Map<IndexDeposit, Integer> forwardReferencesFwd = new HashMap<IndexDeposit, Integer>();
+    forwardReferencesFwd.put(euribor3m, 0);
+    // Curve building
+    MarketBundle marketDsc = discountingBuild(instrumentsDsc, intrumentsDscTime, marketRateDsc, discountingReferences, forwardReferences);
+    MarketBundle market = discountingForwardBuild(marketDsc, instrumentsFwd3, intrumentsTimeFwd3, marketRateFwd3, discountingReferencesFwd, forwardReferencesFwd);
+
+    int nbInstruments = nbInstrumentsDsc + nbInstrumentsFwd3;
+    CurrencyAmount[] pv = new CurrencyAmount[nbInstruments];
+    for (int loopins = 0; loopins < nbInstrumentsDsc; loopins++) {
+      pv[loopins] = PVC.visit(instrumentsDsc[loopins], market);
+      assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pv[loopins].getAmount(), TOLERANCE);
+    }
+    for (int loopins = 0; loopins < nbInstrumentsFwd3; loopins++) {
+      pv[nbInstrumentsDsc + loopins] = PVC.visit(instrumentsFwd3[loopins], market);
+      assertEquals("Curve building - forward curve - instrument " + loopins, 0.0, pv[loopins].getAmount(), TOLERANCE);
+    }
+  }
+
+  @Test
+  /**
    * Build the discounting curve in EUR from ON and TN deposits and OIS swaps and forward 3M curve from Euribor 3M swaps. 
    * The same curve is used for discounting and OIS forward projection.
    */
