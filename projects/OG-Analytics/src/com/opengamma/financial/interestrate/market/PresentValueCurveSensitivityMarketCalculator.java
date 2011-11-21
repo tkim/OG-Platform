@@ -7,8 +7,8 @@ package com.opengamma.financial.interestrate.market;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
@@ -30,7 +30,7 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
  * Calculates the present value of instruments for a given MarketBundle (set of yield and price curves).
  * Calculator for linear instruments requiring only discounting.
  */
-public final class PresentValueCurveSensitivityMarketCalculator extends AbstractInterestRateDerivativeVisitor<MarketBundle, PresentValueCurveSensitivityMarket> {
+public final class PresentValueCurveSensitivityMarketCalculator extends AbstractInstrumentDerivativeVisitor<MarketBundle, PresentValueCurveSensitivityMarket> {
 
   /*
    * The unique instance of the method.
@@ -60,7 +60,7 @@ public final class PresentValueCurveSensitivityMarketCalculator extends Abstract
   private static final CouponOISDiscountingMarketMethod METHOD_OIS = CouponOISDiscountingMarketMethod.getInstance();
 
   @Override
-  public PresentValueCurveSensitivityMarket visit(final InterestRateDerivative derivative, final MarketBundle market) {
+  public PresentValueCurveSensitivityMarket visit(final InstrumentDerivative derivative, final MarketBundle market) {
     Validate.notNull(market);
     Validate.notNull(derivative);
     return derivative.accept(this, market);

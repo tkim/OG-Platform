@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
@@ -60,7 +60,7 @@ public final class CouponIborDiscountingMarketMethod implements PricingMarketMet
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final MarketBundle market) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof CouponIbor, "CouponIborDiscountingMethod: The instrument should be of type CouponIbor");
     return presentValue((CouponIbor) instrument, market);
   }

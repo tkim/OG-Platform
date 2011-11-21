@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate.market.curvebuilding;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -19,7 +19,7 @@ public class MarketBundleFinderFunction extends Function1D<DoubleMatrix1D, Doubl
   /**
    * Calculator used to compute the instruments values.
    */
-  private final InterestRateDerivativeVisitor<MarketBundle, CurrencyAmount> _calculator;
+  private final InstrumentDerivativeVisitor<MarketBundle, CurrencyAmount> _calculator;
   /**
    * The base data to construct the curves.
    */
@@ -30,7 +30,7 @@ public class MarketBundleFinderFunction extends Function1D<DoubleMatrix1D, Doubl
    * @param calculator The calculator used to value the instruments.
    * @param data The market finder data bundle.
    */
-  public MarketBundleFinderFunction(InterestRateDerivativeVisitor<MarketBundle, CurrencyAmount> calculator, MarketFinderDataBundle data) {
+  public MarketBundleFinderFunction(InstrumentDerivativeVisitor<MarketBundle, CurrencyAmount> calculator, MarketFinderDataBundle data) {
     _calculator = calculator;
     _data = data;
   }

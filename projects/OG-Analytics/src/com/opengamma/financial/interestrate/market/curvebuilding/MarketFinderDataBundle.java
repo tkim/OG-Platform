@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.PriceIndex;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.util.money.Currency;
@@ -23,7 +23,7 @@ public class MarketFinderDataBundle {
   /**
    * The interest rate instruments used for the curve construction.
    */
-  private final InterestRateDerivative[] _instruments;
+  private final InstrumentDerivative[] _instruments;
   /**
    * The market value of each instrument.
    */
@@ -104,7 +104,7 @@ public class MarketFinderDataBundle {
    * @param nodePointsYieldCurve The points on which each interpolated yield curve is constructed.
    * @param interpolatorsYieldCurve The interpolators for each yield curve to be constructed.
    */
-  public MarketFinderDataBundle(InterestRateDerivative[] instruments, double[] marketValue, Map<Currency, Integer> discountingReferences, Map<IndexDeposit, Integer> forwardReferences,
+  public MarketFinderDataBundle(InstrumentDerivative[] instruments, double[] marketValue, Map<Currency, Integer> discountingReferences, Map<IndexDeposit, Integer> forwardReferences,
       double[][] nodePointsYieldCurve, Interpolator1D[] interpolatorsYieldCurve) {
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
@@ -130,7 +130,7 @@ public class MarketFinderDataBundle {
     _priceCurveName = new String[0];
   }
 
-  public MarketFinderDataBundle(InterestRateDerivative[] instruments, double[] marketValue, Map<Currency, Integer> discountingReferences, Map<IndexDeposit, Integer> forwardReferences,
+  public MarketFinderDataBundle(InstrumentDerivative[] instruments, double[] marketValue, Map<Currency, Integer> discountingReferences, Map<IndexDeposit, Integer> forwardReferences,
       double[][] nodePointsYieldCurve, Interpolator1D[] interpolatorsYieldCurve, String[] yieldCurveName) {
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
@@ -153,7 +153,7 @@ public class MarketFinderDataBundle {
     _priceCurveName = new String[0];
   }
 
-  public MarketFinderDataBundle(MarketBundle knownMarket, InterestRateDerivative[] instruments, double[] marketValue, Map<Currency, Integer> discountingReferences,
+  public MarketFinderDataBundle(MarketBundle knownMarket, InstrumentDerivative[] instruments, double[] marketValue, Map<Currency, Integer> discountingReferences,
       Map<IndexDeposit, Integer> forwardReferences, double[][] nodePointsYieldCurve, Interpolator1D[] interpolatorsYieldCurve) {
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
@@ -179,7 +179,7 @@ public class MarketFinderDataBundle {
     _priceCurveName = new String[0];
   }
 
-  public MarketFinderDataBundle(final MarketBundle knownMarket, final InterestRateDerivative[] instruments, final double[] marketValue, final Map<Currency, Integer> discountingReferences,
+  public MarketFinderDataBundle(final MarketBundle knownMarket, final InstrumentDerivative[] instruments, final double[] marketValue, final Map<Currency, Integer> discountingReferences,
       final Map<IndexDeposit, Integer> forwardReferences, final Map<PriceIndex, Integer> priceIndexReferences, final double[][] nodePointsYieldCurve, final Interpolator1D[] interpolatorsYieldCurve,
       final double[][] nodePointsPriceCurve, final Interpolator1D[] interpolatorsPriceCurve, final double[][] knownPointsPriceCurve) {
     // TODO: validate the input (length, references, ...)
@@ -209,7 +209,7 @@ public class MarketFinderDataBundle {
     _priceIndexReferences = priceIndexReferences;
   }
 
-  public MarketFinderDataBundle(final MarketBundle knownMarket, final InterestRateDerivative[] instruments, final double[] marketValue, final Map<PriceIndex, Integer> priceIndexReferences,
+  public MarketFinderDataBundle(final MarketBundle knownMarket, final InstrumentDerivative[] instruments, final double[] marketValue, final Map<PriceIndex, Integer> priceIndexReferences,
       final double[][] nodePointsPriceCurve, final Interpolator1D[] interpolatorsPriceCurve, final double[][] knownPointsPriceCurve) {
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
@@ -235,7 +235,7 @@ public class MarketFinderDataBundle {
     _priceIndexReferences = priceIndexReferences;
   }
 
-  public MarketFinderDataBundle(final MarketBundle knownMarket, final InterestRateDerivative[] instruments, final double[] marketValue, final Map<PriceIndex, Integer> priceIndexReferences,
+  public MarketFinderDataBundle(final MarketBundle knownMarket, final InstrumentDerivative[] instruments, final double[] marketValue, final Map<PriceIndex, Integer> priceIndexReferences,
       final double[][] nodePointsPriceCurve, final Interpolator1D[] interpolatorsPriceCurve, final double[][] knownPointsPriceCurve, final String[] priceCurveName) {
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
@@ -262,7 +262,7 @@ public class MarketFinderDataBundle {
    * Gets the interest rate instruments used for the curve construction.
    * @return The interest rate instruments.
    */
-  public InterestRateDerivative[] getInstruments() {
+  public InstrumentDerivative[] getInstruments() {
     return _instruments;
   }
 

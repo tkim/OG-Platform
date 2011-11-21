@@ -12,8 +12,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -64,7 +64,7 @@ public final class InterestRateFutureDiscountingMarketMethod extends InterestRat
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final MarketBundle market) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof InterestRateFuture, "Interest rate future");
     return presentValue((InterestRateFuture) instrument, market);
   }

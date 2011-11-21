@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
@@ -59,7 +59,7 @@ public final class CouponInflationZeroCouponInterpolationDiscountingMethod imple
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, MarketBundle market) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, MarketBundle market) {
     Validate.isTrue(instrument instanceof CouponInflationZeroCouponInterpolation, "Zero-coupon inflation with start of month reference date.");
     return presentValue((CouponInflationZeroCouponInterpolation) instrument, market);
   }

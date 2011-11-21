@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
@@ -69,7 +69,7 @@ public final class ForwardRateAgreementDiscountingMarketMethod implements Pricin
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final MarketBundle market) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof ForwardRateAgreement, "ForwardRateAgreementMethod: The instrument should be of type ForwardRateAgreement");
     return presentValue((ForwardRateAgreement) instrument, market);
   }
@@ -91,7 +91,7 @@ public final class ForwardRateAgreementDiscountingMarketMethod implements Pricin
     // Backward sweep
     final double pvBar = 1.0;
     final double forwardBar = df * fra.getPaymentYearFraction() * fra.getNotional() * (1 - (forward - fra.getRate()) / (1 + fra.getPaymentYearFraction() * forward) * fra.getPaymentYearFraction())
-      / (1 + fra.getPaymentYearFraction() * forward);
+        / (1 + fra.getPaymentYearFraction() * forward);
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / fra.getFixingYearFraction() * forwardBar;
     final double dfForwardStartBar = 1.0 / (fra.getFixingYearFraction() * dfForwardEnd) * forwardBar;
     final double dfBar = fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward) * pvBar;
@@ -110,7 +110,6 @@ public final class ForwardRateAgreementDiscountingMarketMethod implements Pricin
 
     return PresentValueCurveSensitivityMarket.plus(result, new PresentValueCurveSensitivityMarket(resultFwd));
   }
-
 
   /**
    * Compute the par rate or forward rate of the FRA.

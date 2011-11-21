@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
@@ -59,7 +59,7 @@ public final class CouponOISDiscountingMarketMethod implements PricingMarketMeth
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final MarketBundle market) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof CouponOIS, "Coupon OIS");
     return presentValue((CouponOIS) instrument, market);
   }
@@ -80,9 +80,9 @@ public final class CouponOISDiscountingMarketMethod implements PricingMarketMeth
     final double pv = (coupon.getNotionalAccrued() * accruedFwd - coupon.getNotional()) * df;
     // Backward sweep
     final double pvBar = 1.0;
-    final double accruedFwdBar = coupon.getNotionalAccrued()  * df * pvBar;
+    final double accruedFwdBar = coupon.getNotionalAccrued() * df * pvBar;
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) * accruedFwdBar;
-    final double dfForwardStartBar = 1.0 /  dfForwardEnd * accruedFwdBar;
+    final double dfForwardStartBar = 1.0 / dfForwardEnd * accruedFwdBar;
     final double dfBar = pv / df * pvBar;
 
     final Map<String, List<DoublesPair>> resultDsc = new HashMap<String, List<DoublesPair>>();

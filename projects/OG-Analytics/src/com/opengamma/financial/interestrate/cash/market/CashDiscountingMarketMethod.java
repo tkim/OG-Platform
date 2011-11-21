@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
@@ -59,7 +59,7 @@ public final class CashDiscountingMarketMethod implements PricingMarketMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final MarketBundle market) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof Cash, "Coupon Fixed");
     return presentValue((Cash) instrument, market);
   }

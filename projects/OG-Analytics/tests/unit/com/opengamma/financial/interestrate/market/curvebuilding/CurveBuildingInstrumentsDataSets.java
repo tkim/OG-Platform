@@ -33,7 +33,7 @@ import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
@@ -222,12 +222,12 @@ public class CurveBuildingInstrumentsDataSets {
   private static final String[] NOT_USED_2 = new String[] {NOT_USED, NOT_USED};
 
   private static final Cash[] DEPOSIT = new Cash[DEPOSIT_NB];
-  private static final InterestRateDerivative[] SWAP_EONIA = new InterestRateDerivative[SWAP_EONIA_NB];
-  private static final InterestRateDerivative[] SWAP_EUR3 = new InterestRateDerivative[SWAP_FAKE_EUR3_NB + SWAP_EUR3_NB];
-  private static final InterestRateDerivative[] SWAP_EUR6 = new InterestRateDerivative[SWAP_FAKE_EUR6_NB + SWAP_EUR6_NB];
+  private static final InstrumentDerivative[] SWAP_EONIA = new InstrumentDerivative[SWAP_EONIA_NB];
+  private static final InstrumentDerivative[] SWAP_EUR3 = new InstrumentDerivative[SWAP_FAKE_EUR3_NB + SWAP_EUR3_NB];
+  private static final InstrumentDerivative[] SWAP_EUR6 = new InstrumentDerivative[SWAP_FAKE_EUR6_NB + SWAP_EUR6_NB];
   private static final ForwardRateAgreement[] FRA_EUR3 = new ForwardRateAgreement[FRA_EUR3_NB];
   private static final ForwardRateAgreement[] FRA_EUR6 = new ForwardRateAgreement[FRA_EUR6_NB];
-  private static final InterestRateDerivative[] INFLZC_EUR = new InterestRateDerivative[INFLZC_EUR_NB];
+  private static final InstrumentDerivative[] INFLZC_EUR = new InstrumentDerivative[INFLZC_EUR_NB];
   private static final InterestRateFuture[] FUT_EUR3 = new InterestRateFuture[FUT_EUR3_NB];
   static {
     for (int loopdepo = 0; loopdepo < DEPOSIT_NB; loopdepo++) {
@@ -264,8 +264,8 @@ public class CurveBuildingInstrumentsDataSets {
    * Return a set of instruments (cash deposits and OIS swap) for discounting curve construction.
    * @return The instrument set.
    */
-  public static InterestRateDerivative[] instrumentsDiscounting() {
-    InterestRateDerivative[] instruments = new InterestRateDerivative[DEPOSIT_NB + SWAP_EONIA_NB];
+  public static InstrumentDerivative[] instrumentsDiscounting() {
+    InstrumentDerivative[] instruments = new InstrumentDerivative[DEPOSIT_NB + SWAP_EONIA_NB];
     for (int loopdepo = 0; loopdepo < DEPOSIT_NB; loopdepo++) {
       instruments[loopdepo] = DEPOSIT[loopdepo];
     }
@@ -303,7 +303,7 @@ public class CurveBuildingInstrumentsDataSets {
     return rate;
   }
 
-  public static InterestRateDerivative[] instrumentsForward3FullSwap() {
+  public static InstrumentDerivative[] instrumentsForward3FullSwap() {
     return SWAP_EUR3;
   }
 
@@ -324,7 +324,7 @@ public class CurveBuildingInstrumentsDataSets {
     return rate;
   }
 
-  public static InterestRateDerivative[] instrumentsForward6FullSwap() {
+  public static InstrumentDerivative[] instrumentsForward6FullSwap() {
     return SWAP_EUR6;
   }
 
@@ -345,11 +345,11 @@ public class CurveBuildingInstrumentsDataSets {
     return rate;
   }
 
-  public static InterestRateDerivative[] instrumentsForward3FraSwap() {
+  public static InstrumentDerivative[] instrumentsForward3FraSwap() {
     int nbShort = SWAP_FAKE_EUR3_NB;
     int nbFra = FRA_EUR3_NB;
     int indexStartSwap = 3;
-    InterestRateDerivative[] result = new InterestRateDerivative[nbShort + nbFra + SWAP_EUR3_NB - indexStartSwap];
+    InstrumentDerivative[] result = new InstrumentDerivative[nbShort + nbFra + SWAP_EUR3_NB - indexStartSwap];
     for (int loopins = 0; loopins < nbShort; loopins++) {
       result[loopins] = SWAP_EUR3[loopins];
     }
@@ -394,9 +394,9 @@ public class CurveBuildingInstrumentsDataSets {
     return rate;
   }
 
-  public static InterestRateDerivative[] instrumentsForward3FutSwap() {
+  public static InstrumentDerivative[] instrumentsForward3FutSwap() {
     int indexStartSwap = 4;
-    InterestRateDerivative[] result = new InterestRateDerivative[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
+    InstrumentDerivative[] result = new InstrumentDerivative[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
     for (int loopins = 0; loopins < SWAP_FAKE_EUR3_NB; loopins++) {
       result[loopins] = SWAP_EUR3[loopins];
     }
@@ -439,7 +439,7 @@ public class CurveBuildingInstrumentsDataSets {
     return rate;
   }
 
-  public static InterestRateDerivative[] instrumentsInflation() {
+  public static InstrumentDerivative[] instrumentsInflation() {
     return INFLZC_EUR;
   }
 
