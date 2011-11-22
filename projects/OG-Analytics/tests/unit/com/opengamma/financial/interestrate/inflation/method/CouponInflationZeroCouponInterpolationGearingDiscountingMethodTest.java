@@ -29,7 +29,8 @@ import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
 import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -40,6 +41,7 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
   private static final MarketBundle MARKET = MarketDataSets.createMarket1();
   private static final PriceIndex[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new PriceIndex[0]);
   private static final PriceIndex PRICE_INDEX_EUR = PRICE_INDEXES[0];
+  private static final Currency EUR = PRICE_INDEX_EUR.getCurrency();
   private static final IndexDeposit[] INDEXES = MarketDataSets.getDepositIndexes();
   private static final IborIndex EURIBOR3M = (IborIndex) INDEXES[0];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
@@ -63,13 +65,13 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
    * Tests the present value.
    */
   public void presentValueInterpolation() {
-    CurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_1, MARKET);
+    MultipleCurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_1, MARKET);
     double df = MARKET.getCurve(ZERO_COUPON_1.getCurrency()).getDiscountFactor(ZERO_COUPON_1.getPaymentTime());
     double indexMonth0 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_1.getReferenceEndTime()[0]);
     double indexMonth1 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_1.getReferenceEndTime()[1]);
     double finalIndex = ZERO_COUPON_1_DEFINITION.getWeight() * indexMonth0 + (1 - ZERO_COUPON_1_DEFINITION.getWeight()) * indexMonth1;
     double pvExpected = FACTOR * (finalIndex / INDEX_MAY_2008_INT - 1) * df * NOTIONAL;
-    assertEquals("Zero-coupon inflation: Present value", pvExpected, pv.getAmount(), 1.0E-2);
+    assertEquals("Zero-coupon inflation: Present value", pvExpected, pv.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -77,8 +79,8 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
    * Tests the present value: Method vs Calculator.
    */
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_1, MARKET);
-    CurrencyAmount pvCalculator = PVIC.visit(ZERO_COUPON_1, MARKET);
+    MultipleCurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_1, MARKET);
+    MultipleCurrencyAmount pvCalculator = PVIC.visit(ZERO_COUPON_1, MARKET);
     assertEquals("Zero-coupon inflation: Present value", pvMethod, pvCalculator);
   }
 

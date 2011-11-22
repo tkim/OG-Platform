@@ -32,7 +32,7 @@ import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
@@ -81,13 +81,13 @@ public class CouponOISDiscountingMarketMethodTest {
    * Tests the present value for a coupon where the fixing period has not started yet.
    */
   public void presentValueNotStarted() {
-    CurrencyAmount pv = METHOD.presentValue(COUPON, MARKET);
+    MultipleCurrencyAmount pv = METHOD.presentValue(COUPON, MARKET);
     double df = MARKET.getDiscountingFactor(COUPON.getCurrency(), COUPON.getPaymentTime());
     final double dfForwardStart = MARKET.getCurve(EONIA).getDiscountFactor(COUPON.getFixingPeriodStartTime());
     final double dfForwardEnd = MARKET.getCurve(EONIA).getDiscountFactor(COUPON.getFixingPeriodEndTime());
     final double accruedFwd = dfForwardStart / dfForwardEnd;
     final double pvExpected = (COUPON.getNotionalAccrued() * accruedFwd - COUPON.getNotional()) * df;
-    assertEquals("Coupon OIS: Present value by discounting", pvExpected, pv.getAmount(), 1.0E-2);
+    assertEquals("Coupon OIS: Present value by discounting", pvExpected, pv.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -95,10 +95,10 @@ public class CouponOISDiscountingMarketMethodTest {
    * Compare the present value from the method and the one from the calculator for a coupon where the fixing period has not started yet.
    */
   public void presentValueNotStartedMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD.presentValue(COUPON, MARKET);
-    CurrencyAmount pvCalculator = PVC.visit(COUPON, MARKET);
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    MultipleCurrencyAmount pvMethod = METHOD.presentValue(COUPON, MARKET);
+    MultipleCurrencyAmount pvCalculator = PVC.visit(COUPON, MARKET);
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.size(), pvCalculator.size());
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -106,13 +106,13 @@ public class CouponOISDiscountingMarketMethodTest {
    * Tests the present value for a coupon where the fixing period has started already.
    */
   public void presentValueStarted() {
-    CurrencyAmount pv = METHOD.presentValue(EONIA_COUPON_2, MARKET);
+    MultipleCurrencyAmount pv = METHOD.presentValue(EONIA_COUPON_2, MARKET);
     double df = MARKET.getDiscountingFactor(EONIA_COUPON_2.getCurrency(), EONIA_COUPON_2.getPaymentTime());
     final double dfForwardStart = MARKET.getCurve(EONIA).getDiscountFactor(EONIA_COUPON_2.getFixingPeriodStartTime());
     final double dfForwardEnd = MARKET.getCurve(EONIA).getDiscountFactor(EONIA_COUPON_2.getFixingPeriodEndTime());
     final double accruedFwd = dfForwardStart / dfForwardEnd;
     final double pvExpected = (EONIA_COUPON_2.getNotionalAccrued() * accruedFwd - EONIA_COUPON_2.getNotional()) * df;
-    assertEquals("Coupon OIS: Present value by discounting", pvExpected, pv.getAmount(), 1.0E-2);
+    assertEquals("Coupon OIS: Present value by discounting", pvExpected, pv.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -120,10 +120,10 @@ public class CouponOISDiscountingMarketMethodTest {
    * Compare the present value from the method and the one from the calculator for a coupon where the fixing period has started already.
    */
   public void presentValueStartedMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD.presentValue(EONIA_COUPON_2, MARKET);
-    CurrencyAmount pvCalculator = PVC.visit(EONIA_COUPON_2, MARKET);
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    MultipleCurrencyAmount pvMethod = METHOD.presentValue(EONIA_COUPON_2, MARKET);
+    MultipleCurrencyAmount pvCalculator = PVC.visit(EONIA_COUPON_2, MARKET);
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.size(), pvCalculator.size());
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), 1.0E-2);
   }
 
   @Test

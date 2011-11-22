@@ -17,7 +17,7 @@ import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -26,13 +26,14 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public final class InterestRateFutureDiscountingMarketMethod extends InterestRateFutureMarketMethod {
 
-  /*
+  /**
    * The unique instance of the method.
    */
   private static final InterestRateFutureDiscountingMarketMethod INSTANCE = new InterestRateFutureDiscountingMarketMethod();
 
-  /*
-   * Gets the method unique instance.
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
    */
   public static InterestRateFutureDiscountingMarketMethod getInstance() {
     return INSTANCE;
@@ -58,13 +59,19 @@ public final class InterestRateFutureDiscountingMarketMethod extends InterestRat
     return price;
   }
 
-  public CurrencyAmount presentValue(final InterestRateFuture future, final MarketBundle market) {
+  /**
+   * Compute the present value of a future from the curves using an estimation of the future rate without convexity adjustment.
+   * @param future The future.
+   * @param market The market.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValue(final InterestRateFuture future, final MarketBundle market) {
     final double pv = presentValueFromPrice(future, price(future, market));
-    return CurrencyAmount.of(future.getCurrency(), pv);
+    return MultipleCurrencyAmount.of(future.getCurrency(), pv);
   }
 
   @Override
-  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof InterestRateFuture, "Interest rate future");
     return presentValue((InterestRateFuture) instrument, market);
   }
@@ -108,4 +115,5 @@ public final class InterestRateFutureDiscountingMarketMethod extends InterestRat
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
+
 }

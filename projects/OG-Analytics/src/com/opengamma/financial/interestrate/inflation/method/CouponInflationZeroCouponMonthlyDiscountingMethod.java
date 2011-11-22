@@ -17,7 +17,7 @@ import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflatio
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -31,17 +31,17 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethod implements Pricin
    * @param market The market bundle.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(CouponInflationZeroCouponMonthly coupon, MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(CouponInflationZeroCouponMonthly coupon, MarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
     double estimatedIndex = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());
     double discountFactor = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
     double pv = (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
-    return CurrencyAmount.of(coupon.getCurrency(), pv);
+    return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, MarketBundle market) {
     Validate.isTrue(instrument instanceof CouponInflationZeroCouponMonthly, "Zero-coupon inflation with start of month reference date.");
     return presentValue((CouponInflationZeroCouponMonthly) instrument, market);
   }

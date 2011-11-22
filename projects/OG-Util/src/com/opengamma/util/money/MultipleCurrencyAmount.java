@@ -269,6 +269,26 @@ public final class MultipleCurrencyAmount implements Iterable<CurrencyAmount>, S
     return result;
   }
 
+
+  /**
+   * Returns a copy of this {@code MultipleCurrencyAmount} with the amounts multiplied.
+   * <p>
+   * This takes the amounts in the different currencies and multiplies them by the specified value.
+   * The multiplication simply uses standard {@code double} arithmetic.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param valueToMultiplyBy  the scalar amount to multiply by
+   * @return an amount based on this with the amount multiplied, not null
+   */
+  public MultipleCurrencyAmount multipliedBy(final double valueToMultiplyBy) {
+    TreeMap<Currency, CurrencyAmount> newAmounts = new TreeMap<Currency, CurrencyAmount>();
+    for (Currency ccy : _amounts.keySet()) {
+      newAmounts.put(ccy, _amounts.get(ccy).multipliedBy(valueToMultiplyBy));
+    }
+    return new MultipleCurrencyAmount(newAmounts);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns a copy of this {@code MultipleCurrencyAmount} with the specified currency.

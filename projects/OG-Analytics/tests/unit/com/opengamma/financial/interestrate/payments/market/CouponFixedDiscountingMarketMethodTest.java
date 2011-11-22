@@ -29,7 +29,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -66,10 +66,10 @@ public class CouponFixedDiscountingMarketMethodTest {
    * Tests the present value.
    */
   public void presentValue() {
-    CurrencyAmount pv = METHOD.presentValue(COUPON, MARKET);
+    MultipleCurrencyAmount pv = METHOD.presentValue(COUPON, MARKET);
     double df = MARKET.getCurve(EUR).getDiscountFactor(COUPON.getPaymentTime());
     double pvExpected = COUPON.getAmount() * df;
-    assertEquals("Coupon Fixed: pv by discounting", pvExpected, pv.getAmount(), 1.0E-2);
+    assertEquals("Coupon Fixed: pv by discounting", pvExpected, pv.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -77,10 +77,10 @@ public class CouponFixedDiscountingMarketMethodTest {
    * Compares the present value from the method and the one from the calculator.
    */
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD.presentValue(COUPON, MARKET);
-    CurrencyAmount pvCalculator = PVC.visit(COUPON, MARKET);
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    MultipleCurrencyAmount pvMethod = METHOD.presentValue(COUPON, MARKET);
+    MultipleCurrencyAmount pvCalculator = PVC.visit(COUPON, MARKET);
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.size(), pvCalculator.size());
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), 1.0E-2);
   }
 
   @Test

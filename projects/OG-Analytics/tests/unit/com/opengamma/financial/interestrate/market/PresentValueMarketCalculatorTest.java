@@ -40,7 +40,7 @@ import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
@@ -96,13 +96,13 @@ public class PresentValueMarketCalculatorTest {
    * Tests the present value of an annuity composed of fixed coupons.
    */
   public void presentValueAnnuityFixed() {
-    CurrencyAmount pvCalculator = PVC.visit(ANNUITY_FIXED, MARKET);
-    CurrencyAmount pvExpected = CurrencyAmount.of(EUR, 0.0);
+    MultipleCurrencyAmount pvCalculator = PVC.visit(ANNUITY_FIXED, MARKET);
+    MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(EUR, 0.0);
     for (int loopcpn = 0; loopcpn < ANNUITY_FIXED.getNumberOfPayments(); loopcpn++) {
       pvExpected = pvExpected.plus(METHOD_FIXED.presentValue(ANNUITY_FIXED.getNthPayment(loopcpn), MARKET));
     }
-    assertEquals("Annuity Fixed: pv by discounting", pvExpected.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Annuity Fixed: pv by discounting", pvExpected.getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    assertEquals("Annuity Fixed: pv by discounting", pvExpected.size(), pvCalculator.size());
+    assertEquals("Annuity Fixed: pv by discounting", pvExpected.getAmount(EUR), pvCalculator.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -110,13 +110,13 @@ public class PresentValueMarketCalculatorTest {
    * Tests the present value of an annuity created from a Ibor annuity (with a coupon already fixed).
    */
   public void presentValueAnnuityIbor() {
-    CurrencyAmount pvCalculator = PVC.visit(ANNUITY_IBOR, MARKET);
-    CurrencyAmount pvExpected = METHOD_FIXED.presentValue(ANNUITY_IBOR.getNthPayment(0), MARKET);
+    MultipleCurrencyAmount pvCalculator = PVC.visit(ANNUITY_IBOR, MARKET);
+    MultipleCurrencyAmount pvExpected = METHOD_FIXED.presentValue(ANNUITY_IBOR.getNthPayment(0), MARKET);
     for (int loopcpn = 1; loopcpn < ANNUITY_IBOR.getNumberOfPayments(); loopcpn++) {
       pvExpected = pvExpected.plus(METHOD_IBOR.presentValue(ANNUITY_IBOR.getNthPayment(loopcpn), MARKET));
     }
-    assertEquals("Annuity Ibor: pv by discounting", pvExpected.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Annuity Ibor: pv by discounting", pvExpected.getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    assertEquals("Annuity Ibor: pv by discounting", pvExpected.size(), pvCalculator.size());
+    assertEquals("Annuity Ibor: pv by discounting", pvExpected.getAmount(EUR), pvCalculator.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -124,11 +124,11 @@ public class PresentValueMarketCalculatorTest {
    * Tests the present value of an swap created from a Fixed-Ibor swap (with a coupon already fixed on the Ibor leg).
    */
   public void presentValueSwapFixedIbor() {
-    CurrencyAmount pvCalculator = PVC.visit(SWAP_FIXED_IBOR, MARKET);
-    CurrencyAmount pvFixed = PVC.visit(SWAP_FIXED_IBOR.getFixedLeg(), MARKET);
-    CurrencyAmount pvIbor = PVC.visit(SWAP_FIXED_IBOR.getSecondLeg(), MARKET);
-    assertEquals("Annuity Ibor: pv by discounting", pvFixed.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Annuity Ibor: pv by discounting", pvFixed.plus(pvIbor).getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    MultipleCurrencyAmount pvCalculator = PVC.visit(SWAP_FIXED_IBOR, MARKET);
+    MultipleCurrencyAmount pvFixed = PVC.visit(SWAP_FIXED_IBOR.getFixedLeg(), MARKET);
+    MultipleCurrencyAmount pvIbor = PVC.visit(SWAP_FIXED_IBOR.getSecondLeg(), MARKET);
+    assertEquals("Annuity Ibor: pv by discounting", pvFixed.size(), pvCalculator.size());
+    assertEquals("Annuity Ibor: pv by discounting", pvFixed.plus(pvIbor).getAmount(EUR), pvCalculator.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -147,12 +147,12 @@ public class PresentValueMarketCalculatorTest {
     Coupon cpn6 = cpn6Definition.toDerivative(REFERENCE_DATE, NOT_USED_2);
     Coupon cpnF = cpnFDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
     Swap<? extends Payment, ? extends Payment> swapHeterogeneous = swapHeterogeneousDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
-    CurrencyAmount pvSwap = PVC.visit(swapHeterogeneous, MARKET);
-    CurrencyAmount pvSum = PVC.visit(cpn3, MARKET);
+    MultipleCurrencyAmount pvSwap = PVC.visit(swapHeterogeneous, MARKET);
+    MultipleCurrencyAmount pvSum = PVC.visit(cpn3, MARKET);
     pvSum = pvSum.plus(PVC.visit(cpn6, MARKET));
     pvSum = pvSum.plus(PVC.visit(cpnF, MARKET));
-    assertEquals("Swap Heterogeneous: pv by discounting", pvSum.getCurrency(), pvSwap.getCurrency());
-    assertEquals("Swap Heterogeneous: pv by discounting", pvSum.getAmount(), pvSwap.getAmount(), 1.0E-2);
+    assertEquals("Swap Heterogeneous: pv by discounting", pvSum.size(), pvSwap.size());
+    assertEquals("Swap Heterogeneous: pv by discounting", pvSum.getAmount(EUR), pvSwap.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -160,11 +160,11 @@ public class PresentValueMarketCalculatorTest {
    * Tests the present value of a swap created from a Fixed-OIS swap starting in the future.
    */
   public void presentValueSwapOIS() {
-    CurrencyAmount pvCalculator = PVC.visit(SWAP_FIXED_OIS, MARKET);
-    CurrencyAmount pvFixed = PVC.visit(SWAP_FIXED_OIS.getFirstLeg(), MARKET);
-    CurrencyAmount pvIbor = PVC.visit(SWAP_FIXED_OIS.getSecondLeg(), MARKET);
-    assertEquals("Annuity Ibor: pv by discounting", pvFixed.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Annuity Ibor: pv by discounting", pvFixed.plus(pvIbor).getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    MultipleCurrencyAmount pvCalculator = PVC.visit(SWAP_FIXED_OIS, MARKET);
+    MultipleCurrencyAmount pvFixed = PVC.visit(SWAP_FIXED_OIS.getFirstLeg(), MARKET);
+    MultipleCurrencyAmount pvIbor = PVC.visit(SWAP_FIXED_OIS.getSecondLeg(), MARKET);
+    assertEquals("Annuity Ibor: pv by discounting", pvFixed.size(), pvCalculator.size());
+    assertEquals("Annuity Ibor: pv by discounting", pvFixed.plus(pvIbor).getAmount(EUR), pvCalculator.getAmount(EUR), 1.0E-2);
   }
 
 }

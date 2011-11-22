@@ -28,7 +28,8 @@ import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDiffe
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -40,6 +41,7 @@ public class CouponIborDiscountingMarketMethodTest {
   private static final IndexDeposit[] INDEXES = MarketDataSets.getDepositIndexes();
   private static final IborIndex EURIBOR3M = (IborIndex) INDEXES[0];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
+  private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 5, 23);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 8, 22);
@@ -61,11 +63,11 @@ public class CouponIborDiscountingMarketMethodTest {
    * Tests the present value.
    */
   public void presentValue() {
-    CurrencyAmount pv = METHOD.presentValue(COUPON, MARKET);
+    MultipleCurrencyAmount pv = METHOD.presentValue(COUPON, MARKET);
     double df = MARKET.getDiscountingFactor(COUPON.getCurrency(), COUPON.getPaymentTime());
     double forward = MARKET.getForwardRate(EURIBOR3M, COUPON.getFixingPeriodStartTime(), COUPON.getFixingPeriodEndTime(), COUPON.getFixingYearFraction());
     double pvExpected = (forward + SPREAD) * COUPON.getPaymentYearFraction() * COUPON.getNotional() * df;
-    assertEquals("Coupon Ibor Gearing: Present value by discounting", pvExpected, pv.getAmount(), 1.0E-2);
+    assertEquals("Coupon Ibor Gearing: Present value by discounting", pvExpected, pv.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -73,10 +75,10 @@ public class CouponIborDiscountingMarketMethodTest {
    * Compares the present value from the method and the one from the calculator.
    */
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD.presentValue(COUPON, MARKET);
-    CurrencyAmount pvCalculator = PVC.visit(COUPON, MARKET);
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    MultipleCurrencyAmount pvMethod = METHOD.presentValue(COUPON, MARKET);
+    MultipleCurrencyAmount pvCalculator = PVC.visit(COUPON, MARKET);
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.size(), pvCalculator.size());
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), 1.0E-2);
   }
 
   @Test

@@ -17,7 +17,7 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -25,13 +25,14 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public final class CashDiscountingMarketMethod implements PricingMarketMethod {
 
-  /*
+  /**
    * The unique instance of the method.
    */
   private static final CashDiscountingMarketMethod INSTANCE = new CashDiscountingMarketMethod();
 
-  /*
-   * Gets the method unique instance.
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
    */
   public static CashDiscountingMarketMethod getInstance() {
     return INSTANCE;
@@ -49,17 +50,17 @@ public final class CashDiscountingMarketMethod implements PricingMarketMethod {
    * @param market The market.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final Cash deposit, final MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final Cash deposit, final MarketBundle market) {
     Validate.notNull(deposit, "Deposit");
     Validate.notNull(market, "Market");
     final double dfStart = market.getDiscountingFactor(deposit.getCurrency(), deposit.getTradeTime());
     final double dfEnd = market.getDiscountingFactor(deposit.getCurrency(), deposit.getMaturity());
     final double pv = -deposit.getNotional() * dfStart + deposit.getFinalAmount() * dfEnd;
-    return CurrencyAmount.of(deposit.getCurrency(), pv);
+    return MultipleCurrencyAmount.of(deposit.getCurrency(), pv);
   }
 
   @Override
-  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof Cash, "Coupon Fixed");
     return presentValue((Cash) instrument, market);
   }

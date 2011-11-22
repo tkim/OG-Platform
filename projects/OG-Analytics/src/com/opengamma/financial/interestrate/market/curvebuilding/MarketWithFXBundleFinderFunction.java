@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate.market.curvebuilding;
 
 import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.market.MarketBundle;
+import com.opengamma.financial.interestrate.market.MarketWithFXBundle;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -14,7 +15,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Class used in curve building. Provides the fitting errors for a set of curve values.
  */
-public class MarketBundleFinderFunction extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
+public class MarketWithFXBundleFinderFunction extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
 
   /**
    * Calculator used to compute the instruments values.
@@ -30,7 +31,7 @@ public class MarketBundleFinderFunction extends Function1D<DoubleMatrix1D, Doubl
    * @param calculator The calculator used to value the instruments.
    * @param data The market finder data bundle.
    */
-  public MarketBundleFinderFunction(InstrumentDerivativeVisitor<MarketBundle, MultipleCurrencyAmount> calculator, MarketFinderDataBundle data) {
+  public MarketWithFXBundleFinderFunction(InstrumentDerivativeVisitor<MarketBundle, MultipleCurrencyAmount> calculator, MarketFinderDataBundle data) {
     _calculator = calculator;
     _data = data;
   }
@@ -38,9 +39,11 @@ public class MarketBundleFinderFunction extends Function1D<DoubleMatrix1D, Doubl
   @Override
   public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
     MarketBundle market = MarketBundleBuildingFunction.build(_data, x);
+    MarketWithFXBundle marketFX = (MarketWithFXBundle) market;
     final double[] residual = new double[_data.getNbInstruments()];
     for (int loopins = 0; loopins < _data.getNbInstruments(); loopins++) {
-      residual[loopins] = _calculator.visit(_data.getInstruments()[loopins], market).iterator().next().getAmount() - _data.getMarketValue()[loopins].getAmount();
+      residual[loopins] = marketFX.getFXMatrix().convert(_calculator.visit(_data.getInstruments()[loopins], market), _data.getMarketValue()[loopins].getCurrency()).getAmount()
+          - _data.getMarketValue()[loopins].getAmount();
     }
     return new DoubleMatrix1D(residual);
   }

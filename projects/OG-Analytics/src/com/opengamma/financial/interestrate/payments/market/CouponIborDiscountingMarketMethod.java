@@ -18,7 +18,7 @@ import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityM
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -26,13 +26,14 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public final class CouponIborDiscountingMarketMethod implements PricingMarketMethod {
 
-  /*
+  /**
    * The unique instance of the method.
    */
   private static final CouponIborDiscountingMarketMethod INSTANCE = new CouponIborDiscountingMarketMethod();
 
-  /*
-   * Gets the method unique instance.
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
    */
   public static CouponIborDiscountingMarketMethod getInstance() {
     return INSTANCE;
@@ -50,17 +51,17 @@ public final class CouponIborDiscountingMarketMethod implements PricingMarketMet
    * @param market The market curves.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final CouponIbor coupon, final MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final CouponIbor coupon, final MarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
     final double forward = market.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingYearFraction());
     final double df = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double value = (coupon.getNotional() * coupon.getPaymentYearFraction() * forward + coupon.getSpreadAmount()) * df;
-    return CurrencyAmount.of(coupon.getCurrency(), value);
+    return MultipleCurrencyAmount.of(coupon.getCurrency(), value);
   }
 
   @Override
-  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof CouponIbor, "CouponIborDiscountingMethod: The instrument should be of type CouponIbor");
     return presentValue((CouponIbor) instrument, market);
   }

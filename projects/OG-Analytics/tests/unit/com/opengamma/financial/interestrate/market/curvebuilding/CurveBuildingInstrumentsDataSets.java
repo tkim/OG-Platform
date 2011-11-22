@@ -21,12 +21,14 @@ import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.IndexOIS;
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.instrument.index.SwapGenerator;
 import com.opengamma.financial.instrument.index.iborindex.Eonia;
 import com.opengamma.financial.instrument.index.iborindex.Euribor3M;
 import com.opengamma.financial.instrument.index.iborindex.Euribor6M;
+import com.opengamma.financial.instrument.index.iborindex.UsdLibor3M;
 import com.opengamma.financial.instrument.index.priceindex.EurolandHicpXT;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
@@ -53,9 +55,12 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 public class CurveBuildingInstrumentsDataSets {
 
   private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
+  private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   private static final IborIndex EURIBOR_3M = new Euribor3M(CALENDAR_EUR);
   private static final IborIndex EURIBOR_6M = new Euribor6M(CALENDAR_EUR);
+  private static final IborIndex USDLIBOR_3M = new UsdLibor3M(CALENDAR_USD);
   private static final IndexOIS EONIA = new Eonia(CALENDAR_EUR);
+  private static final IndexDeposit[] INDEXES = new IndexDeposit[] {EURIBOR_3M, EURIBOR_6M, USDLIBOR_3M, EONIA};
   private static final PriceIndex EUR_HICPXT = new EurolandHicpXT();
   private static final Currency EUR = EURIBOR_3M.getCurrency();
   private static final int SETTLEMENT_DAYS_EUR = EURIBOR_3M.getSettlementDays();
@@ -218,6 +223,8 @@ public class CurveBuildingInstrumentsDataSets {
           EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth(), EUR_MONTH_LAG, EUR_HICPXT_TS);
     }
   }
+
+  // ===== Derivatives =====
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_2 = new String[] {NOT_USED, NOT_USED};
 
@@ -258,6 +265,10 @@ public class CurveBuildingInstrumentsDataSets {
 
   public static ZonedDateTime referenceDate() {
     return REFERENCE_DATE;
+  }
+
+  public static IndexDeposit[] indexes() {
+    return INDEXES;
   }
 
   /**

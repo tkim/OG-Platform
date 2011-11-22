@@ -5,7 +5,7 @@
  */
 package com.opengamma.util.money;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertSame;
@@ -293,6 +293,19 @@ public class MultipleCurrencyAmountTest {
     MultipleCurrencyAmount mca = MultipleCurrencyAmount.of(CA_LIST);
     MultipleCurrencyAmount test = mca.plus(ca);
     assertSameData(expected, test);
+  }
+
+  @Test
+  public void multipliedBy() {
+    final double a = 117.0;
+    MultipleCurrencyAmount mca = MultipleCurrencyAmount.of(CCY1, a);
+    mca = mca.plus(MultipleCurrencyAmount.of(CCY2, 2*a));
+    mca = mca.plus(MultipleCurrencyAmount.of(CCY3, a/2));
+    final double m = 2.5;
+    mca = mca.multipliedBy(m);
+    assertEquals("MultipleCurrencyAmount - multiplyBy", a*m, mca.getAmount(CCY1), 1.0E-10);
+    
+    
   }
 
   //-------------------------------------------------------------------------

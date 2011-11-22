@@ -11,6 +11,8 @@ import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.cash.market.CashDiscountingMarketMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
@@ -35,21 +37,22 @@ import com.opengamma.financial.interestrate.payments.market.CouponIborDiscountin
 import com.opengamma.financial.interestrate.payments.market.CouponOISDiscountingMarketMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of instruments for a given MarketBundle (set of yield and price curves).
  * Calculator for linear instruments requiring only discounting.
  */
-public final class PresentValueMarketCalculator extends AbstractInstrumentDerivativeVisitor<MarketBundle, CurrencyAmount> {
+public class PresentValueMarketCalculator extends AbstractInstrumentDerivativeVisitor<MarketBundle, MultipleCurrencyAmount> {
 
-  /*
+  /**
    * The unique instance of the method.
    */
   private static final PresentValueMarketCalculator INSTANCE = new PresentValueMarketCalculator();
 
-  /*
-   * Gets the method unique instance.
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
    */
   public static PresentValueMarketCalculator getInstance() {
     return INSTANCE;
@@ -58,7 +61,7 @@ public final class PresentValueMarketCalculator extends AbstractInstrumentDeriva
   /**
    * Private constructor.
    */
-  private PresentValueMarketCalculator() {
+  protected PresentValueMarketCalculator() {
   }
 
   /**
@@ -77,48 +80,48 @@ public final class PresentValueMarketCalculator extends AbstractInstrumentDeriva
   private static final CouponInflationZeroCouponInterpolationGearingDiscountingMethod METHOD_ZC_INTERPOLATION_GEARING = new CouponInflationZeroCouponInterpolationGearingDiscountingMethod();
 
   @Override
-  public CurrencyAmount visit(final InstrumentDerivative derivative, final MarketBundle market) {
+  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final MarketBundle market) {
     Validate.notNull(market);
     Validate.notNull(derivative);
     return derivative.accept(this, market);
   }
 
   @Override
-  public CurrencyAmount visitCash(final Cash cash, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCash(final Cash cash, final MarketBundle market) {
     return METHOD_CASH.presentValue(cash, market);
   }
 
   @Override
-  public CurrencyAmount visitForwardRateAgreement(final ForwardRateAgreement fra, final MarketBundle market) {
+  public MultipleCurrencyAmount visitForwardRateAgreement(final ForwardRateAgreement fra, final MarketBundle market) {
     return METHOD_FRA.presentValue(fra, market);
   }
 
   @Override
-  public CurrencyAmount visitFixedCouponPayment(final CouponFixed payment, final MarketBundle market) {
+  public MultipleCurrencyAmount visitFixedCouponPayment(final CouponFixed payment, final MarketBundle market) {
     return METHOD_FIXED.presentValue(payment, market);
   }
 
   @Override
-  public CurrencyAmount visitCouponIbor(final CouponIbor payment, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCouponIbor(final CouponIbor payment, final MarketBundle market) {
     return METHOD_IBOR.presentValue(payment, market);
   }
 
   @Override
   //TOTO: remove when not necessary anymore.
-  public CurrencyAmount visitCouponIborFixed(final CouponIborFixed payment, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCouponIborFixed(final CouponIborFixed payment, final MarketBundle market) {
     return visitFixedCouponPayment(payment, market);
   }
 
   @Override
-  public CurrencyAmount visitCouponOIS(final CouponOIS payment, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCouponOIS(final CouponOIS payment, final MarketBundle market) {
     return METHOD_OIS.presentValue(payment, market);
   }
 
   @Override
-  public CurrencyAmount visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final MarketBundle market) {
+  public MultipleCurrencyAmount visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final MarketBundle market) {
     Validate.notNull(annuity);
     Validate.notNull(market);
-    CurrencyAmount pv = CurrencyAmount.of(annuity.getCurrency(), 0.0);
+    MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(annuity.getCurrency(), 0.0);
     for (final Payment p : annuity.getPayments()) {
       pv = pv.plus(visit(p, market));
     }
@@ -126,44 +129,62 @@ public final class PresentValueMarketCalculator extends AbstractInstrumentDeriva
   }
 
   @Override
-  public CurrencyAmount visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final MarketBundle market) {
+  public MultipleCurrencyAmount visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final MarketBundle market) {
     return visitGenericAnnuity(annuity, market);
   }
 
   @Override
-  public CurrencyAmount visitSwap(final Swap<?, ?> swap, final MarketBundle market) {
+  public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final MarketBundle market) {
     Validate.notNull(swap);
     return visit(swap.getFirstLeg(), market).plus(visit(swap.getSecondLeg(), market));
   }
 
   @Override
-  public CurrencyAmount visitFixedCouponSwap(final FixedCouponSwap<?> swap, final MarketBundle market) {
+  public MultipleCurrencyAmount visitFixedCouponSwap(final FixedCouponSwap<?> swap, final MarketBundle market) {
     return visitSwap(swap, market);
   }
 
   @Override
-  public CurrencyAmount visitInterestRateFuture(final InterestRateFuture future, final MarketBundle market) {
+  public MultipleCurrencyAmount visitInterestRateFuture(final InterestRateFuture future, final MarketBundle market) {
     return METHOD_FUT.presentValue(future, market);
   }
 
   @Override
-  public CurrencyAmount visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final MarketBundle market) {
     return METHOD_ZC_MONTHLY.presentValue(coupon, market);
   }
 
   @Override
-  public CurrencyAmount visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final MarketBundle market) {
     return METHOD_ZC_INTERPOLATION.presentValue(coupon, market);
   }
 
   @Override
-  public CurrencyAmount visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final MarketBundle market) {
     return METHOD_ZC_MONTHLY_GEARING.presentValue(coupon, market);
   }
 
   @Override
-  public CurrencyAmount visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final MarketBundle market) {
     return METHOD_ZC_INTERPOLATION_GEARING.presentValue(coupon, market);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, final MarketBundle market) {
+    Validate.notNull(bond, "Bond");
+    MarketBundle creditDiscounting = new MarketDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuer()));
+    final MultipleCurrencyAmount pvNominal = visit(bond.getNominal(), creditDiscounting);
+    final MultipleCurrencyAmount pvCoupon = visit(bond.getCoupon(), creditDiscounting);
+    return pvNominal.plus(pvCoupon);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final MarketBundle market) {
+    Validate.notNull(bond, "Bond");
+    final MultipleCurrencyAmount pvBond = visit(bond.getBondTransaction(), market);
+    MultipleCurrencyAmount pvSettlement = visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(
+        bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
+    return pvBond.multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
 
 }

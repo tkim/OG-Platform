@@ -10,17 +10,17 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDiscountingDecorated;
+import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Pricing method for inflation bond. The price is computed by index estimation and discounting.
@@ -30,7 +30,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
   /**
    * The present value inflation calculator (for the different parts of the bond transaction).
    */
-  private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();
+  private static final PresentValueMarketCalculator PVIC = PresentValueMarketCalculator.getInstance();
   /**
    * The root bracket used for yield finding.
    */
@@ -46,16 +46,16 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * @param market The market.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final MarketBundle market) {
     Validate.notNull(bond, "Bond");
     MarketBundle creditDiscounting = new MarketDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuer()));
-    final CurrencyAmount pvNominal = PVIC.visit(bond.getNominal(), creditDiscounting);
-    final CurrencyAmount pvCoupon = PVIC.visit(bond.getCoupon(), creditDiscounting);
+    final MultipleCurrencyAmount pvNominal = PVIC.visit(bond.getNominal(), creditDiscounting);
+    final MultipleCurrencyAmount pvCoupon = PVIC.visit(bond.getCoupon(), creditDiscounting);
     return pvNominal.plus(pvCoupon);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, MarketBundle market) {
     Validate.isTrue(instrument instanceof BondCapitalIndexedSecurity<?>, "Capital inflation indexed bond.");
     return presentValue((BondCapitalIndexedSecurity<?>) instrument, market);
   }
@@ -68,7 +68,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * @param cleanPriceReal The clean price.
    * @return The present value.
    */
-  public CurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<Coupon> bond, final MarketBundle market, final double cleanPriceReal) {
+  public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<Coupon> bond, final MarketBundle market, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
@@ -77,7 +77,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
     double dirtyPriceAjusted = dirtyPriceReal * estimatedIndex / bond.getIndexStartValue();
     double dfSettle = market.getDiscountingFactor(bond.getCurrency(), bond.getSettlementTime());
     double pv = dirtyPriceAjusted * bond.getCoupon().getNthPayment(0).getNotional() * dfSettle;
-    return CurrencyAmount.of(bond.getCurrency(), pv);
+    return MultipleCurrencyAmount.of(bond.getCurrency(), pv);
   }
 
   /**

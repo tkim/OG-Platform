@@ -42,29 +42,29 @@ public class SensitivityFiniteDifferenceMarket {
     Validate.notNull(differenceType, "Difference type");
     int nbNode = nodeTimes.length;
     double[] result = new double[nbNode];
-    double pv = method.presentValue(instrument, market).getAmount();
+    double pv = method.presentValue(instrument, market).iterator().next().getAmount();
     MarketBundle marketBumped;
     switch (differenceType) {
       case FORWARD:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           marketBumped = new MarketDiscountingTimeDecorated(market, ccy, nodeTimes[loopnode], deltaShift);
-          final double bumpedpv = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpv = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           result[loopnode] = (bumpedpv - pv) / deltaShift;
         }
         return result;
       case CENTRAL:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           marketBumped = new MarketDiscountingTimeDecorated(market, ccy, nodeTimes[loopnode], deltaShift);
-          final double bumpedpvPlus = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpvPlus = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           marketBumped = new MarketDiscountingTimeDecorated(market, ccy, nodeTimes[loopnode], -deltaShift);
-          final double bumpedpvMinus = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpvMinus = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           result[loopnode] = (bumpedpvPlus - bumpedpvMinus) / (2 * deltaShift);
         }
         return result;
       case BACKWARD:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           marketBumped = new MarketDiscountingTimeDecorated(market, ccy, nodeTimes[loopnode], -deltaShift);
-          final double bumpedpv = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpv = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           result[loopnode] = (pv - bumpedpv) / deltaShift;
         }
         return result;
@@ -94,29 +94,29 @@ public class SensitivityFiniteDifferenceMarket {
     Validate.notNull(differenceType, "Difference type");
     int nbNode = nodeTimes.length;
     double[] result = new double[nbNode];
-    double pv = method.presentValue(instrument, market).getAmount();
+    double pv = method.presentValue(instrument, market).iterator().next().getAmount();
     MarketBundle marketBumped;
     switch (differenceType) {
       case FORWARD:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           marketBumped = new MarketForwardTimeDecorated(market, index, nodeTimes[loopnode], deltaShift);
-          final double bumpedpv = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpv = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           result[loopnode] = (bumpedpv - pv) / deltaShift;
         }
         return result;
       case CENTRAL:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           marketBumped = new MarketForwardTimeDecorated(market, index, nodeTimes[loopnode], deltaShift);
-          final double bumpedpvPlus = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpvPlus = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           marketBumped = new MarketForwardTimeDecorated(market, index, nodeTimes[loopnode], -deltaShift);
-          final double bumpedpvMinus = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpvMinus = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           result[loopnode] = (bumpedpvPlus - bumpedpvMinus) / (2 * deltaShift);
         }
         return result;
       case BACKWARD:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           marketBumped = new MarketForwardTimeDecorated(market, index, nodeTimes[loopnode], -deltaShift);
-          final double bumpedpv = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpv = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           result[loopnode] = (pv - bumpedpv) / deltaShift;
         }
         return result;
@@ -131,29 +131,29 @@ public class SensitivityFiniteDifferenceMarket {
     Validate.notNull(differenceType, "Difference type");
     int nbNode = nodeTimes.length;
     double[] result = new double[nbNode];
-    double pv = method.presentValue(instrument, market).getAmount();
+    double pv = method.presentValue(instrument, market).iterator().next().getAmount();
     MarketBundle marketBumped;
     switch (differenceType) {
       case FORWARD:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           marketBumped = new MarketPriceIndexTimeDecorated(market, index, nodeTimes[loopnode], deltaShift);
-          final double bumpedpv = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpv = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           result[loopnode] = (bumpedpv - pv) / deltaShift;
         }
         return result;
       case CENTRAL:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           marketBumped = new MarketPriceIndexTimeDecorated(market, index, nodeTimes[loopnode], deltaShift);
-          final double bumpedpvPlus = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpvPlus = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           marketBumped = new MarketPriceIndexTimeDecorated(market, index, nodeTimes[loopnode], -deltaShift);
-          final double bumpedpvMinus = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpvMinus = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           result[loopnode] = (bumpedpvPlus - bumpedpvMinus) / (2 * deltaShift);
         }
         return result;
       case BACKWARD:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           marketBumped = new MarketPriceIndexTimeDecorated(market, index, nodeTimes[loopnode], -deltaShift);
-          final double bumpedpv = method.presentValue(instrument, marketBumped).getAmount();
+          final double bumpedpv = method.presentValue(instrument, marketBumped).iterator().next().getAmount();
           result[loopnode] = (pv - bumpedpv) / deltaShift;
         }
         return result;

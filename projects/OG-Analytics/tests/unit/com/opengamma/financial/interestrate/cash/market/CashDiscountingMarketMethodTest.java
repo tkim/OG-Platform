@@ -28,7 +28,7 @@ import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDiffe
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.tuple.DoublesPair;
@@ -67,11 +67,11 @@ public class CashDiscountingMarketMethodTest {
    * Tests the present value.
    */
   public void presentValue() {
-    CurrencyAmount pv = METHOD.presentValue(DEPOSIT, MARKET);
+    MultipleCurrencyAmount pv = METHOD.presentValue(DEPOSIT, MARKET);
     double dfPayment = MARKET.getCurve(EUR).getDiscountFactor(DEPOSIT.getMaturity());
     double dfSettle = MARKET.getCurve(EUR).getDiscountFactor(DEPOSIT.getTradeTime());
     double pvExpected = -NOTIONAL * dfSettle + NOTIONAL * (1.0 + ACCRUAL_FACTOR_PAYMENT * RATE) * dfPayment;
-    assertEquals("Cash: pv by discounting", pvExpected, pv.getAmount(), 1.0E-2);
+    assertEquals("Cash: pv by discounting", pvExpected, pv.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -79,10 +79,10 @@ public class CashDiscountingMarketMethodTest {
    * Compare the present value from the method and from the standard calculator.
    */
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD.presentValue(DEPOSIT, MARKET);
-    CurrencyAmount pvCalculator = PVC.visit(DEPOSIT, MARKET);
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    MultipleCurrencyAmount pvMethod = METHOD.presentValue(DEPOSIT, MARKET);
+    MultipleCurrencyAmount pvCalculator = PVC.visit(DEPOSIT, MARKET);
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.size(), pvCalculator.size());
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), 1.0E-2);
   }
 
   @Test

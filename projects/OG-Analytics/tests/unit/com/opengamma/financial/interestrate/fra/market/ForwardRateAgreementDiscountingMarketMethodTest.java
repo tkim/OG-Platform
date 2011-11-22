@@ -26,7 +26,8 @@ import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityM
 import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
 import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -37,6 +38,7 @@ public class ForwardRateAgreementDiscountingMarketMethodTest {
   private static final MarketBundle MARKET = MarketDataSets.createMarket1();
   private static final IndexDeposit[] INDEXES = MarketDataSets.getDepositIndexes();
   private static final IborIndex EURIBOR3M = (IborIndex) INDEXES[0];
+  private static final Currency EUR = EURIBOR3M.getCurrency();
   // Dates : The above dates are not standard but selected for insure correct testing.
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 6);
@@ -63,16 +65,16 @@ public class ForwardRateAgreementDiscountingMarketMethodTest {
     final double forward = MARKET.getForwardRate(EURIBOR3M, FRA.getFixingPeriodStartTime(), FRA.getFixingPeriodEndTime(), FRA.getFixingYearFraction());
     final double dfSettle = MARKET.getDiscountingFactor(FRA.getCurrency(), FRA.getPaymentTime());
     final double expectedPv = FRA.getNotional() * dfSettle * FRA.getPaymentYearFraction() * (forward - FRA_RATE) / (1 + FRA.getPaymentYearFraction() * forward);
-    final CurrencyAmount pv = METHOD.presentValue(FRA, MARKET);
-    assertEquals("FRA discounting: present value", expectedPv, pv.getAmount(), 1.0E-2);
+    final MultipleCurrencyAmount pv = METHOD.presentValue(FRA, MARKET);
+    assertEquals("FRA discounting: present value", expectedPv, pv.getAmount(EUR), 1.0E-2);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD.presentValue(FRA, MARKET);
-    CurrencyAmount pvCalculator = PVC.visit(FRA, MARKET);
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getCurrency(), pvCalculator.getCurrency());
-    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(), pvCalculator.getAmount(), 1.0E-2);
+    MultipleCurrencyAmount pvMethod = METHOD.presentValue(FRA, MARKET);
+    MultipleCurrencyAmount pvCalculator = PVC.visit(FRA, MARKET);
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.size(), pvCalculator.size());
+    assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), 1.0E-2);
   }
 
   @Test
@@ -80,9 +82,9 @@ public class ForwardRateAgreementDiscountingMarketMethodTest {
     final ForwardRateAgreementDefinition fraDefinitionSell = new ForwardRateAgreementDefinition(EURIBOR3M.getCurrency(), PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT,
         -NOTIONAL, FIXING_DATE, EURIBOR3M, FRA_RATE);
     final ForwardRateAgreement fraSell = (ForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE, NOT_USED);
-    final CurrencyAmount pvBuy = METHOD.presentValue(FRA, MARKET);
-    final CurrencyAmount pvSell = METHOD.presentValue(fraSell, MARKET);
-    assertEquals("FRA discounting: present value - buy/sell parity", pvSell.getAmount(), -pvBuy.getAmount(), 1.0E-2);
+    final MultipleCurrencyAmount pvBuy = METHOD.presentValue(FRA, MARKET);
+    final MultipleCurrencyAmount pvSell = METHOD.presentValue(fraSell, MARKET);
+    assertEquals("FRA discounting: present value - buy/sell parity", pvSell.getAmount(EUR), -pvBuy.getAmount(EUR), 1.0E-2);
   }
 
   @Test

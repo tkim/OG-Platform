@@ -17,7 +17,7 @@ import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -25,13 +25,14 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public final class CouponOISDiscountingMarketMethod implements PricingMarketMethod {
 
-  /*
+  /**
    * The unique instance of the method.
    */
   private static final CouponOISDiscountingMarketMethod INSTANCE = new CouponOISDiscountingMarketMethod();
 
-  /*
-   * Gets the method unique instance.
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
    */
   public static CouponOISDiscountingMarketMethod getInstance() {
     return INSTANCE;
@@ -49,17 +50,17 @@ public final class CouponOISDiscountingMarketMethod implements PricingMarketMeth
    * @param market The market curves.
    * @return The present value sensitivity.
    */
-  public CurrencyAmount presentValue(final CouponOIS coupon, final MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final CouponOIS coupon, final MarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
     final double df = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double forward = market.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor());
     final double pv = (coupon.getNotionalAccrued() * (1 + coupon.getFixingPeriodAccrualFactor() * forward) - coupon.getNotional()) * df;
-    return CurrencyAmount.of(coupon.getCurrency(), pv);
+    return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
   }
 
   @Override
-  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof CouponOIS, "Coupon OIS");
     return presentValue((CouponOIS) instrument, market);
   }

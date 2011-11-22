@@ -18,7 +18,7 @@ import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -35,13 +35,14 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public final class ForwardRateAgreementDiscountingMarketMethod implements PricingMarketMethod {
 
-  /*
+  /**
    * The unique instance of the method.
    */
   private static final ForwardRateAgreementDiscountingMarketMethod INSTANCE = new ForwardRateAgreementDiscountingMarketMethod();
 
-  /*
-   * Gets the method unique instance.
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
    */
   public static ForwardRateAgreementDiscountingMarketMethod getInstance() {
     return INSTANCE;
@@ -59,17 +60,17 @@ public final class ForwardRateAgreementDiscountingMarketMethod implements Pricin
    * @param market The market.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final ForwardRateAgreement fra, final MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final ForwardRateAgreement fra, final MarketBundle market) {
     Validate.notNull(fra, "FRA");
     Validate.notNull(market, "Market");
     final double discountFactorSettlement = market.getDiscountingFactor(fra.getCurrency(), fra.getPaymentTime());
     final double forward = market.getForwardRate(fra.getIndex(), fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction());
     final double presentValue = discountFactorSettlement * fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getPaymentYearFraction() * forward);
-    return CurrencyAmount.of(fra.getCurrency(), presentValue);
+    return MultipleCurrencyAmount.of(fra.getCurrency(), presentValue);
   }
 
   @Override
-  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof ForwardRateAgreement, "ForwardRateAgreementMethod: The instrument should be of type ForwardRateAgreement");
     return presentValue((ForwardRateAgreement) instrument, market);
   }

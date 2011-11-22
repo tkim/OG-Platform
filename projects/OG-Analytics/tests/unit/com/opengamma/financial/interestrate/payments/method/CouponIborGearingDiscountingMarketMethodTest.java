@@ -27,7 +27,8 @@ import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.market.CouponIborGearingDiscountingMarketMethod;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -40,6 +41,7 @@ public class CouponIborGearingDiscountingMarketMethodTest {
   private static final IborIndex EURIBOR3M = (IborIndex) IBOR_INDEXES[0];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 5, 23);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 8, 22);
   private static final double ACCRUAL_FACTOR = DAY_COUNT_COUPON.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
@@ -58,11 +60,11 @@ public class CouponIborGearingDiscountingMarketMethodTest {
    * The the present value.
    */
   public void presentValue() {
-    CurrencyAmount pv = METHOD.presentValue(COUPON, MARKET);
+    MultipleCurrencyAmount pv = METHOD.presentValue(COUPON, MARKET);
     double df = MARKET.getDiscountingFactor(COUPON.getCurrency(), COUPON.getPaymentTime());
     double forward = MARKET.getForwardRate(EURIBOR3M, COUPON.getFixingPeriodStartTime(), COUPON.getFixingPeriodEndTime(), COUPON.getFixingAccrualFactor());
     double pvExpected = (forward * FACTOR + SPREAD) * COUPON.getPaymentYearFraction() * COUPON.getNotional() * df;
-    assertEquals("Coupon Ibor Gearing: Present value by discounting", pvExpected, pv.getAmount(), 1.0E-2);
+    assertEquals("Coupon Ibor Gearing: Present value by discounting", pvExpected, pv.getAmount(EUR), 1.0E-2);
   }
 
   @Test

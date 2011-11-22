@@ -63,22 +63,21 @@ public class MarketBundle {
   /**
    * Build a new market from an existing one. New maps are created to hold the different curves. 
    * The curves of the existing market are used for the new one (the same curve are used, not copied).
-   * @param market The existing market.
    * @return The new market.
    */
-  public static MarketBundle from(MarketBundle market) {
+  public MarketBundle duplicate() {
     MarketBundle newMarket = new MarketBundle();
-    for (Currency ccy : market.getCurrencies()) {
-      newMarket.setCurve(ccy, market.getCurve(ccy));
+    for (Currency ccy : getCurrencies()) {
+      newMarket.setCurve(ccy, getCurve(ccy));
     }
-    for (IndexDeposit index : market.getIndexesDeposit()) {
-      newMarket.setCurve(index, market.getCurve(index));
+    for (IndexDeposit index : getIndexesDeposit()) {
+      newMarket.setCurve(index, getCurve(index));
     }
-    for (PriceIndex index : market.getPriceIndexes()) {
-      newMarket.setCurve(index, market.getCurve(index));
+    for (PriceIndex index : getPriceIndexes()) {
+      newMarket.setCurve(index, getCurve(index));
     }
-    for (String issuer : market.getIssuers()) {
-      newMarket.setCurve(issuer, market.getCurve(issuer));
+    for (String issuer : getIssuers()) {
+      newMarket.setCurve(issuer, getCurve(issuer));
     }
     return newMarket;
   }

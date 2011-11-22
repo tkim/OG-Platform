@@ -26,7 +26,7 @@ public class MarketBundleBuildingFunction {
    * @return The market.
    */
   public static MarketBundle build(final MarketFinderDataBundle data, final DoubleMatrix1D x) {
-    MarketBundle market = MarketBundle.from(data.getKnownMarket());
+    MarketBundle market = data.getKnownMarket().duplicate();
     // Yield curves
     YieldCurve[] curvesYield = new YieldCurve[data.getNbYieldCurve()];
     int p = 0;
