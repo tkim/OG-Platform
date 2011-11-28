@@ -38,7 +38,7 @@ $.register_module({
                 id_count = 0, prefix = 'viewdef_',
                 master = config.data.template_data.configJSON.data,
                 column_set_tabs,
-                config_type = 'com.opengamma.engine.view.ViewDefinition',
+                config_type = config.type,
                 type_map = [
                     ['0',                                                                           Form.type.STR],
                     // <constraints>
@@ -128,9 +128,9 @@ $.register_module({
                 {type: 'form:load', handler: function () {
                     var header = '\
                         <header class="OG-header-generic">\
-                          <div class="OG-toolbar"></div>\
+                          <div class="OG-tools"></div>\
                           <h1 class="og-js-name">' + master.name + '</h1>\
-                          <br />(View Definition)\
+                          (View Definition)\
                         </header>\
                     ';
                     $('.ui-layout-inner-center .ui-layout-header').html(header);
