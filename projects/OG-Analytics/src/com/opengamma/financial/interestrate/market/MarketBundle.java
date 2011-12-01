@@ -73,7 +73,7 @@ public class MarketBundle {
     for (IndexDeposit index : getIndexesDeposit()) {
       newMarket.setCurve(index, getCurve(index));
     }
-    for (PriceIndex index : getPriceIndexes()) {
+    for (IndexPrice index : getPriceIndexes()) {
       newMarket.setCurve(index, getCurve(index));
     }
     for (String issuer : getIssuers()) {

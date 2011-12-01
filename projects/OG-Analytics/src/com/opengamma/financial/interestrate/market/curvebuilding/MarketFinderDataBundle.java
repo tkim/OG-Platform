@@ -11,7 +11,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.IndexDeposit;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -45,7 +45,7 @@ public class MarketFinderDataBundle {
   /**
    * The links between the price indexes and the order of the price curves to be constructed.
    */
-  private final Map<PriceIndex, Integer> _priceIndexReferences;
+  private final Map<IndexPrice, Integer> _priceIndexReferences;
   /**
    * The points on which each interpolated yield curve is constructed.
    */
@@ -131,7 +131,7 @@ public class MarketFinderDataBundle {
     _nbIndexDeposit = forwardReferences.size();
     _nbInstruments = _instruments.length;
     _knownMarket = new MarketBundle();
-    _priceIndexReferences = new HashMap<PriceIndex, Integer>();
+    _priceIndexReferences = new HashMap<IndexPrice, Integer>();
     _priceCurveName = new String[0];
   }
 
@@ -168,7 +168,7 @@ public class MarketFinderDataBundle {
     _nbIndexDeposit = forwardReferences.size();
     _nbInstruments = _instruments.length;
     _knownMarket = knownMarket;
-    _priceIndexReferences = new HashMap<PriceIndex, Integer>();
+    _priceIndexReferences = new HashMap<IndexPrice, Integer>();
     _priceCurveName = new String[0];
   }
 
@@ -187,7 +187,7 @@ public class MarketFinderDataBundle {
    * @param knownPointsPriceCurve The values already known on the price curve (usually the already fixed price indexes).
    */
   public MarketFinderDataBundle(final MarketBundle knownMarket, final InstrumentDerivative[] instruments, final CurrencyAmount[] marketValue, final Map<Currency, Integer> discountingReferences,
-      final Map<IndexDeposit, Integer> forwardReferences, final Map<PriceIndex, Integer> priceIndexReferences, final double[][] nodePointsYieldCurve, final Interpolator1D[] interpolatorsYieldCurve,
+      final Map<IndexDeposit, Integer> forwardReferences, final Map<IndexPrice, Integer> priceIndexReferences, final double[][] nodePointsYieldCurve, final Interpolator1D[] interpolatorsYieldCurve,
       final double[][] nodePointsPriceCurve, final Interpolator1D[] interpolatorsPriceCurve, final double[][] knownPointsPriceCurve) {
     Validate.notNull(instruments, "Instruments");
     Validate.notNull(marketValue, "Market value");
@@ -230,7 +230,7 @@ public class MarketFinderDataBundle {
    * @param knownPointsPriceCurve The values already known on the price curve (usually the already fixed price indexes).
    * @param priceCurveName The names associated to the different price curves.
    */
-  public MarketFinderDataBundle(final MarketBundle knownMarket, final InstrumentDerivative[] instruments, final CurrencyAmount[] marketValue, final Map<PriceIndex, Integer> priceIndexReferences,
+  public MarketFinderDataBundle(final MarketBundle knownMarket, final InstrumentDerivative[] instruments, final CurrencyAmount[] marketValue, final Map<IndexPrice, Integer> priceIndexReferences,
       final double[][] nodePointsPriceCurve, final Interpolator1D[] interpolatorsPriceCurve, final double[][] knownPointsPriceCurve, final String[] priceCurveName) {
     Validate.notNull(instruments, "Instruments");
     Validate.notNull(marketValue, "Market value");
@@ -292,7 +292,7 @@ public class MarketFinderDataBundle {
    * Gets the links between the price indexes and the order of the price curves to be constructed.
    * @return The price curves links.
    */
-  public Map<PriceIndex, Integer> getPriceIndexReferences() {
+  public Map<IndexPrice, Integer> getPriceIndexReferences() {
     return _priceIndexReferences;
   }
 

@@ -6,7 +6,7 @@
 package com.opengamma.financial.interestrate.market.curvebuilding;
 
 import com.opengamma.financial.instrument.index.IndexDeposit;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -58,7 +58,7 @@ public class MarketBundleBuildingFunction {
           data.getPriceCurveName()[loopcurve]);
       curvesPrice[loopcurve] = new PriceIndexCurve(curveTmp);
     }
-    for (PriceIndex index : data.getPriceIndexReferences().keySet()) {
+    for (IndexPrice index : data.getPriceIndexReferences().keySet()) {
       market.setCurve(index, curvesPrice[data.getPriceIndexReferences().get(index)]);
     }
     return market;
