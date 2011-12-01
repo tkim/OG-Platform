@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.market.MarketBundle;
@@ -39,14 +39,16 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   private static final MarketBundle MARKET = MarketDataSets.createMarket1();
-  private static final PriceIndex[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
-  private static final PriceIndex PRICE_INDEX_EUR = PRICE_INDEXES[0];
-  private static final PriceIndex PRICE_INDEX_US = PRICE_INDEXES[2];
-  private static final Currency EUR = PRICE_INDEX_EUR.getCurrency();
-  private static final Currency USD = PRICE_INDEX_US.getCurrency();
   private static final IndexDeposit[] IBOR_INDEXES = MarketDataSets.getDepositIndexes();
   private static final IborIndex EURIBOR3M = (IborIndex) IBOR_INDEXES[0];
   private static final IborIndex USDLIBOR3M = (IborIndex) IBOR_INDEXES[3];
+  private static final IndexPrice[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
+  private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
+  //  private static final PriceIndex PRICE_INDEX_UK = PRICE_INDEXES[1];
+  private static final IndexPrice PRICE_INDEX_US = PRICE_INDEXES[2];
+  //  private static final IborIndex EURIBOR6M = IBOR_INDEXES[1];
+  private static final Currency EUR = PRICE_INDEX_EUR.getCurrency();
+  private static final Currency USD = PRICE_INDEX_US.getCurrency();
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
   private static final Calendar CALENDAR_USD = USDLIBOR3M.getCalendar();
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");

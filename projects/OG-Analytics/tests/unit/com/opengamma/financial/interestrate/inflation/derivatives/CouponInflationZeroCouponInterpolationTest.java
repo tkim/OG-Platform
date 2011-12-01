@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.index.priceindex.EurolandHicpXT;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
@@ -29,7 +29,7 @@ import com.opengamma.util.time.DateUtils;
  * Tests the zero-coupon inflation constructors.
  */
 public class CouponInflationZeroCouponInterpolationTest {
-  private static final PriceIndex PRICE_INDEX = new EurolandHicpXT();
+  private static final IndexPrice PRICE_INDEX = new EurolandHicpXT();
   private static final Currency CUR = PRICE_INDEX.getCurrency();
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
