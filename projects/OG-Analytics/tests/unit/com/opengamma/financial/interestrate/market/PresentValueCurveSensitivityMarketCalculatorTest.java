@@ -19,10 +19,10 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.IndexOIS;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
@@ -80,7 +80,7 @@ public class PresentValueCurveSensitivityMarketCalculatorTest {
   private static final String[] NOT_USED_2 = new String[] {"Not used", "Not used"};
   private static final GenericAnnuity<? extends Coupon> ANNUITY_IBOR = ANNUITY_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, NOT_USED_2);
 
-  private static final CMSIndex CMS_INDEX = new CMSIndex(PERIOD_FIXED, DAY_COUNT_FIXED, EURIBOR6M, TENOR_ANNUITY);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(PERIOD_FIXED, DAY_COUNT_FIXED, EURIBOR6M, TENOR_ANNUITY);
   private static final SwapFixedIborDefinition SWAP_FIXED_IBOR_DEFINITION = SwapFixedIborDefinition.from(SPOT_DATE, CMS_INDEX, NOTIONAL, FIXED_RATE, true);
   private static final FixedCouponSwap<Coupon> SWAP_FIXED_IBOR = SWAP_FIXED_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, new ArrayZonedDateTimeDoubleTimeSeries[] {FIXING_TS}, NOT_USED_2);
 

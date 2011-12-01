@@ -19,16 +19,16 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
-import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.IndexOIS;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.SwapGenerator;
+import com.opengamma.financial.instrument.index.iborindex.EURIBOR3M;
+import com.opengamma.financial.instrument.index.iborindex.EURIBOR6M;
 import com.opengamma.financial.instrument.index.iborindex.Eonia;
-import com.opengamma.financial.instrument.index.iborindex.Euribor3M;
-import com.opengamma.financial.instrument.index.iborindex.Euribor6M;
-import com.opengamma.financial.instrument.index.iborindex.UsdLibor3M;
+import com.opengamma.financial.instrument.index.iborindex.USDLIBOR3M;
 import com.opengamma.financial.instrument.index.priceindex.EurolandHicpXT;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
@@ -56,12 +56,12 @@ public class CurveBuildingInstrumentsDataSets {
 
   private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
-  private static final IborIndex EURIBOR_3M = new Euribor3M(CALENDAR_EUR);
-  private static final IborIndex EURIBOR_6M = new Euribor6M(CALENDAR_EUR);
-  private static final IborIndex USDLIBOR_3M = new UsdLibor3M(CALENDAR_USD);
+  private static final IborIndex EURIBOR_3M = new EURIBOR3M(CALENDAR_EUR);
+  private static final IborIndex EURIBOR_6M = new EURIBOR6M(CALENDAR_EUR);
+  private static final IborIndex USDLIBOR_3M = new USDLIBOR3M(CALENDAR_USD);
   private static final IndexOIS EONIA = new Eonia(CALENDAR_EUR);
   private static final IndexDeposit[] INDEXES = new IndexDeposit[] {EURIBOR_3M, EURIBOR_6M, USDLIBOR_3M, EONIA};
-  private static final PriceIndex EUR_HICPXT = new EurolandHicpXT();
+  private static final IndexPrice EUR_HICPXT = new EurolandHicpXT();
   private static final Currency EUR = EURIBOR_3M.getCurrency();
   private static final int SETTLEMENT_DAYS_EUR = EURIBOR_3M.getSettlementDays();
 
@@ -124,7 +124,7 @@ public class CurveBuildingInstrumentsDataSets {
       SWAP_EUR3_DEFINITION[loop3] = new SwapFixedIborDefinition(legFixed, legIbor);
     }
     for (int loop3 = 0; loop3 < SWAP_EUR3_NB; loop3++) {
-      CMSIndex cmsIndex = new CMSIndex(SWAP_GENERATOR_EUR3, SWAP_EUR3_TENOR[loop3]);
+      IndexSwap cmsIndex = new IndexSwap(SWAP_GENERATOR_EUR3, SWAP_EUR3_TENOR[loop3]);
       ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS_EUR);
       SWAP_EUR3_DEFINITION[SWAP_FAKE_EUR3_NB + loop3] = SwapFixedIborDefinition.from(startDate, cmsIndex, NOTIONAL_DEFAULT, SWAP_EUR3_RATE[loop3], true);
     }
@@ -155,7 +155,7 @@ public class CurveBuildingInstrumentsDataSets {
       SWAP_EUR6_DEFINITION[loop6] = new SwapFixedIborDefinition(legFixed, legIbor);
     }
     for (int loop6 = 0; loop6 < SWAP_EUR6_NB; loop6++) {
-      CMSIndex cmsIndex = new CMSIndex(SWAP_GENERATOR_EUR6, SWAP_EUR6_TENOR[loop6]);
+      IndexSwap cmsIndex = new IndexSwap(SWAP_GENERATOR_EUR6, SWAP_EUR6_TENOR[loop6]);
       ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS_EUR);
       SWAP_EUR6_DEFINITION[SWAP_FAKE_EUR6_NB + loop6] = SwapFixedIborDefinition.from(startDate, cmsIndex, NOTIONAL_DEFAULT, SWAP_EUR6_RATE[loop6], true);
     }

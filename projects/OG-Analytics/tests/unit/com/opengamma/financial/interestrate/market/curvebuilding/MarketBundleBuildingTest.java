@@ -17,7 +17,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.instrument.index.IndexDeposit;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
@@ -580,9 +580,9 @@ public class MarketBundleBuildingTest {
 
     InstrumentDerivative[] instrumentsInflation = CurveBuildingInstrumentsDataSets.instrumentsInflation();
 
-    Map<PriceIndex, Integer> priceIndexReferences = new HashMap<PriceIndex, Integer>();
+    Map<IndexPrice, Integer> priceIndexReferences = new HashMap<IndexPrice, Integer>();
     @SuppressWarnings("unchecked")
-    PriceIndex eurHicp = ((CouponInflationZeroCouponInterpolation) ((Swap<Coupon, Coupon>) instrumentsInflation[0]).getSecondLeg().getNthPayment(0)).getPriceIndex();
+    IndexPrice eurHicp = ((CouponInflationZeroCouponInterpolation) ((Swap<Coupon, Coupon>) instrumentsInflation[0]).getSecondLeg().getNthPayment(0)).getPriceIndex();
     priceIndexReferences.put(eurHicp, 0);
 
     int nbInstrumentsInflation = instrumentsInflation.length;
@@ -610,7 +610,7 @@ public class MarketBundleBuildingTest {
   }
 
   private MarketBundle inflationBuild(MarketBundle knownMarket, InstrumentDerivative[] instruments, double[] nodeTime, double[] knownPointsPriceCurve, double[] marketRate,
-      Map<PriceIndex, Integer> priceIndexReferences) {
+      Map<IndexPrice, Integer> priceIndexReferences) {
     int nbInstruments = instruments.length;
     Interpolator1D[] interpolatorsPriceCurve = new Interpolator1D[] {Interpolator1DFactory.LINEAR_INSTANCE};
     CurrencyAmount[] marketValue = new CurrencyAmount[nbInstruments];
@@ -1047,9 +1047,9 @@ public class MarketBundleBuildingTest {
     int nbInstrumentsDsc = instrumentsDsc.length;
 
     InstrumentDerivative[] instrumentsInflation = CurveBuildingInstrumentsDataSets.instrumentsInflation();
-    Map<PriceIndex, Integer> priceIndexReferences = new HashMap<PriceIndex, Integer>();
+    Map<IndexPrice, Integer> priceIndexReferences = new HashMap<IndexPrice, Integer>();
     @SuppressWarnings("unchecked")
-    PriceIndex eurHicp = ((CouponInflationZeroCouponInterpolation) ((Swap<Coupon, Coupon>) instrumentsInflation[0]).getSecondLeg().getNthPayment(0)).getPriceIndex();
+    IndexPrice eurHicp = ((CouponInflationZeroCouponInterpolation) ((Swap<Coupon, Coupon>) instrumentsInflation[0]).getSecondLeg().getNthPayment(0)).getPriceIndex();
     priceIndexReferences.put(eurHicp, 0);
 
     int nbInstrumentsInflation = instrumentsInflation.length;
