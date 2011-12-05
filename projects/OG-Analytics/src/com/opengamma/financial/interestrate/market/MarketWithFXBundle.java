@@ -47,6 +47,19 @@ public class MarketWithFXBundle extends MarketBundle {
   }
 
   /**
+   * Return the forward Forex rate at a given time for a given currency pair.
+   * @param ccy1 The first currency.
+   * @param ccy2 The second currency.
+   * @param time The forward time.
+   * @return The forward exchange rate: 1.0 * ccy1 = x * ccy2.
+   */
+  public double forwardForexRate(final Currency ccy1, final Currency ccy2, final double time) {
+    final double dfDomestic = getDiscountingFactor(ccy2, time);
+    final double dfForeign = getDiscountingFactor(ccy1, time);
+    return _fxRates.getFxRate(ccy1, ccy2) * dfForeign / dfDomestic;
+  }
+
+  /**
    * Build a new market from an existing one. New maps are created to hold the different curves. 
    * The curves of the existing market are used for the new one (the same curve are used, not copied).
    * @return The new market.
