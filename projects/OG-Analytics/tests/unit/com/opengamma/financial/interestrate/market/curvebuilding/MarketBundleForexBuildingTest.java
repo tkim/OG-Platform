@@ -66,37 +66,13 @@ public class MarketBundleForexBuildingTest {
     forwardReferences.put(eonia, 0);
     int nbInstruments = instrumentsDsc.length;
 
-    MarketBundle market = discountingBuild(instrumentsDsc, intrumentsDscTime, marketRateDsc, discountingReferences, forwardReferences);
+    MarketBundle market = MarketBundleBuildingTest.discountingBuild(instrumentsDsc, intrumentsDscTime, marketRateDsc, discountingReferences, forwardReferences);
 
     MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbInstruments];
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
       pv[loopins] = PVFC.visit(instrumentsDsc[loopins], market);
       assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pv[loopins].getAmount(eur), TOLERANCE);
     }
-  }
-
-  private MarketBundle discountingBuild(InstrumentDerivative[] instrumentsDsc, double[] intrumentsDscTime, double[] marketRateDsc, Map<Currency, Integer> discountingReferences,
-      Map<IndexDeposit, Integer> forwardReferences) {
-    int nbInstruments = instrumentsDsc.length;
-    CurrencyAmount[] marketValue = new CurrencyAmount[nbInstruments];
-    for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      marketValue[loopins] = CurrencyAmount.of(discountingReferences.keySet().iterator().next(), 0);
-    }
-    double[][] nodePointsYieldCurve = new double[1][nbInstruments];
-    nodePointsYieldCurve[0] = intrumentsDscTime;
-    Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[nbInstruments];
-    final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
-    final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      interpolatorsYieldCurve[loopins] = extrapolator;
-    }
-    String name = discountingReferences.keySet().iterator().next().toString() + " discounting";
-    MarketFinderDataBundle data = new MarketFinderDataBundle(instrumentsDsc, marketValue, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve, new String[] {name});
-    MarketBundleFinderFunction func = new MarketBundleFinderFunction(PVFC, data);
-    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, new DoubleMatrix1D(marketRateDsc));
-    MarketBundle market = MarketBundleBuildingFunction.build(data, yieldCurveNodes);
-    return market;
   }
 
   @Test
@@ -114,9 +90,8 @@ public class MarketBundleForexBuildingTest {
     discountingReferencesEUR.put(eur, 0);
     Map<IndexDeposit, Integer> forwardReferencesEUR = new HashMap<IndexDeposit, Integer>();
     forwardReferencesEUR.put(eonia, 0);
-    //    int nbInstruments = instrumentsDscEUR.length;
 
-    MarketBundle marketEUR = discountingBuild(instrumentsDscEUR, intrumentsDscEURTime, marketRateDscEUR, discountingReferencesEUR, forwardReferencesEUR);
+    MarketBundle marketEUR = MarketBundleBuildingTest.discountingBuild(instrumentsDscEUR, intrumentsDscEURTime, marketRateDscEUR, discountingReferencesEUR, forwardReferencesEUR);
 
     ForexSwap[] instrumentsDscUSD = CurveBuildingForexInstrumentsDataSets.instrumentsForex();
     Currency usd = instrumentsDscUSD[0].getFarLeg().getCurrency2();
@@ -152,12 +127,9 @@ public class MarketBundleForexBuildingTest {
     }
     double[][] nodePointsYieldCurve = new double[1][nbInstruments];
     nodePointsYieldCurve[0] = intrumentsDscTime;
-    Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[nbInstruments];
     final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      interpolatorsYieldCurve[loopins] = extrapolator;
-    }
+    Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[] {extrapolator};
     String name = discountingReferences.keySet().iterator().next().toString() + " discounting";
     MarketFinderDataBundle data = new MarketFinderDataBundle(marketKnown, instrumentsDsc, marketValue, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve,
         new String[] {name});
@@ -188,11 +160,11 @@ public class MarketBundleForexBuildingTest {
     Map<IndexDeposit, Integer> forwardReferencesDsc = new HashMap<IndexDeposit, Integer>();
     forwardReferencesDsc.put(eonia, 0);
 
-    MarketBundle marketDsc = discountingBuild(instrumentsDsc, intrumentsTimeDsc, marketRateDsc, discountingReferencesDsc, forwardReferencesDsc);
+    MarketBundle marketDsc = MarketBundleBuildingTest.discountingBuild(instrumentsDsc, intrumentsTimeDsc, marketRateDsc, discountingReferencesDsc, forwardReferencesDsc);
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < NB_TEST; looptest++) {
-      marketDsc = discountingBuild(instrumentsDsc, intrumentsTimeDsc, marketRateDsc, discountingReferencesDsc, forwardReferencesDsc);
+      marketDsc = MarketBundleBuildingTest.discountingBuild(instrumentsDsc, intrumentsTimeDsc, marketRateDsc, discountingReferencesDsc, forwardReferencesDsc);
     }
     endTime = System.currentTimeMillis();
     System.out.println(NB_TEST + " discounting curve building (" + nbInstrumentsDsc + " instruments): " + (endTime - startTime) + " ms " + marketDsc.toString());
@@ -232,13 +204,13 @@ public class MarketBundleForexBuildingTest {
     int nbInstrumentsDscUSD = instrumentsDscUSD.length;
     double[] startDscUSD = new double[nbInstrumentsDscUSD];
 
-    MarketBundle marketEUR = discountingBuild(instrumentsDsc, intrumentsTimeDsc, marketRateDsc, discountingReferencesDsc, forwardReferencesDsc);
+    MarketBundle marketEUR = MarketBundleBuildingTest.discountingBuild(instrumentsDsc, intrumentsTimeDsc, marketRateDsc, discountingReferencesDsc, forwardReferencesDsc);
     MarketWithFXBundle marketFXEUR = new MarketWithFXBundle(fxMatrix, marketEUR);
     MarketWithFXBundle marketEURUSD = discountingBuild(marketFXEUR, instrumentsDscUSD, intrumentsDscUSDTime, startDscUSD, discountingReferencesUSD, forwardReferencesUSD);
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < NB_TEST; looptest++) {
-      marketEUR = discountingBuild(instrumentsDsc, intrumentsTimeDsc, marketRateDsc, discountingReferencesDsc, forwardReferencesDsc);
+      marketEUR = MarketBundleBuildingTest.discountingBuild(instrumentsDsc, intrumentsTimeDsc, marketRateDsc, discountingReferencesDsc, forwardReferencesDsc);
       marketFXEUR = new MarketWithFXBundle(fxMatrix, marketEUR);
       marketEURUSD = discountingBuild(marketFXEUR, instrumentsDscUSD, intrumentsDscUSDTime, startDscUSD, discountingReferencesUSD, forwardReferencesUSD);
     }

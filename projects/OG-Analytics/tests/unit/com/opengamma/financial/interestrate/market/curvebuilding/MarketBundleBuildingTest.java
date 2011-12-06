@@ -68,6 +68,7 @@ public class MarketBundleBuildingTest {
    * Build the discounting curve in EUR from ON and TN deposits and OIS swaps. The same curve is used for discounting and OIS forward projection.
    */
   public void discounting() {
+    //TODO: transfer into market.curvebuilding?
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
@@ -89,7 +90,7 @@ public class MarketBundleBuildingTest {
     }
   }
 
-  private MarketBundle discountingBuild(InstrumentDerivative[] instrumentsDsc, double[] intrumentsDscTime, double[] marketRateDsc, Map<Currency, Integer> discountingReferences,
+  public static MarketBundle discountingBuild(InstrumentDerivative[] instrumentsDsc, double[] intrumentsDscTime, double[] marketRateDsc, Map<Currency, Integer> discountingReferences,
       Map<IndexDeposit, Integer> forwardReferences) {
     int nbInstruments = instrumentsDsc.length;
     CurrencyAmount[] marketValue = new CurrencyAmount[nbInstruments];
@@ -98,12 +99,9 @@ public class MarketBundleBuildingTest {
     }
     double[][] nodePointsYieldCurve = new double[1][nbInstruments];
     nodePointsYieldCurve[0] = intrumentsDscTime;
-    Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[nbInstruments];
     final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      interpolatorsYieldCurve[loopins] = extrapolator;
-    }
+    Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[] {extrapolator};
     String name = discountingReferences.keySet().iterator().next().toString() + " discounting";
     MarketFinderDataBundle data = new MarketFinderDataBundle(instrumentsDsc, marketValue, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve, new String[] {name});
     MarketBundleFinderFunction func = new MarketBundleFinderFunction(PVC, data);
@@ -515,10 +513,10 @@ public class MarketBundleBuildingTest {
       System.arraycopy(intrumentsTime, insNum, nodePointsYieldCurve[loopcurve], 0, nbInstrumentsByCurve[loopcurve]);
       insNum += nbInstrumentsByCurve[loopcurve];
     }
-    Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[nbInstruments];
+    Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[nbCurve];
     final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    for (int loopins = 0; loopins < nbInstruments; loopins++) {
+    for (int loopins = 0; loopins < nbCurve; loopins++) {
       interpolatorsYieldCurve[loopins] = extrapolator;
     }
     String[] name = new String[nbCurve];
@@ -545,12 +543,9 @@ public class MarketBundleBuildingTest {
     }
     double[][] nodePointsYieldCurve = new double[1][nbInstruments];
     nodePointsYieldCurve[0] = intrumentsTime;
-    Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[nbInstruments];
     final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      interpolatorsYieldCurve[loopins] = extrapolator;
-    }
+    Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[] {extrapolator};
     String name = forwardReferences.keySet().iterator().next().toString();
     MarketFinderDataBundle data = new MarketFinderDataBundle(knownMarket, instruments, marketValue, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve,
         new String[] {name});

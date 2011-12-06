@@ -21,7 +21,7 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
-import com.opengamma.financial.instrument.index.IndexOIS;
+import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
@@ -53,7 +53,7 @@ public class PresentValueMarketCalculatorTest {
   private static final IndexDeposit[] INDEXES = MarketDataSets.getDepositIndexes();
   private static final IborIndex EURIBOR3M = (IborIndex) INDEXES[0];
   private static final IborIndex EURIBOR6M = (IborIndex) INDEXES[1];
-  private static final IndexOIS EONIA = (IndexOIS) INDEXES[2];
+  private static final IndexON EONIA = (IndexON) INDEXES[2];
   private static final Calendar CALENDAR_EUR = EURIBOR6M.getCalendar();
   private static final int SETTLEMENT_DAYS = EURIBOR6M.getSettlementDays();
   private static final BusinessDayConvention BUSINESS_DAY = EURIBOR6M.getBusinessDayConvention();

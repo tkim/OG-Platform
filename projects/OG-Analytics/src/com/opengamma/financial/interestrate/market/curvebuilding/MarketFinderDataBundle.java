@@ -47,15 +47,15 @@ public class MarketFinderDataBundle {
    */
   private final Map<IndexPrice, Integer> _priceIndexReferences;
   /**
-   * The points on which each interpolated yield curve is constructed.
+   * The points on which each interpolated yield curve is constructed (curve, point).
    */
   private final double[][] _nodePointsYieldCurve;
   /**
-   * The interpolators for each yield curve to be constructed.
+   * The interpolators for each yield curve to be constructed. Length = number of curves.
    */
   private final Interpolator1D[] _interpolatorsYieldCurve;
   /**
-   * The names associated to the different yield curves.
+   * The names associated to the different yield curves.  Length = number of curves.
    */
   private final String[] _yieldCurveName;
   /**
@@ -114,6 +114,7 @@ public class MarketFinderDataBundle {
     Validate.notNull(instruments, "Instruments");
     Validate.notNull(marketValue, "Market value");
     Validate.isTrue(instruments.length == marketValue.length, "Instruments and marketValue lengths should be equal");
+    Validate.isTrue(interpolatorsYieldCurve.length == yieldCurveName.length, "Interpolator and yield curve name lengths should be equal");
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
     _marketValue = marketValue;
@@ -151,6 +152,7 @@ public class MarketFinderDataBundle {
     Validate.notNull(instruments, "Instruments");
     Validate.notNull(marketValue, "Market value");
     Validate.isTrue(instruments.length == marketValue.length, "Instruments and marketValue lengths should be equal");
+    Validate.isTrue(interpolatorsYieldCurve.length == yieldCurveName.length, "Interpolator and yield curve name lengths should be equal");
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
     _marketValue = marketValue;
@@ -235,6 +237,7 @@ public class MarketFinderDataBundle {
     Validate.notNull(instruments, "Instruments");
     Validate.notNull(marketValue, "Market value");
     Validate.isTrue(instruments.length == marketValue.length, "Instruments and marketValue lengths should be equal");
+    Validate.isTrue(interpolatorsPriceCurve.length == priceCurveName.length, "Interpolator and yield curve name lengths should be equal");
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
     _marketValue = marketValue;

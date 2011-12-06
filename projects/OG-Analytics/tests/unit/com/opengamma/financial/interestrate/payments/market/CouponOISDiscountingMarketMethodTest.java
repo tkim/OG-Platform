@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
-import com.opengamma.financial.instrument.index.IndexOIS;
+import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.financial.instrument.payment.CouponOISSimplifiedDefinition;
 import com.opengamma.financial.interestrate.market.MarketBundle;
@@ -46,7 +46,7 @@ public class CouponOISDiscountingMarketMethodTest {
   private static final MarketBundle MARKET = MarketDataSets.createMarket1();
   private static final IndexDeposit[] INDEXES = MarketDataSets.getDepositIndexes();
   private static final IborIndex EURIBOR3M = (IborIndex) INDEXES[0];
-  private static final IndexOIS EONIA = (IndexOIS) INDEXES[2];
+  private static final IndexON EONIA = (IndexON) INDEXES[2];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final int SETTLEMENT_DAYS = EURIBOR3M.getSettlementDays();
