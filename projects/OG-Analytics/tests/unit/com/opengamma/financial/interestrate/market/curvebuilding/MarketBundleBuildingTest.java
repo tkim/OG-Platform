@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.LastDateCalculator;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.market.MarketBundle;
@@ -56,6 +57,7 @@ public class MarketBundleBuildingTest {
 
   private static final PresentValueMarketCalculator PVC = PresentValueMarketCalculator.getInstance();
   private static final PresentValueHullWhiteMarketCalculator PVC_HW = PresentValueHullWhiteMarketCalculator.getInstance();
+  private static final LastDateCalculator LTC = LastDateCalculator.getInstance();
 
   private static final int NB_TEST = 100;
   /**
@@ -83,10 +85,22 @@ public class MarketBundleBuildingTest {
 
     MarketBundle market = discountingBuild(instrumentsDsc, intrumentsDscTime, marketRateDsc, discountingReferences, forwardReferences);
 
+    IndexDeposit[] indexes = new IndexDeposit[] {eonia};
+    final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
+    final CombinedInterpolatorExtrapolator extrainterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, FLAT_EXTRAPOLATOR);
+    MarketBundle marketFromBuilder = MarketBundleBuilder.discounting(instrumentsDsc, eur, indexes, extrainterpolator, LTC, PVC);
+    MarketBundle marketFromBuilder2 = MarketBundleBuilder.discounting(instrumentsDsc, marketRateDsc, eur, indexes, extrainterpolator, LTC, PVC);
+
     MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbInstruments];
+    MultipleCurrencyAmount[] pvBuilder = new MultipleCurrencyAmount[nbInstruments];
+    MultipleCurrencyAmount[] pvBuilder2 = new MultipleCurrencyAmount[nbInstruments];
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
       pv[loopins] = PVC.visit(instrumentsDsc[loopins], market);
       assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pv[loopins].getAmount(eur), TOLERANCE);
+      pvBuilder[loopins] = PVC.visit(instrumentsDsc[loopins], marketFromBuilder);
+      assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pvBuilder[loopins].getAmount(eur), TOLERANCE);
+      pvBuilder2[loopins] = PVC.visit(instrumentsDsc[loopins], marketFromBuilder2);
+      assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pvBuilder2[loopins].getAmount(eur), TOLERANCE);
     }
   }
 
@@ -628,7 +642,7 @@ public class MarketBundleBuildingTest {
     return MarketBundleBuildingFunction.build(dataInfl, yieldCurveNodes);
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   /**
    * Performance.
    */
@@ -656,7 +670,34 @@ public class MarketBundleBuildingTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(NB_TEST + " discounting curve building (" + nbInstrumentsDsc + " instruments): " + (endTime - startTime) + " ms " + marketDsc.toString());
-    // Performance note: Dsc building: 9-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 435 ms for 100 constructions (18 instruments - no Jacobian).
+    // Performance note: Dsc building: 9-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 425 ms for 100 constructions (18 instruments - no Jacobian).
+
+    IndexDeposit[] indexes = new IndexDeposit[] {eonia};
+    final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
+    final CombinedInterpolatorExtrapolator extrainterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, FLAT_EXTRAPOLATOR);
+    MarketBundle market2 = MarketBundleBuilder.discounting(instrumentsDsc, marketRateDsc, eur, indexes, extrainterpolator, LTC, PVC);
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < NB_TEST; looptest++) {
+      market2 = MarketBundleBuilder.discounting(instrumentsDsc, marketRateDsc, eur, indexes, extrainterpolator, LTC, PVC);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(NB_TEST + " discounting curve building - Builder (" + nbInstrumentsDsc + " instruments): " + (endTime - startTime) + " ms " + market2.toString());
+    // Performance note: Dsc building: 5-Dec-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 415 ms for 100 constructions (18 instruments - no Jacobian).
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < NB_TEST; looptest++) {
+      marketDsc = discountingBuild(instrumentsDsc, intrumentsTimeDsc, marketRateDsc, discountingReferencesDsc, forwardReferencesDsc);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(NB_TEST + " discounting curve building (" + nbInstrumentsDsc + " instruments): " + (endTime - startTime) + " ms " + marketDsc.toString());
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < NB_TEST; looptest++) {
+      market2 = MarketBundleBuilder.discounting(instrumentsDsc, marketRateDsc, eur, indexes, extrainterpolator, LTC, PVC);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(NB_TEST + " discounting curve building - Builder (" + nbInstrumentsDsc + " instruments): " + (endTime - startTime) + " ms " + market2.toString());
   }
 
   @Test(enabled = false)
