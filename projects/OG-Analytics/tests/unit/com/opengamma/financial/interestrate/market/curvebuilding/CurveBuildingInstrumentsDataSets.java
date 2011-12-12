@@ -68,7 +68,7 @@ public class CurveBuildingInstrumentsDataSets {
   private static final SwapGenerator EUR1YEURIBOR3M = new EUR1YEURIBOR3M(CALENDAR_EUR);
 
   private static final Currency EUR = EURIBOR_3M.getCurrency();
-  private static final int SETTLEMENT_DAYS_EUR = EURIBOR_3M.getSettlementDays();
+  private static final int SETTLEMENT_DAYS_EUR = EURIBOR_3M.getSpotLag();
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 11, 9);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS_EUR);
@@ -208,7 +208,7 @@ public class CurveBuildingInstrumentsDataSets {
   static {
     for (int loopfut = 0; loopfut < FUT_EUR3_NB; loopfut++) {
       FUT_EUR3_LAST_TRADING[loopfut] = ScheduleCalculator.getAdjustedDate(FUT_EUR3_FIRST_MONTH.plusMonths(3 * loopfut).with(DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY)), CALENDAR_EUR,
-          -EURIBOR_3M.getSettlementDays());
+          -EURIBOR_3M.getSpotLag());
       FUT_EUR3_DEFINITION[loopfut] = new InterestRateFutureDefinition(FUT_EUR3_LAST_TRADING[loopfut], EURIBOR_3M, FUT_EUR3_PRICE[loopfut], FUT_EUR3_NOTIONAL, 0.25, "ER");
     }
   }

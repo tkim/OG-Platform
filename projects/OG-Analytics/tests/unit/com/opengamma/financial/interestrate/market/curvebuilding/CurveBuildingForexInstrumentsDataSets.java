@@ -28,7 +28,7 @@ public class CurveBuildingForexInstrumentsDataSets {
   private static final Calendar CALENDAR_EUR = EURIBOR_3M.getCalendar();
   private static final Currency EUR = EURIBOR_3M.getCurrency();
   private static final Currency USD = USDLIBOR_3M.getCurrency();
-  private static final int SETTLEMENT_DAYS_EUR = EURIBOR_3M.getSettlementDays();
+  private static final int SETTLEMENT_DAYS_EUR = EURIBOR_3M.getSpotLag();
 
   private static final double NOTIONAL_DEFAULT = 1000000.0;
 

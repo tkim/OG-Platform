@@ -43,7 +43,7 @@ public class CashDiscountingMarketMethodTest {
   private static final IborIndex EURIBOR3M = (IborIndex) INDEXES[0];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
   private static final DayCount DAY_COUNT_COUPON = EURIBOR3M.getDayCount();
-  private static final int SETTLEMENT_DAYS = EURIBOR3M.getSettlementDays();
+  private static final int SETTLEMENT_DAYS = EURIBOR3M.getSpotLag();
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 11, 8);

@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.LastDateCalculator;
+import com.opengamma.financial.interestrate.LastTimeCalculator;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.market.MarketBundle;
@@ -57,7 +57,7 @@ public class MarketBundleBuildingTest {
 
   private static final PresentValueMarketCalculator PVC = PresentValueMarketCalculator.getInstance();
   private static final PresentValueHullWhiteMarketCalculator PVC_HW = PresentValueHullWhiteMarketCalculator.getInstance();
-  private static final LastDateCalculator LTC = LastDateCalculator.getInstance();
+  private static final LastTimeCalculator LTC = LastTimeCalculator.getInstance();
 
   private static final int NB_TEST = 100;
   /**

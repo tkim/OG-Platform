@@ -49,7 +49,7 @@ public class CouponOISDiscountingMarketMethodTest {
   private static final IndexON EONIA = (IndexON) INDEXES[2];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
-  private static final int SETTLEMENT_DAYS = EURIBOR3M.getSettlementDays();
+  private static final int SETTLEMENT_DAYS = EURIBOR3M.getSpotLag();
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2010, 12, 27);

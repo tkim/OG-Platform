@@ -56,7 +56,7 @@ public class PresentValueCurveSensitivityMarketCalculatorTest {
   private static final IborIndex EURIBOR6M = (IborIndex) INDEXES[1];
   private static final IndexON EONIA = (IndexON) INDEXES[2];
   private static final Calendar CALENDAR_EUR = EURIBOR6M.getCalendar();
-  private static final int SETTLEMENT_DAYS = EURIBOR6M.getSettlementDays();
+  private static final int SETTLEMENT_DAYS = EURIBOR6M.getSpotLag();
   private static final BusinessDayConvention BUSINESS_DAY = EURIBOR6M.getBusinessDayConvention();
   private static final Boolean EOM = EURIBOR6M.isEndOfMonth();
   private static final Currency EUR = EURIBOR6M.getCurrency();
