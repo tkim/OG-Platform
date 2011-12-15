@@ -47,9 +47,9 @@ public class CouponFixedDiscountingMarketMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 11, 8);
-  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR_EUR);
   private static final Period TENOR = Period.ofYears(1);
-  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, EURIBOR3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR3M.isEndOfMonth(), TENOR);
+  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, TENOR, EURIBOR3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR3M.isEndOfMonth());
   private static final double ACCRUAL_FACTOR_PAYMENT = DAY_COUNT_COUPON.getDayCountFraction(SPOT_DATE, PAYMENT_DATE);
   private static final double NOTIONAL = 100000000; // 100m
   private static final double RATE = 0.0225;

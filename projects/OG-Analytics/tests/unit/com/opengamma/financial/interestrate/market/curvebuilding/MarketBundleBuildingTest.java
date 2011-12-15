@@ -20,7 +20,7 @@ import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.LastTimeCalculator;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
@@ -71,7 +71,7 @@ public class MarketBundleBuildingTest {
    */
   public void discounting() {
     //TODO: transfer into market.curvebuilding?
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
@@ -146,7 +146,7 @@ public class MarketBundleBuildingTest {
   }
 
   public void checkForwardFullSwap(InstrumentDerivative[] instrumentsFwd, double[] intrumentsTimeFwd, double[] marketRateFwd) {
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -195,7 +195,7 @@ public class MarketBundleBuildingTest {
    * The same curve is used for discounting and OIS forward projection.
    */
   public void forward3FraSwap() {
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -248,7 +248,7 @@ public class MarketBundleBuildingTest {
    */
   public void forward36FullSwap() {
 
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -319,7 +319,7 @@ public class MarketBundleBuildingTest {
    */
   public void forward3FullSwapAfterDiscounting() {
     // Discounting
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -363,7 +363,7 @@ public class MarketBundleBuildingTest {
    */
   public void forward3FutAfterDiscounting() {
     // Discounting
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -411,7 +411,7 @@ public class MarketBundleBuildingTest {
     double[] sigma = {0.01, 0.011};
     HullWhiteOneFactorPiecewiseConstantParameters param = new HullWhiteOneFactorPiecewiseConstantParameters(mr, sigma, new double[] {1.0});
     // Discounting
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -461,7 +461,7 @@ public class MarketBundleBuildingTest {
    */
   public void forward6AfterFprward3AfterDiscounting() {
     // Discounting
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -575,7 +575,7 @@ public class MarketBundleBuildingTest {
    * Build the inflation curve (HICP-XT) with the discounting curve known.
    */
   public void inflation1() {
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
@@ -649,7 +649,7 @@ public class MarketBundleBuildingTest {
   public void performanceDsc() {
     long startTime, endTime;
 
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -670,7 +670,7 @@ public class MarketBundleBuildingTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(NB_TEST + " discounting curve building (" + nbInstrumentsDsc + " instruments): " + (endTime - startTime) + " ms " + marketDsc.toString());
-    // Performance note: Dsc building: 9-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 425 ms for 100 constructions (18 instruments - no Jacobian).
+    // Performance note: Dsc building: 9-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 460 ms for 100 constructions (18 instruments - no Jacobian).
 
     IndexDeposit[] indexes = new IndexDeposit[] {eonia};
     final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
@@ -683,7 +683,7 @@ public class MarketBundleBuildingTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(NB_TEST + " discounting curve building - Builder (" + nbInstrumentsDsc + " instruments): " + (endTime - startTime) + " ms " + market2.toString());
-    // Performance note: Dsc building: 5-Dec-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 415 ms for 100 constructions (18 instruments - no Jacobian).
+    // Performance note: Dsc building: 5-Dec-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 460 ms for 100 constructions (18 instruments - no Jacobian).
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < NB_TEST; looptest++) {
@@ -707,7 +707,7 @@ public class MarketBundleBuildingTest {
   public void performanceDscFwd3FullSwap() {
     long startTime, endTime;
 
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -760,7 +760,7 @@ public class MarketBundleBuildingTest {
   public void performanceDscFwd3FraSwap() {
     long startTime, endTime;
 
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -813,7 +813,7 @@ public class MarketBundleBuildingTest {
   public void performanceFwd3FullSwapAferDsc() {
     long startTime, endTime;
     // Discounting
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -858,7 +858,7 @@ public class MarketBundleBuildingTest {
   public void performanceFwd3FutAferDsc() {
     long startTime, endTime;
     // Discounting
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -905,7 +905,7 @@ public class MarketBundleBuildingTest {
     double[] sigma = {0.01, 0.011};
     HullWhiteOneFactorPiecewiseConstantParameters param = new HullWhiteOneFactorPiecewiseConstantParameters(mr, sigma, new double[] {1.0});
     // Discounting
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -950,7 +950,7 @@ public class MarketBundleBuildingTest {
   public void performanceDscFwd36FullSwap() {
     long startTime, endTime;
 
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -1015,7 +1015,7 @@ public class MarketBundleBuildingTest {
     long startTime, endTime;
 
     // Discounting
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -1070,7 +1070,7 @@ public class MarketBundleBuildingTest {
   public void performanceInflAferDsc() {
     long startTime, endTime;
 
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();

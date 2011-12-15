@@ -19,7 +19,7 @@ import com.opengamma.financial.forex.market.PresentValueForexMarketCalculator;
 import com.opengamma.financial.forex.method.FXMatrix;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketWithFXBundle;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -54,7 +54,7 @@ public class MarketBundleForexBuildingTest {
    * Build the discounting curve in EUR from ON and TN deposits and OIS swaps. The same curve is used for discounting and OIS forward projection.
    */
   public void discounting() {
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
@@ -80,7 +80,7 @@ public class MarketBundleForexBuildingTest {
    * Build the discounting curve in EUR from ON and TN deposits and OIS swaps. The USD discounting curve is build from EUR curve and FX swaps.
    */
   public void discountingForeign() {
-    InstrumentDerivative[] instrumentsDscEUR = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDscEUR = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsDscEURTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDscEUR = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     Currency eur = ((Cash) instrumentsDscEUR[0]).getCurrency();
@@ -147,7 +147,7 @@ public class MarketBundleForexBuildingTest {
   public void performanceDsc() {
     long startTime, endTime;
 
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;
@@ -178,7 +178,7 @@ public class MarketBundleForexBuildingTest {
   public void performanceDscEURUSD() {
     long startTime, endTime;
 
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscounting();
+    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
     double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
     double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
     int nbInstrumentsDsc = instrumentsDsc.length;

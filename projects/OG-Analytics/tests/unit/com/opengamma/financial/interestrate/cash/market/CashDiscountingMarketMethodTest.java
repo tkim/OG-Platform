@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
@@ -47,16 +47,16 @@ public class CashDiscountingMarketMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 11, 8);
-  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR_EUR);
   private static final Period TENOR = Period.ofYears(1);
-  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, EURIBOR3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR3M.isEndOfMonth(), TENOR);
+  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, TENOR, EURIBOR3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR3M.isEndOfMonth());
   private static final double ACCRUAL_FACTOR_PAYMENT = DAY_COUNT_COUPON.getDayCountFraction(SPOT_DATE, PAYMENT_DATE);
   private static final double NOTIONAL = 100000000; // 100m
   private static final double RATE = 0.0225;
   private static final double SPOT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, SPOT_DATE);
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
 
-  private static final Cash DEPOSIT = new Cash(EUR, PAYMENT_TIME, NOTIONAL, RATE, SPOT_TIME, ACCRUAL_FACTOR_PAYMENT, "Not used");
+  private static final Cash DEPOSIT = new Cash(EUR, SPOT_TIME, PAYMENT_TIME, NOTIONAL, RATE, ACCRUAL_FACTOR_PAYMENT, "Not used");
 
   private static final CashDiscountingMarketMethod METHOD = CashDiscountingMarketMethod.getInstance();
   private static final PresentValueMarketCalculator PVC = PresentValueMarketCalculator.getInstance();
@@ -68,9 +68,9 @@ public class CashDiscountingMarketMethodTest {
    */
   public void presentValue() {
     MultipleCurrencyAmount pv = METHOD.presentValue(DEPOSIT, MARKET);
-    double dfPayment = MARKET.getCurve(EUR).getDiscountFactor(DEPOSIT.getMaturity());
-    double dfSettle = MARKET.getCurve(EUR).getDiscountFactor(DEPOSIT.getTradeTime());
-    double pvExpected = -NOTIONAL * dfSettle + NOTIONAL * (1.0 + ACCRUAL_FACTOR_PAYMENT * RATE) * dfPayment;
+    double dfStart = MARKET.getCurve(EUR).getDiscountFactor(DEPOSIT.getStartTime());
+    double dfEnd = MARKET.getCurve(EUR).getDiscountFactor(DEPOSIT.getEndTime());
+    double pvExpected = -NOTIONAL * dfStart + NOTIONAL * (1.0 + ACCRUAL_FACTOR_PAYMENT * RATE) * dfEnd;
     assertEquals("Cash: pv by discounting", pvExpected, pv.getAmount(EUR), 1.0E-2);
   }
 
@@ -96,7 +96,7 @@ public class CashDiscountingMarketMethodTest {
     // Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1.0E-6;
     // Discounting curve sensitivity
-    final double[] nodeTimesDisc = new double[] {DEPOSIT.getTradeTime(), DEPOSIT.getMaturity()};
+    final double[] nodeTimesDisc = new double[] {DEPOSIT.getStartTime(), DEPOSIT.getEndTime()};
     final double[] sensiDiscMethod = SensitivityFiniteDifferenceMarket.curveSensitivity(DEPOSIT, MARKET, DEPOSIT.getCurrency(), nodeTimesDisc, deltaShift, METHOD, FiniteDifferenceType.CENTRAL);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiDiscMethod.length);
     final List<DoublesPair> sensiPvDisc = pvcs.getYieldCurveSensitivities().get(MARKET.getCurve(DEPOSIT.getCurrency()).getCurve().getName());

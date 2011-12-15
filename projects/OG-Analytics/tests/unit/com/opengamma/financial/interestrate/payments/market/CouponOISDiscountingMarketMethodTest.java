@@ -53,9 +53,9 @@ public class CouponOISDiscountingMarketMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2010, 12, 27);
-  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, SETTLEMENT_DAYS, CALENDAR_EUR);
   private static final Period TENOR = Period.ofMonths(3);
-  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, EURIBOR3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR3M.isEndOfMonth(), TENOR);
+  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, TENOR, EURIBOR3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR3M.isEndOfMonth());
   private static final double ACCRUAL_FACTOR_PAYMENT = DAY_COUNT_COUPON.getDayCountFraction(SPOT_DATE, PAYMENT_DATE);
   private static final double NOTIONAL = 100000000; // 100m
 
@@ -63,13 +63,13 @@ public class CouponOISDiscountingMarketMethodTest {
       SPOT_DATE, PAYMENT_DATE, ACCRUAL_FACTOR_PAYMENT);
   private static final CouponOIS COUPON = COUPON_DEFINITION.toDerivative(REFERENCE_DATE_1, new String[] {"Not used", "Not used"});
 
-  private static final ZonedDateTime REFERENCE_DATE_2 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 5);
+  private static final ZonedDateTime REFERENCE_DATE_2 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, 5, CALENDAR_EUR);
   private static final CouponOISDefinition EONIA_COUPON_2_DEFINITION = new CouponOISDefinition(EUR, PAYMENT_DATE, SPOT_DATE, PAYMENT_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, EONIA, SPOT_DATE,
       PAYMENT_DATE);
 
-  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 1),
-      ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 2), ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 3),
-      ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 4), ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_EUR, 5)}, new double[] {0.01, 0.011, 0.012, 0.013, 0.014});
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, 1, CALENDAR_EUR),
+      ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, 2, CALENDAR_EUR), ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, 3, CALENDAR_EUR),
+      ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, 4, CALENDAR_EUR), ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, 5, CALENDAR_EUR)}, new double[] {0.01, 0.011, 0.012, 0.013, 0.014});
   private static final CouponOIS EONIA_COUPON_2 = (CouponOIS) EONIA_COUPON_2_DEFINITION.toDerivative(REFERENCE_DATE_2, FIXING_TS, new String[] {"Not used", "Not used"});
 
   private static final CouponOISDiscountingMarketMethod METHOD = CouponOISDiscountingMarketMethod.getInstance();

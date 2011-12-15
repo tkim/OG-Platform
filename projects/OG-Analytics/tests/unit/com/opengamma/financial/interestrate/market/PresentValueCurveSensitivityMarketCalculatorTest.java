@@ -62,7 +62,7 @@ public class PresentValueCurveSensitivityMarketCalculatorTest {
   private static final Currency EUR = EURIBOR6M.getCurrency();
 
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 10, 13);
-  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, SETTLEMENT_DAYS, CALENDAR_EUR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 11, 8);
   private static final Period TENOR_ANNUITY = Period.ofYears(10);
   private static final Period PERIOD_FIXED = Period.ofYears(10);
@@ -85,7 +85,7 @@ public class PresentValueCurveSensitivityMarketCalculatorTest {
   private static final FixedCouponSwap<Coupon> SWAP_FIXED_IBOR = SWAP_FIXED_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, new ArrayZonedDateTimeDoubleTimeSeries[] {FIXING_TS}, NOT_USED_2);
 
   private static final SwapFixedOISSimplifiedDefinition SWAP_FIXED_OIS_DEFINITION = SwapFixedOISSimplifiedDefinition.from(
-      ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS), Period.ofYears(2), Period.ofYears(1), NOTIONAL, EONIA, FIXED_RATE, true, SETTLEMENT_DAYS, BUSINESS_DAY, EOM);
+      ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR_EUR), Period.ofYears(2), Period.ofYears(1), NOTIONAL, EONIA, FIXED_RATE, true, SETTLEMENT_DAYS, BUSINESS_DAY, EOM);
   private static final Swap<? extends Payment, ? extends Payment> SWAP_FIXED_OIS = SWAP_FIXED_OIS_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
 
   private static final CouponFixedDiscountingMarketMethod METHOD_FIXED = CouponFixedDiscountingMarketMethod.getInstance();
@@ -135,7 +135,7 @@ public class PresentValueCurveSensitivityMarketCalculatorTest {
    */
   public void presentValueCurveSensitivitySwapFixedIborHeterogeneousIbor() {
     CouponIborDefinition cpn3Definition = CouponIborDefinition.from(NOTIONAL, REFERENCE_DATE, EURIBOR3M);
-    CouponIborDefinition cpn6Definition = CouponIborDefinition.from(NOTIONAL, ScheduleCalculator.getAdjustedDate(cpn3Definition.getPaymentDate(), CALENDAR_EUR, SETTLEMENT_DAYS), EURIBOR6M);
+    CouponIborDefinition cpn6Definition = CouponIborDefinition.from(NOTIONAL, ScheduleCalculator.getAdjustedDate(cpn3Definition.getPaymentDate(), SETTLEMENT_DAYS, CALENDAR_EUR), EURIBOR6M);
     CouponFixedDefinition cpnFDefinition = CouponFixedDefinition.from(EUR, cpn6Definition.getPaymentDate(), cpn3Definition.getAccrualStartDate(), cpn6Definition.getAccrualEndDate(),
         DAY_COUNT_FIXED.getDayCountFraction(cpn3Definition.getAccrualStartDate(), cpn6Definition.getAccrualEndDate()), -NOTIONAL, FIXED_RATE);
     AnnuityDefinition<PaymentDefinition> legIborHeterogeneousDefinition = new AnnuityDefinition<PaymentDefinition>(new CouponDefinition[] {cpn3Definition, cpn6Definition});

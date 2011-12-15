@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
@@ -53,9 +53,9 @@ public final class CashDiscountingMarketMethod implements PricingMarketMethod {
   public MultipleCurrencyAmount presentValue(final Cash deposit, final MarketBundle market) {
     Validate.notNull(deposit, "Deposit");
     Validate.notNull(market, "Market");
-    final double dfStart = market.getDiscountingFactor(deposit.getCurrency(), deposit.getTradeTime());
-    final double dfEnd = market.getDiscountingFactor(deposit.getCurrency(), deposit.getMaturity());
-    final double pv = -deposit.getNotional() * dfStart + deposit.getFinalAmount() * dfEnd;
+    final double dfStart = market.getDiscountingFactor(deposit.getCurrency(), deposit.getStartTime());
+    final double dfEnd = market.getDiscountingFactor(deposit.getCurrency(), deposit.getEndTime());
+    final double pv = -deposit.getInitialAmount() * dfStart + (deposit.getNotional() + deposit.getInterestAmount()) * dfEnd;
     return MultipleCurrencyAmount.of(deposit.getCurrency(), pv);
   }
 
@@ -74,16 +74,16 @@ public final class CashDiscountingMarketMethod implements PricingMarketMethod {
   public PresentValueCurveSensitivityMarket presentValueCurveSensitivity(final Cash deposit, final MarketBundle market) {
     Validate.notNull(deposit, "Deposit");
     Validate.notNull(market, "Market");
-    final double dfStart = market.getDiscountingFactor(deposit.getCurrency(), deposit.getTradeTime());
-    final double dfEnd = market.getDiscountingFactor(deposit.getCurrency(), deposit.getMaturity());
-    final double finalAmount = deposit.getFinalAmount();
+    final double dfStart = market.getDiscountingFactor(deposit.getCurrency(), deposit.getStartTime());
+    final double dfEnd = market.getDiscountingFactor(deposit.getCurrency(), deposit.getEndTime());
+    final double finalAmount = deposit.getNotional() + deposit.getInterestAmount();
     final double pvBar = 1.0;
     final double dfEndBar = finalAmount * pvBar;
-    final double dfStartBar = -deposit.getNotional() * pvBar;
+    final double dfStartBar = -deposit.getInitialAmount() * pvBar;
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
-    listDiscounting.add(new DoublesPair(deposit.getTradeTime(), -deposit.getTradeTime() * dfStart * dfStartBar));
-    listDiscounting.add(new DoublesPair(deposit.getMaturity(), -deposit.getMaturity() * dfEnd * dfEndBar));
+    listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
+    listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     result.put(market.getCurve(deposit.getCurrency()).getCurve().getName(), listDiscounting);
     return new PresentValueCurveSensitivityMarket(result);
   }

@@ -12,12 +12,12 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.financial.instrument.cash.CashDefinition;
+import com.opengamma.financial.instrument.cash.DepositDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.IndexON;
@@ -26,6 +26,7 @@ import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.SwapGenerator;
 import com.opengamma.financial.instrument.index.generator.EUR1YEURIBOR3M;
 import com.opengamma.financial.instrument.index.generator.EUR1YEURIBOR6M;
+import com.opengamma.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.financial.instrument.index.iborindex.EURIBOR3M;
 import com.opengamma.financial.instrument.index.iborindex.EURIBOR6M;
 import com.opengamma.financial.instrument.index.iborindex.USDLIBOR3M;
@@ -38,7 +39,7 @@ import com.opengamma.financial.instrument.swap.SwapFixedInflationZeroCouponDefin
 import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
@@ -55,8 +56,9 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
  */
 public class CurveBuildingInstrumentsDataSets {
 
-  private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
+  private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("TARGET");
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
+  private static final GeneratorDeposit GENERATOR_EUR = new EURDeposit(CALENDAR_EUR);
   private static final IborIndex EURIBOR_3M = new EURIBOR3M(CALENDAR_EUR);
   private static final IborIndex EURIBOR_6M = new EURIBOR6M(CALENDAR_EUR);
   private static final IborIndex USDLIBOR_3M = new USDLIBOR3M(CALENDAR_USD);
@@ -71,23 +73,29 @@ public class CurveBuildingInstrumentsDataSets {
   private static final int SETTLEMENT_DAYS_EUR = EURIBOR_3M.getSpotLag();
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 11, 9);
-  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS_EUR);
+  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS_EUR, CALENDAR_EUR);
 
   private static final double NOTIONAL_DEFAULT = 1000000.0;
 
-  // ===== DEPOSIT
-  private static final Period[] DEPOSIT_TENOR = new Period[] {Period.ofDays(1), Period.ofDays(1)};
-  private static final int[] DEPOSIT_START = new int[] {0, 1};
-  private static final double[] DEPOSIT_RATE = new double[] {0.01, 0.011};
-  private static final int DEPOSIT_NB = DEPOSIT_TENOR.length;
-  private static final Convention[] CONVENTION_DEPOSIT_EUR = new Convention[DEPOSIT_NB];
-  private static final CashDefinition[] DEPOSIT_DEFINITION = new CashDefinition[DEPOSIT_NB];
+  // ===== DEPOSIT ON
+  private static final int[] DEPOSIT_ON_START = new int[] {0, 1};
+  private static final double[] DEPOSIT_ON_RATE = new double[] {0.01, 0.011};
+  private static final int DEPOSIT_ON_NB = DEPOSIT_ON_START.length;
+  private static final DepositDefinition[] DEPOSIT_ON_DEFINITION = new DepositDefinition[DEPOSIT_ON_NB];
   static {
-    for (int loopdepo = 0; loopdepo < DEPOSIT_NB; loopdepo++) {
-      CONVENTION_DEPOSIT_EUR[loopdepo] = new Convention(DEPOSIT_START[loopdepo], EURIBOR_3M.getDayCount(), EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, "EUR Deposit Convention");
-      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, DEPOSIT_START[loopdepo]);
-      ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(startDate, EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth(), DEPOSIT_TENOR[loopdepo]);
-      DEPOSIT_DEFINITION[loopdepo] = new CashDefinition(EUR, maturityDate, NOTIONAL_DEFAULT, DEPOSIT_RATE[loopdepo], CONVENTION_DEPOSIT_EUR[loopdepo]);
+    for (int loopdepo = 0; loopdepo < DEPOSIT_ON_NB; loopdepo++) {
+      DEPOSIT_ON_DEFINITION[loopdepo] = DepositDefinition.fromTrade(REFERENCE_DATE, DEPOSIT_ON_START[loopdepo], NOTIONAL_DEFAULT, DEPOSIT_ON_RATE[loopdepo], GENERATOR_EUR);
+    }
+  }
+
+  // ===== DEPOSIT PERIOD
+  private static final Period[] DEPOSIT_PERIOD_TENOR = new Period[] {Period.ofDays(7), Period.ofMonths(1), Period.ofMonths(3)};
+  private static final double[] DEPOSIT_PERIOD_RATE = new double[] {0.012, 0.013, 0.014};
+  private static final int DEPOSIT_PERIOD_NB = DEPOSIT_PERIOD_TENOR.length;
+  private static final DepositDefinition[] DEPOSIT_PERIOD_DEFINITION = new DepositDefinition[DEPOSIT_PERIOD_NB];
+  static {
+    for (int loopdepo = 0; loopdepo < DEPOSIT_PERIOD_NB; loopdepo++) {
+      DEPOSIT_PERIOD_DEFINITION[loopdepo] = DepositDefinition.fromTrade(REFERENCE_DATE, DEPOSIT_PERIOD_TENOR[loopdepo], NOTIONAL_DEFAULT, DEPOSIT_PERIOD_RATE[loopdepo], GENERATOR_EUR);
     }
   }
   // ===== SWAP EONIA
@@ -98,7 +106,7 @@ public class CurveBuildingInstrumentsDataSets {
   private static final SwapFixedOISSimplifiedDefinition[] SWAP_EONIA_DEFINITION = new SwapFixedOISSimplifiedDefinition[SWAP_EONIA_NB];
   static {
     for (int loopois = 0; loopois < SWAP_EONIA_NB; loopois++) {
-      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS_EUR);
+      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS_EUR, CALENDAR_EUR);
       SWAP_EONIA_DEFINITION[loopois] = SwapFixedOISSimplifiedDefinition.from(startDate, SWAP_EONIA_TENOR[loopois], Period.ofYears(1), NOTIONAL_DEFAULT, EONIA, SWAP_EONIA_RATE[loopois], true, 1,
           EURIBOR_3M.getBusinessDayConvention(), EURIBOR_3M.isEndOfMonth());
     }
@@ -118,8 +126,8 @@ public class CurveBuildingInstrumentsDataSets {
   private static final SwapFixedIborDefinition[] SWAP_EUR3_DEFINITION = new SwapFixedIborDefinition[SWAP_FAKE_EUR3_NB + SWAP_EUR3_NB];
   static {
     for (int loop3 = 0; loop3 < SWAP_FAKE_EUR3_NB; loop3++) {
-      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SWAP_FAKE_EUR3_START[loop3]);
-      ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth(), SWAP_FAKE_EUR3_TENOR[loop3]);
+      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SWAP_FAKE_EUR3_START[loop3], CALENDAR_EUR);
+      ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, SWAP_FAKE_EUR3_TENOR[loop3], EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth());
       double accrualFactor = EURIBOR_3M.getDayCount().getDayCountFraction(startDate, endDate);
       CouponFixedDefinition cpnFixed = new CouponFixedDefinition(EUR, endDate, startDate, endDate, accrualFactor, -NOTIONAL_DEFAULT, SWAP_FAKE_EUR3_RATE[loop3]);
       CouponIborDefinition cpnIbor = new CouponIborDefinition(EUR, endDate, startDate, endDate, accrualFactor, NOTIONAL_DEFAULT, startDate, startDate, endDate, accrualFactor, EURIBOR_3M);
@@ -129,7 +137,7 @@ public class CurveBuildingInstrumentsDataSets {
     }
     for (int loop3 = 0; loop3 < SWAP_EUR3_NB; loop3++) {
       IndexSwap cmsIndex = new IndexSwap(EUR1YEURIBOR3M, SWAP_EUR3_TENOR[loop3]);
-      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS_EUR);
+      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS_EUR, CALENDAR_EUR);
       SWAP_EUR3_DEFINITION[SWAP_FAKE_EUR3_NB + loop3] = SwapFixedIborDefinition.from(startDate, cmsIndex, NOTIONAL_DEFAULT, SWAP_EUR3_RATE[loop3], true);
     }
   }
@@ -148,8 +156,8 @@ public class CurveBuildingInstrumentsDataSets {
   private static final SwapFixedIborDefinition[] SWAP_EUR6_DEFINITION = new SwapFixedIborDefinition[SWAP_FAKE_EUR6_NB + SWAP_EUR6_NB];
   static {
     for (int loop6 = 0; loop6 < SWAP_FAKE_EUR6_NB; loop6++) {
-      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SWAP_FAKE_EUR6_START[loop6]);
-      ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, EURIBOR_6M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_6M.isEndOfMonth(), SWAP_FAKE_EUR6_TENOR[loop6]);
+      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SWAP_FAKE_EUR6_START[loop6], CALENDAR_EUR);
+      ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, SWAP_FAKE_EUR6_TENOR[loop6], EURIBOR_6M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_6M.isEndOfMonth());
       double accrualFactor = EURIBOR_6M.getDayCount().getDayCountFraction(startDate, endDate);
       CouponFixedDefinition cpnFixed = new CouponFixedDefinition(EUR, endDate, startDate, endDate, accrualFactor, -NOTIONAL_DEFAULT, SWAP_FAKE_EUR6_RATE[loop6]);
       CouponIborDefinition cpnIbor = new CouponIborDefinition(EUR, endDate, startDate, endDate, accrualFactor, NOTIONAL_DEFAULT, startDate, startDate, endDate, accrualFactor, EURIBOR_6M);
@@ -159,7 +167,7 @@ public class CurveBuildingInstrumentsDataSets {
     }
     for (int loop6 = 0; loop6 < SWAP_EUR6_NB; loop6++) {
       IndexSwap cmsIndex = new IndexSwap(EUR1YEURIBOR6M, SWAP_EUR6_TENOR[loop6]);
-      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS_EUR);
+      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS_EUR, CALENDAR_EUR);
       SWAP_EUR6_DEFINITION[SWAP_FAKE_EUR6_NB + loop6] = SwapFixedIborDefinition.from(startDate, cmsIndex, NOTIONAL_DEFAULT, SWAP_EUR6_RATE[loop6], true);
     }
   }
@@ -173,10 +181,10 @@ public class CurveBuildingInstrumentsDataSets {
   private static final ForwardRateAgreementDefinition[] FRA_EUR3_DEFINITION = new ForwardRateAgreementDefinition[FRA_EUR3_NB];
   static {
     for (int loopfra = 0; loopfra < FRA_EUR3_NB; loopfra++) {
-      FRA_EUR3_START_DATE[loopfra] = ScheduleCalculator.getAdjustedDate(SPOT_DATE, EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth(),
-          Period.ofMonths(FRA_EUR3_TENOR_MONTH[loopfra]));
-      FRA_EUR3_END_DATE[loopfra] = ScheduleCalculator.getAdjustedDate(SPOT_DATE, EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth(),
-          Period.ofMonths(3 + FRA_EUR3_TENOR_MONTH[loopfra]));
+      FRA_EUR3_START_DATE[loopfra] = ScheduleCalculator.getAdjustedDate(SPOT_DATE, Period.ofMonths(FRA_EUR3_TENOR_MONTH[loopfra]), EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR,
+          EURIBOR_3M.isEndOfMonth());
+      FRA_EUR3_END_DATE[loopfra] = ScheduleCalculator.getAdjustedDate(SPOT_DATE, Period.ofMonths(3 + FRA_EUR3_TENOR_MONTH[loopfra]), EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR,
+          EURIBOR_3M.isEndOfMonth());
       FRA_EUR3_DEFINITION[loopfra] = ForwardRateAgreementDefinition.from(FRA_EUR3_START_DATE[loopfra], FRA_EUR3_END_DATE[loopfra], NOTIONAL_DEFAULT, EURIBOR_3M, FRA_EUR3_RATE[loopfra]);
     }
   }
@@ -190,10 +198,10 @@ public class CurveBuildingInstrumentsDataSets {
   private static final ForwardRateAgreementDefinition[] FRA_EUR6_DEFINITION = new ForwardRateAgreementDefinition[FRA_EUR6_NB];
   static {
     for (int loopfra = 0; loopfra < FRA_EUR6_NB; loopfra++) {
-      FRA_EUR6_START_DATE[loopfra] = ScheduleCalculator.getAdjustedDate(SPOT_DATE, EURIBOR_6M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_6M.isEndOfMonth(),
-          Period.ofMonths(FRA_EUR6_TENOR_MONTH[loopfra]));
-      FRA_EUR6_END_DATE[loopfra] = ScheduleCalculator.getAdjustedDate(SPOT_DATE, EURIBOR_6M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_6M.isEndOfMonth(),
-          Period.ofMonths(6 + FRA_EUR3_TENOR_MONTH[loopfra]));
+      FRA_EUR6_START_DATE[loopfra] = ScheduleCalculator.getAdjustedDate(SPOT_DATE, Period.ofMonths(FRA_EUR6_TENOR_MONTH[loopfra]), EURIBOR_6M.getBusinessDayConvention(), CALENDAR_EUR,
+          EURIBOR_6M.isEndOfMonth());
+      FRA_EUR6_END_DATE[loopfra] = ScheduleCalculator.getAdjustedDate(SPOT_DATE, Period.ofMonths(6 + FRA_EUR3_TENOR_MONTH[loopfra]), EURIBOR_6M.getBusinessDayConvention(), CALENDAR_EUR,
+          EURIBOR_6M.isEndOfMonth());
       FRA_EUR6_DEFINITION[loopfra] = ForwardRateAgreementDefinition.from(FRA_EUR6_START_DATE[loopfra], FRA_EUR6_END_DATE[loopfra], NOTIONAL_DEFAULT, EURIBOR_6M, FRA_EUR6_RATE[loopfra]);
     }
   }
@@ -207,8 +215,8 @@ public class CurveBuildingInstrumentsDataSets {
   private static final InterestRateFutureDefinition[] FUT_EUR3_DEFINITION = new InterestRateFutureDefinition[FUT_EUR3_NB];
   static {
     for (int loopfut = 0; loopfut < FUT_EUR3_NB; loopfut++) {
-      FUT_EUR3_LAST_TRADING[loopfut] = ScheduleCalculator.getAdjustedDate(FUT_EUR3_FIRST_MONTH.plusMonths(3 * loopfut).with(DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY)), CALENDAR_EUR,
-          -EURIBOR_3M.getSpotLag());
+      FUT_EUR3_LAST_TRADING[loopfut] = ScheduleCalculator.getAdjustedDate(FUT_EUR3_FIRST_MONTH.plusMonths(3 * loopfut).with(DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY)),
+          -EURIBOR_3M.getSpotLag(), CALENDAR_EUR);
       FUT_EUR3_DEFINITION[loopfut] = new InterestRateFutureDefinition(FUT_EUR3_LAST_TRADING[loopfut], EURIBOR_3M, FUT_EUR3_PRICE[loopfut], FUT_EUR3_NOTIONAL, 0.25, "ER");
     }
   }
@@ -231,7 +239,8 @@ public class CurveBuildingInstrumentsDataSets {
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_2 = new String[] {NOT_USED, NOT_USED};
 
-  private static final Cash[] DEPOSIT = new Cash[DEPOSIT_NB];
+  private static final Cash[] DEPOSIT_ON = new Cash[DEPOSIT_ON_NB];
+  private static final Cash[] DEPOSIT_PERIOD = new Cash[DEPOSIT_PERIOD_NB];
   private static final InstrumentDerivative[] SWAP_EONIA = new InstrumentDerivative[SWAP_EONIA_NB];
   private static final InstrumentDerivative[] SWAP_EUR3 = new InstrumentDerivative[SWAP_FAKE_EUR3_NB + SWAP_EUR3_NB];
   private static final InstrumentDerivative[] SWAP_EUR6 = new InstrumentDerivative[SWAP_FAKE_EUR6_NB + SWAP_EUR6_NB];
@@ -240,8 +249,11 @@ public class CurveBuildingInstrumentsDataSets {
   private static final InstrumentDerivative[] INFLZC_EUR = new InstrumentDerivative[INFLZC_EUR_NB];
   private static final InterestRateFuture[] FUT_EUR3 = new InterestRateFuture[FUT_EUR3_NB];
   static {
-    for (int loopdepo = 0; loopdepo < DEPOSIT_NB; loopdepo++) {
-      DEPOSIT[loopdepo] = DEPOSIT_DEFINITION[loopdepo].toDerivative(REFERENCE_DATE, NOT_USED);
+    for (int loopdepo = 0; loopdepo < DEPOSIT_ON_NB; loopdepo++) {
+      DEPOSIT_ON[loopdepo] = DEPOSIT_ON_DEFINITION[loopdepo].toDerivative(REFERENCE_DATE, NOT_USED);
+    }
+    for (int loopdepo = 0; loopdepo < DEPOSIT_PERIOD_NB; loopdepo++) {
+      DEPOSIT_PERIOD[loopdepo] = DEPOSIT_PERIOD_DEFINITION[loopdepo].toDerivative(REFERENCE_DATE, NOT_USED);
     }
     for (int loopois = 0; loopois < SWAP_EONIA_NB; loopois++) {
       SWAP_EONIA[loopois] = SWAP_EONIA_DEFINITION[loopois].toDerivative(REFERENCE_DATE, NOT_USED_2);
@@ -278,13 +290,13 @@ public class CurveBuildingInstrumentsDataSets {
    * Return a set of instruments (cash deposits and OIS swap) for discounting curve construction.
    * @return The instrument set.
    */
-  public static InstrumentDerivative[] instrumentsDiscounting() {
-    InstrumentDerivative[] instruments = new InstrumentDerivative[DEPOSIT_NB + SWAP_EONIA_NB];
-    for (int loopdepo = 0; loopdepo < DEPOSIT_NB; loopdepo++) {
-      instruments[loopdepo] = DEPOSIT[loopdepo];
+  public static InstrumentDerivative[] instrumentsDiscountingOIS() {
+    InstrumentDerivative[] instruments = new InstrumentDerivative[DEPOSIT_ON_NB + SWAP_EONIA_NB];
+    for (int loopdepo = 0; loopdepo < DEPOSIT_ON_NB; loopdepo++) {
+      instruments[loopdepo] = DEPOSIT_ON[loopdepo];
     }
     for (int loopois = 0; loopois < SWAP_EONIA_NB; loopois++) {
-      instruments[DEPOSIT_NB + loopois] = SWAP_EONIA[loopois];
+      instruments[DEPOSIT_ON_NB + loopois] = SWAP_EONIA[loopois];
     }
     return instruments;
   }
@@ -295,14 +307,14 @@ public class CurveBuildingInstrumentsDataSets {
    */
   public static double[] timeDiscounting() {
     //TODO: use LastDateCalculator?
-    double[] times = new double[DEPOSIT_NB + SWAP_EONIA_NB];
-    for (int loopdepo = 0; loopdepo < DEPOSIT_NB; loopdepo++) {
-      times[loopdepo] = DEPOSIT[loopdepo].getMaturity();
+    double[] times = new double[DEPOSIT_ON_NB + SWAP_EONIA_NB];
+    for (int loopdepo = 0; loopdepo < DEPOSIT_ON_NB; loopdepo++) {
+      times[loopdepo] = DEPOSIT_ON[loopdepo].getEndTime();
     }
     for (int loopois = 0; loopois < SWAP_EONIA_NB; loopois++) {
       @SuppressWarnings("unchecked")
       GenericAnnuity<Coupon> leg = ((Swap<Coupon, Coupon>) SWAP_EONIA[loopois]).getFirstLeg();
-      times[DEPOSIT_NB + loopois] = leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime();
+      times[DEPOSIT_ON_NB + loopois] = leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime();
     }
     return times;
   }
@@ -312,9 +324,9 @@ public class CurveBuildingInstrumentsDataSets {
    * @return The market rates.
    */
   public static double[] marketRateDiscounting() {
-    double[] rate = new double[DEPOSIT_NB + SWAP_EONIA_NB];
-    System.arraycopy(DEPOSIT_RATE, 0, rate, 0, DEPOSIT_NB);
-    System.arraycopy(SWAP_EONIA_RATE, 0, rate, DEPOSIT_NB, SWAP_EONIA_NB);
+    double[] rate = new double[DEPOSIT_ON_NB + SWAP_EONIA_NB];
+    System.arraycopy(DEPOSIT_ON_RATE, 0, rate, 0, DEPOSIT_ON_NB);
+    System.arraycopy(SWAP_EONIA_RATE, 0, rate, DEPOSIT_ON_NB, SWAP_EONIA_NB);
     return rate;
   }
 

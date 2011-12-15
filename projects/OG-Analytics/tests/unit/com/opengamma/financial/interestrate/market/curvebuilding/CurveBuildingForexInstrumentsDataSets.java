@@ -43,15 +43,15 @@ public class CurveBuildingForexInstrumentsDataSets {
     ZonedDateTime startDate;
     ZonedDateTime maturityDate;
     // ON and TN have a special treatment (quoted rate is spot)
-    maturityDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth(), FX_SWAP_TENOR[0]);
+    maturityDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, FX_SWAP_TENOR[0], EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth());
     FX_SWAP_DEFINITION[0] = new ForexSwapDefinition(EUR, USD, REFERENCE_DATE, maturityDate, NOTIONAL_DEFAULT, EUR_USD_SPOT - FX_SWAP_PTS[0] - FX_SWAP_PTS[1], FX_SWAP_PTS[0]);
     startDate = maturityDate;
-    maturityDate = ScheduleCalculator.getAdjustedDate(startDate, EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth(), FX_SWAP_TENOR[1]);
+    maturityDate = ScheduleCalculator.getAdjustedDate(startDate, FX_SWAP_TENOR[1], EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth());
     FX_SWAP_DEFINITION[1] = new ForexSwapDefinition(EUR, USD, startDate, maturityDate, NOTIONAL_DEFAULT, EUR_USD_SPOT - FX_SWAP_PTS[1], FX_SWAP_PTS[1]);
     for (int loopfx = 2; loopfx < FX_SWAP_NB; loopfx++) {
-      startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR_EUR, SETTLEMENT_DAYS_EUR);
+      startDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS_EUR, CALENDAR_EUR);
       // TODO: Change the calendar - see [PLAT-1747]
-      maturityDate = ScheduleCalculator.getAdjustedDate(startDate, EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth(), FX_SWAP_TENOR[loopfx]);
+      maturityDate = ScheduleCalculator.getAdjustedDate(startDate, FX_SWAP_TENOR[loopfx], EURIBOR_3M.getBusinessDayConvention(), CALENDAR_EUR, EURIBOR_3M.isEndOfMonth());
       FX_SWAP_DEFINITION[loopfx] = new ForexSwapDefinition(EUR, USD, startDate, maturityDate, NOTIONAL_DEFAULT, EUR_USD_SPOT, FX_SWAP_PTS[loopfx]);
     }
   }
