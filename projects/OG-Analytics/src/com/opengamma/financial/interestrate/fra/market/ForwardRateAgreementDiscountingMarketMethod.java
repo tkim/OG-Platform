@@ -63,7 +63,7 @@ public final class ForwardRateAgreementDiscountingMarketMethod implements Pricin
   public MultipleCurrencyAmount presentValue(final ForwardRateAgreement fra, final MarketBundle market) {
     Validate.notNull(fra, "FRA");
     Validate.notNull(market, "Market");
-    final double discountFactorSettlement = market.getDiscountingFactor(fra.getCurrency(), fra.getPaymentTime());
+    final double discountFactorSettlement = market.getDiscountFactor(fra.getCurrency(), fra.getPaymentTime());
     final double forward = market.getForwardRate(fra.getIndex(), fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction());
     final double presentValue = discountFactorSettlement * fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getPaymentYearFraction() * forward);
     return MultipleCurrencyAmount.of(fra.getCurrency(), presentValue);
@@ -85,7 +85,7 @@ public final class ForwardRateAgreementDiscountingMarketMethod implements Pricin
     Validate.notNull(fra, "FRA");
     Validate.notNull(market, "Market");
     final YieldAndDiscountCurve forwardCurve = market.getCurve(fra.getIndex());
-    final double df = market.getDiscountingFactor(fra.getCurrency(), fra.getPaymentTime());
+    final double df = market.getDiscountFactor(fra.getCurrency(), fra.getPaymentTime());
     final double dfForwardStart = forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime());
     final double dfForwardEnd = forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime());
     final double forward = (dfForwardStart / dfForwardEnd - 1.0) / fra.getFixingYearFraction();

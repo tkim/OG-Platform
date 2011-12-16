@@ -16,7 +16,6 @@ import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Data bundle used to construct/calibrate MarketBundle from instruments.
@@ -28,10 +27,10 @@ public class MarketFinderDataBundle {
    */
   private final InstrumentDerivative[] _instruments;
   //REVIEW: Is the market value required or can we assume it is always 0?
-  /**
-   * The market value of each instrument.
-   */
-  private final CurrencyAmount[] _marketValue;
+  //  /**
+  //   * The market value of each instrument.
+  //   */
+  //  private final CurrencyAmount[] _marketValue;
   /**
    * The links between the currencies and the order of the yield curves to be constructed.
    */
@@ -102,22 +101,21 @@ public class MarketFinderDataBundle {
   /**
    * Data bundle constructor with discounting and forward curves. There is no price index curve.
    * @param instruments The interest rate instruments used for the curve construction.
-   * @param marketValue The market value of each instrument.
    * @param discountingReferences The links between the currencies and the order of the yield curves to be constructed.
    * @param forwardReferences The links between the indexes (Ibor and OIS) and the order of the yield curves to be constructed.
    * @param nodePointsYieldCurve The points on which each interpolated yield curve is constructed.
    * @param interpolatorsYieldCurve The interpolators for each yield curve to be constructed.
    * @param yieldCurveName The curve names (in the order of the yield curve to be constructed).
    */
-  public MarketFinderDataBundle(InstrumentDerivative[] instruments, CurrencyAmount[] marketValue, Map<Currency, Integer> discountingReferences, Map<IndexDeposit, Integer> forwardReferences,
-      double[][] nodePointsYieldCurve, Interpolator1D[] interpolatorsYieldCurve, String[] yieldCurveName) {
+  public MarketFinderDataBundle(InstrumentDerivative[] instruments, Map<Currency, Integer> discountingReferences, Map<IndexDeposit, Integer> forwardReferences, double[][] nodePointsYieldCurve,
+      Interpolator1D[] interpolatorsYieldCurve, String[] yieldCurveName) {
     Validate.notNull(instruments, "Instruments");
-    Validate.notNull(marketValue, "Market value");
-    Validate.isTrue(instruments.length == marketValue.length, "Instruments and marketValue lengths should be equal");
+    //    Validate.notNull(marketValue, "Market value");
+    //    Validate.isTrue(instruments.length == marketValue.length, "Instruments and marketValue lengths should be equal");
     Validate.isTrue(interpolatorsYieldCurve.length == yieldCurveName.length, "Interpolator and yield curve name lengths should be equal");
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
-    _marketValue = marketValue;
+    //    _marketValue = marketValue;
     _discountingReferences = discountingReferences;
     _forwardReferences = forwardReferences;
     _nodePointsYieldCurve = nodePointsYieldCurve;
@@ -140,22 +138,21 @@ public class MarketFinderDataBundle {
    * Data bundle constructor with discounting and forward curves. There is no price index curve.
    * @param knownMarket The market with the curves (and other data, like FX) already known.
    * @param instruments The interest rate instruments used for the curve construction.
-   * @param marketValue The market value of each instrument.
    * @param discountingReferences The links between the currencies and the order of the yield curves to be constructed.
    * @param forwardReferences The links between the indexes (Ibor and OIS) and the order of the yield curves to be constructed.
    * @param nodePointsYieldCurve The points on which each interpolated yield curve is constructed.
    * @param interpolatorsYieldCurve The interpolators for each yield curve to be constructed.
    * @param yieldCurveName The curve names (in the order of the yield curve to be constructed).
    */
-  public MarketFinderDataBundle(MarketBundle knownMarket, InstrumentDerivative[] instruments, CurrencyAmount[] marketValue, Map<Currency, Integer> discountingReferences,
-      Map<IndexDeposit, Integer> forwardReferences, double[][] nodePointsYieldCurve, Interpolator1D[] interpolatorsYieldCurve, String[] yieldCurveName) {
+  public MarketFinderDataBundle(MarketBundle knownMarket, InstrumentDerivative[] instruments, Map<Currency, Integer> discountingReferences, Map<IndexDeposit, Integer> forwardReferences,
+      double[][] nodePointsYieldCurve, Interpolator1D[] interpolatorsYieldCurve, String[] yieldCurveName) {
     Validate.notNull(instruments, "Instruments");
-    Validate.notNull(marketValue, "Market value");
-    Validate.isTrue(instruments.length == marketValue.length, "Instruments and marketValue lengths should be equal");
+    //    Validate.notNull(marketValue, "Market value");
+    //    Validate.isTrue(instruments.length == marketValue.length, "Instruments and marketValue lengths should be equal");
     Validate.isTrue(interpolatorsYieldCurve.length == yieldCurveName.length, "Interpolator and yield curve name lengths should be equal");
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
-    _marketValue = marketValue;
+    //    _marketValue = marketValue;
     _discountingReferences = discountingReferences;
     _forwardReferences = forwardReferences;
     _nodePointsYieldCurve = nodePointsYieldCurve;
@@ -178,7 +175,6 @@ public class MarketFinderDataBundle {
    * Data bundle constructor with discounting and forward curves. There is no price index curve.
    * @param knownMarket The market with the curves (and other data, like FX) already known.
    * @param instruments The interest rate instruments used for the curve construction.
-   * @param marketValue The market value of each instrument.
    * @param discountingReferences The links between the currencies and the order of the yield curves to be constructed.
    * @param forwardReferences The links between the indexes (Ibor and OIS) and the order of the yield curves to be constructed.
    * @param priceIndexReferences The links between the price indexes and the order of the price curves to be constructed.
@@ -188,15 +184,15 @@ public class MarketFinderDataBundle {
    * @param interpolatorsPriceCurve The interpolators for each price curve to be constructed.
    * @param knownPointsPriceCurve The values already known on the price curve (usually the already fixed price indexes).
    */
-  public MarketFinderDataBundle(final MarketBundle knownMarket, final InstrumentDerivative[] instruments, final CurrencyAmount[] marketValue, final Map<Currency, Integer> discountingReferences,
+  public MarketFinderDataBundle(final MarketBundle knownMarket, final InstrumentDerivative[] instruments, final Map<Currency, Integer> discountingReferences,
       final Map<IndexDeposit, Integer> forwardReferences, final Map<IndexPrice, Integer> priceIndexReferences, final double[][] nodePointsYieldCurve, final Interpolator1D[] interpolatorsYieldCurve,
       final double[][] nodePointsPriceCurve, final Interpolator1D[] interpolatorsPriceCurve, final double[][] knownPointsPriceCurve) {
     Validate.notNull(instruments, "Instruments");
-    Validate.notNull(marketValue, "Market value");
-    Validate.isTrue(instruments.length == marketValue.length, "Instruments and marketValue lengths should be equal");
+    //    Validate.notNull(marketValue, "Market value");
+    //    Validate.isTrue(instruments.length == marketValue.length, "Instruments and marketValue lengths should be equal");
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
-    _marketValue = marketValue;
+    //    _marketValue = marketValue;
     _discountingReferences = discountingReferences;
     _forwardReferences = forwardReferences;
     _nodePointsYieldCurve = nodePointsYieldCurve;
@@ -225,22 +221,21 @@ public class MarketFinderDataBundle {
    * Data bundle constructor with discounting and forward curves. There is no price index curve.
    * @param knownMarket The market with the curves (and other data, like FX) already known.
    * @param instruments The interest rate instruments used for the curve construction.
-   * @param marketValue The market value of each instrument.
    * @param priceIndexReferences The links between the price indexes and the order of the price curves to be constructed.
    * @param nodePointsPriceCurve The points on which each interpolated price curve is constructed.
    * @param interpolatorsPriceCurve The interpolators for each price curve to be constructed.
    * @param knownPointsPriceCurve The values already known on the price curve (usually the already fixed price indexes).
    * @param priceCurveName The names associated to the different price curves.
    */
-  public MarketFinderDataBundle(final MarketBundle knownMarket, final InstrumentDerivative[] instruments, final CurrencyAmount[] marketValue, final Map<IndexPrice, Integer> priceIndexReferences,
-      final double[][] nodePointsPriceCurve, final Interpolator1D[] interpolatorsPriceCurve, final double[][] knownPointsPriceCurve, final String[] priceCurveName) {
+  public MarketFinderDataBundle(final MarketBundle knownMarket, final InstrumentDerivative[] instruments, final Map<IndexPrice, Integer> priceIndexReferences, final double[][] nodePointsPriceCurve,
+      final Interpolator1D[] interpolatorsPriceCurve, final double[][] knownPointsPriceCurve, final String[] priceCurveName) {
     Validate.notNull(instruments, "Instruments");
-    Validate.notNull(marketValue, "Market value");
-    Validate.isTrue(instruments.length == marketValue.length, "Instruments and marketValue lengths should be equal");
+    //    Validate.notNull(marketValue, "Market value");
+    //    Validate.isTrue(instruments.length == marketValue.length, "Instruments and marketValue lengths should be equal");
     Validate.isTrue(interpolatorsPriceCurve.length == priceCurveName.length, "Interpolator and yield curve name lengths should be equal");
     // TODO: validate the input (length, references, ...)
     _instruments = instruments;
-    _marketValue = marketValue;
+    //    _marketValue = marketValue;
     _discountingReferences = new HashMap<Currency, Integer>();
     _forwardReferences = new HashMap<IndexDeposit, Integer>();
     _nodePointsYieldCurve = new double[0][0];
@@ -267,13 +262,13 @@ public class MarketFinderDataBundle {
     return _instruments;
   }
 
-  /**
-   * Gets the market value of each instrument.
-   * @return The market value.
-   */
-  public CurrencyAmount[] getMarketValue() {
-    return _marketValue;
-  }
+  //  /**
+  //   * Gets the market value of each instrument.
+  //   * @return The market value.
+  //   */
+  //  public CurrencyAmount[] getMarketValue() {
+  //    return _marketValue;
+  //  }
 
   /**
    * Gets the links between the currencies and the order of the yield curves to be constructed.

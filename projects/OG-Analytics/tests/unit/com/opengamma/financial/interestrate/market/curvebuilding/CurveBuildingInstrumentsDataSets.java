@@ -15,6 +15,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.cash.DepositDefinition;
+import com.opengamma.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.index.GeneratorDeposit;
@@ -40,6 +41,7 @@ import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
@@ -89,8 +91,8 @@ public class CurveBuildingInstrumentsDataSets {
   }
 
   // ===== DEPOSIT PERIOD
-  private static final Period[] DEPOSIT_PERIOD_TENOR = new Period[] {Period.ofDays(7), Period.ofMonths(1), Period.ofMonths(3)};
-  private static final double[] DEPOSIT_PERIOD_RATE = new double[] {0.012, 0.013, 0.014};
+  private static final Period[] DEPOSIT_PERIOD_TENOR = new Period[] {Period.ofMonths(1), Period.ofMonths(3)};
+  private static final double[] DEPOSIT_PERIOD_RATE = new double[] {0.012, 0.013};
   private static final int DEPOSIT_PERIOD_NB = DEPOSIT_PERIOD_TENOR.length;
   private static final DepositDefinition[] DEPOSIT_PERIOD_DEFINITION = new DepositDefinition[DEPOSIT_PERIOD_NB];
   static {
@@ -112,9 +114,19 @@ public class CurveBuildingInstrumentsDataSets {
     }
   }
 
+  // ===== DEPOSIT EURIBOR 3M
+  private static final double[] DEPOSIT_IBOR_RATE = new double[] {0.015};
+  private static final int DEPOSIT_IBOR_NB = DEPOSIT_IBOR_RATE.length;
+  private static final DepositIborDefinition[] DEPOSIT_IBOR_DEFINITION = new DepositIborDefinition[DEPOSIT_IBOR_NB];
+  static {
+    for (int loopdepo = 0; loopdepo < DEPOSIT_IBOR_NB; loopdepo++) {
+      DEPOSIT_IBOR_DEFINITION[loopdepo] = DepositIborDefinition.fromTrade(REFERENCE_DATE, NOTIONAL_DEFAULT, DEPOSIT_IBOR_RATE[loopdepo], EURIBOR_3M);
+    }
+  }
+
   // ===== SWAP EURIBOR 3M
   private static final Period[] SWAP_FAKE_EUR3_TENOR = new Period[] {Period.ofMonths(1)};
-  private static final double[] SWAP_FAKE_EUR3_RATE = new double[] {0.012};
+  private static final double[] SWAP_FAKE_EUR3_RATE = new double[] {0.014};
   private static final int[] SWAP_FAKE_EUR3_START = new int[] {2};
   private static final int SWAP_FAKE_EUR3_NB = SWAP_FAKE_EUR3_TENOR.length;
 
@@ -241,6 +253,7 @@ public class CurveBuildingInstrumentsDataSets {
 
   private static final Cash[] DEPOSIT_ON = new Cash[DEPOSIT_ON_NB];
   private static final Cash[] DEPOSIT_PERIOD = new Cash[DEPOSIT_PERIOD_NB];
+  private static final DepositIbor[] DEPOSIT_IBOR = new DepositIbor[DEPOSIT_IBOR_NB];
   private static final InstrumentDerivative[] SWAP_EONIA = new InstrumentDerivative[SWAP_EONIA_NB];
   private static final InstrumentDerivative[] SWAP_EUR3 = new InstrumentDerivative[SWAP_FAKE_EUR3_NB + SWAP_EUR3_NB];
   private static final InstrumentDerivative[] SWAP_EUR6 = new InstrumentDerivative[SWAP_FAKE_EUR6_NB + SWAP_EUR6_NB];
@@ -254,6 +267,9 @@ public class CurveBuildingInstrumentsDataSets {
     }
     for (int loopdepo = 0; loopdepo < DEPOSIT_PERIOD_NB; loopdepo++) {
       DEPOSIT_PERIOD[loopdepo] = DEPOSIT_PERIOD_DEFINITION[loopdepo].toDerivative(REFERENCE_DATE, NOT_USED);
+    }
+    for (int loopdepo = 0; loopdepo < DEPOSIT_IBOR_NB; loopdepo++) {
+      DEPOSIT_IBOR[loopdepo] = DEPOSIT_IBOR_DEFINITION[loopdepo].toDerivative(REFERENCE_DATE, NOT_USED);
     }
     for (int loopois = 0; loopois < SWAP_EONIA_NB; loopois++) {
       SWAP_EONIA[loopois] = SWAP_EONIA_DEFINITION[loopois].toDerivative(REFERENCE_DATE, NOT_USED_2);
@@ -302,31 +318,43 @@ public class CurveBuildingInstrumentsDataSets {
   }
 
   /**
-   * Return the times associated to the instrument for the curve construction.
-   * @return The times.
+   * Returns the market rate associated to the market instrument. Used mainly as starting point for the yield curve construction.
+   * @return The market rates.
    */
-  public static double[] timeDiscounting() {
-    //TODO: use LastDateCalculator?
-    double[] times = new double[DEPOSIT_ON_NB + SWAP_EONIA_NB];
+  public static double[] marketRateDiscountingOIS() {
+    double[] rate = new double[DEPOSIT_ON_NB + SWAP_EONIA_NB];
+    System.arraycopy(DEPOSIT_ON_RATE, 0, rate, 0, DEPOSIT_ON_NB);
+    System.arraycopy(SWAP_EONIA_RATE, 0, rate, DEPOSIT_ON_NB, SWAP_EONIA_NB);
+    return rate;
+  }
+
+  /**
+   * Return a set of instruments (cash deposits and OIS swap) for discounting curve construction.
+   * @return The instrument set.
+   */
+  public static InstrumentDerivative[] instrumentsDiscountingDeposit() {
+    InstrumentDerivative[] instruments = new InstrumentDerivative[DEPOSIT_ON_NB + SWAP_EONIA_NB];
     for (int loopdepo = 0; loopdepo < DEPOSIT_ON_NB; loopdepo++) {
-      times[loopdepo] = DEPOSIT_ON[loopdepo].getEndTime();
+      instruments[loopdepo] = DEPOSIT_ON[loopdepo];
     }
-    for (int loopois = 0; loopois < SWAP_EONIA_NB; loopois++) {
-      @SuppressWarnings("unchecked")
-      GenericAnnuity<Coupon> leg = ((Swap<Coupon, Coupon>) SWAP_EONIA[loopois]).getFirstLeg();
-      times[DEPOSIT_ON_NB + loopois] = leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime();
+    for (int loopdepo = 0; loopdepo < DEPOSIT_PERIOD_NB; loopdepo++) {
+      instruments[DEPOSIT_ON_NB + loopdepo] = DEPOSIT_PERIOD[loopdepo];
     }
-    return times;
+    for (int loopois = DEPOSIT_PERIOD_NB; loopois < SWAP_EONIA_NB; loopois++) {
+      instruments[DEPOSIT_ON_NB + loopois] = SWAP_EONIA[loopois];
+    }
+    return instruments;
   }
 
   /**
    * Returns the market rate associated to the market instrument. Used mainly as starting point for the yield curve construction.
    * @return The market rates.
    */
-  public static double[] marketRateDiscounting() {
+  public static double[] marketRateDiscountingDeposit() {
     double[] rate = new double[DEPOSIT_ON_NB + SWAP_EONIA_NB];
     System.arraycopy(DEPOSIT_ON_RATE, 0, rate, 0, DEPOSIT_ON_NB);
-    System.arraycopy(SWAP_EONIA_RATE, 0, rate, DEPOSIT_ON_NB, SWAP_EONIA_NB);
+    System.arraycopy(DEPOSIT_PERIOD_RATE, 0, rate, DEPOSIT_ON_NB, DEPOSIT_PERIOD_NB);
+    System.arraycopy(SWAP_EONIA_RATE, DEPOSIT_PERIOD_NB, rate, DEPOSIT_ON_NB + DEPOSIT_PERIOD_NB, SWAP_EONIA_NB - DEPOSIT_PERIOD_NB);
     return rate;
   }
 
@@ -334,20 +362,29 @@ public class CurveBuildingInstrumentsDataSets {
     return SWAP_EUR3;
   }
 
-  public static double[] timeForward3FullSwap() {
-    double[] times = new double[SWAP_FAKE_EUR3_NB + SWAP_EUR3_NB];
-    for (int loop3 = 0; loop3 < SWAP_FAKE_EUR3_NB + SWAP_EUR3_NB; loop3++) {
-      @SuppressWarnings("unchecked")
-      GenericAnnuity<Coupon> leg = ((Swap<Coupon, Coupon>) SWAP_EUR3[loop3]).getFirstLeg();
-      times[loop3] = leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime();
-    }
-    return times;
-  }
-
   public static double[] marketRateForward3FullSwap() {
     double[] rate = new double[SWAP_FAKE_EUR3_NB + SWAP_EUR3_NB];
     System.arraycopy(SWAP_FAKE_EUR3_RATE, 0, rate, 0, SWAP_FAKE_EUR3_NB);
     System.arraycopy(SWAP_EUR3_RATE, 0, rate, SWAP_FAKE_EUR3_NB, SWAP_EUR3_NB);
+    return rate;
+  }
+
+  public static InstrumentDerivative[] instrumentsForward3IborSwap() {
+    int indexStartSwap = 1;
+    InstrumentDerivative[] result = new InstrumentDerivative[DEPOSIT_IBOR_NB + SWAP_EUR3_NB - indexStartSwap];
+    for (int loopins = 0; loopins < DEPOSIT_IBOR_NB; loopins++) {
+      result[loopins] = DEPOSIT_IBOR[loopins];
+    }
+    for (int loopins = 0; loopins < SWAP_EUR3_NB - indexStartSwap; loopins++) {
+      result[DEPOSIT_IBOR_NB + loopins] = SWAP_EUR3[indexStartSwap + loopins];
+    }
+    return result;
+  }
+
+  public static double[] marketRateForward3IborSwap() {
+    double[] rate = new double[DEPOSIT_IBOR_NB + SWAP_EUR3_NB];
+    System.arraycopy(DEPOSIT_IBOR_RATE, 0, rate, 0, DEPOSIT_IBOR_NB);
+    System.arraycopy(SWAP_EUR3_RATE, 0, rate, DEPOSIT_IBOR_NB, SWAP_EUR3_NB);
     return rate;
   }
 
@@ -373,96 +410,52 @@ public class CurveBuildingInstrumentsDataSets {
   }
 
   public static InstrumentDerivative[] instrumentsForward3FraSwap() {
-    int nbShort = SWAP_FAKE_EUR3_NB;
-    int nbFra = FRA_EUR3_NB;
-    int indexStartSwap = 3;
-    InstrumentDerivative[] result = new InstrumentDerivative[nbShort + nbFra + SWAP_EUR3_NB - indexStartSwap];
-    for (int loopins = 0; loopins < nbShort; loopins++) {
-      result[loopins] = SWAP_EUR3[loopins];
+    int indexStartSwap = 4;
+    InstrumentDerivative[] result = new InstrumentDerivative[DEPOSIT_IBOR_NB + FRA_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
+    for (int loopins = 0; loopins < DEPOSIT_IBOR_NB; loopins++) {
+      result[loopins] = DEPOSIT_IBOR[loopins];
     }
-    for (int loopins = 0; loopins < nbFra; loopins++) {
-      result[nbShort + loopins] = FRA_EUR3[loopins];
+    for (int loopins = 0; loopins < FRA_EUR3_NB; loopins++) {
+      result[DEPOSIT_IBOR_NB + loopins] = FRA_EUR3[loopins];
     }
     for (int loopins = 0; loopins < SWAP_EUR3_NB - indexStartSwap; loopins++) {
-      result[nbShort + nbFra + loopins] = SWAP_EUR3[nbShort + indexStartSwap + loopins];
+      result[DEPOSIT_IBOR_NB + FRA_EUR3_NB + loopins] = SWAP_EUR3[indexStartSwap + loopins];
     }
     return result;
   }
 
-  public static double[] timeForward3FraSwap() {
-    int nbShort = SWAP_FAKE_EUR3_NB;
-    int nbFra = FRA_EUR3_NB;
-    int indexStartSwap = 3;
-    double[] times = new double[nbShort + nbFra + SWAP_EUR3_NB - indexStartSwap];
-    for (int loopins = 0; loopins < nbShort; loopins++) {
-      @SuppressWarnings("unchecked")
-      GenericAnnuity<Coupon> leg = ((Swap<Coupon, Coupon>) SWAP_EUR3[loopins]).getFirstLeg();
-      times[loopins] = leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime();
-    }
-    for (int loopins = 0; loopins < nbFra; loopins++) {
-      times[nbShort + loopins] = FRA_EUR3[loopins].getFixingPeriodEndTime();
-    }
-    for (int loopins = 0; loopins < SWAP_EUR3_NB - indexStartSwap; loopins++) {
-      @SuppressWarnings("unchecked")
-      GenericAnnuity<Coupon> leg = ((Swap<Coupon, Coupon>) SWAP_EUR3[nbShort + indexStartSwap + loopins]).getFirstLeg();
-      times[nbShort + nbFra + loopins] = leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime();
-    }
-    return times;
-  }
-
   public static double[] marketRateForward3FraSwap() {
-    int nbShort = SWAP_FAKE_EUR3_NB;
-    int nbFra = FRA_EUR3_NB;
-    int indexStartSwap = 3;
-    double[] rate = new double[nbShort + nbFra + SWAP_EUR3_NB - indexStartSwap];
-    System.arraycopy(SWAP_FAKE_EUR3_RATE, 0, rate, 0, nbShort);
-    System.arraycopy(FRA_EUR3_RATE, 0, rate, nbShort, nbFra);
-    System.arraycopy(SWAP_EUR3_RATE, indexStartSwap, rate, nbShort + nbFra, SWAP_EUR3_NB - indexStartSwap);
+    int indexStartSwap = 4;
+    double[] rate = new double[DEPOSIT_IBOR_NB + FRA_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
+    System.arraycopy(DEPOSIT_IBOR_RATE, 0, rate, 0, DEPOSIT_IBOR_NB);
+    System.arraycopy(FRA_EUR3_RATE, 0, rate, DEPOSIT_IBOR_NB, FRA_EUR3_NB);
+    System.arraycopy(SWAP_EUR3_RATE, indexStartSwap, rate, DEPOSIT_IBOR_NB + FRA_EUR3_NB, SWAP_EUR3_NB - indexStartSwap);
     return rate;
   }
 
   public static InstrumentDerivative[] instrumentsForward3FutSwap() {
     int indexStartSwap = 4;
-    InstrumentDerivative[] result = new InstrumentDerivative[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
-    for (int loopins = 0; loopins < SWAP_FAKE_EUR3_NB; loopins++) {
-      result[loopins] = SWAP_EUR3[loopins];
+    InstrumentDerivative[] result = new InstrumentDerivative[DEPOSIT_IBOR_NB + FUT_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
+    for (int loopins = 0; loopins < DEPOSIT_IBOR_NB; loopins++) {
+      result[loopins] = DEPOSIT_IBOR[loopins];
     }
     for (int loopins = 0; loopins < FUT_EUR3_NB; loopins++) {
-      result[SWAP_FAKE_EUR3_NB + loopins] = FUT_EUR3[loopins];
+      result[DEPOSIT_IBOR_NB + loopins] = FUT_EUR3[loopins];
     }
     for (int loopins = 0; loopins < SWAP_EUR3_NB - indexStartSwap; loopins++) {
-      result[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + loopins] = SWAP_EUR3[SWAP_FAKE_EUR3_NB + indexStartSwap + loopins];
+      result[DEPOSIT_IBOR_NB + FUT_EUR3_NB + loopins] = SWAP_EUR3[SWAP_FAKE_EUR3_NB + indexStartSwap + loopins];
     }
     return result;
   }
 
-  public static double[] timeForward3FutSwap() {
-    int indexStartSwap = 4;
-    double[] times = new double[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
-    for (int loopins = 0; loopins < SWAP_FAKE_EUR3_NB; loopins++) {
-      @SuppressWarnings("unchecked")
-      GenericAnnuity<Coupon> leg = ((Swap<Coupon, Coupon>) SWAP_EUR3[loopins]).getFirstLeg();
-      times[loopins] = leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime();
-    }
-    for (int loopins = 0; loopins < FUT_EUR3_NB; loopins++) {
-      times[SWAP_FAKE_EUR3_NB + loopins] = FUT_EUR3[loopins].getFixingPeriodEndTime();
-    }
-    for (int loopins = 0; loopins < SWAP_EUR3_NB - indexStartSwap; loopins++) {
-      @SuppressWarnings("unchecked")
-      GenericAnnuity<Coupon> leg = ((Swap<Coupon, Coupon>) SWAP_EUR3[SWAP_FAKE_EUR3_NB + indexStartSwap + loopins]).getFirstLeg();
-      times[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + loopins] = leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime();
-    }
-    return times;
-  }
-
   public static double[] marketRateForward3FutSwap() {
     int indexStartSwap = 4;
-    double[] rate = new double[SWAP_FAKE_EUR3_NB + FUT_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
-    System.arraycopy(SWAP_FAKE_EUR3_RATE, 0, rate, 0, SWAP_FAKE_EUR3_NB);
+    double[] rate = new double[DEPOSIT_IBOR_NB + FUT_EUR3_NB + SWAP_EUR3_NB - indexStartSwap];
+    System.arraycopy(DEPOSIT_IBOR_RATE, 0, rate, 0, DEPOSIT_IBOR_NB);
     for (int loopins = 0; loopins < FUT_EUR3_NB; loopins++) {
-      rate[SWAP_FAKE_EUR3_NB + loopins] = 1.0 - FUT_EUR3_PRICE[loopins];
+      rate[DEPOSIT_IBOR_NB + loopins] = 1.0 - FUT_EUR3_PRICE[loopins];
     }
-    System.arraycopy(SWAP_EUR3_RATE, indexStartSwap, rate, SWAP_FAKE_EUR3_NB + FUT_EUR3_NB, SWAP_EUR3_NB - indexStartSwap);
+    System.arraycopy(SWAP_EUR3_RATE, indexStartSwap, rate, DEPOSIT_IBOR_NB + FUT_EUR3_NB, SWAP_EUR3_NB - indexStartSwap);
     return rate;
   }
 

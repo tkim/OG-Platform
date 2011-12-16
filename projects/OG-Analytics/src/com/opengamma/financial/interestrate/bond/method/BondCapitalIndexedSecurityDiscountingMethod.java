@@ -75,7 +75,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
     double dirtyPriceReal = cleanPriceReal + bond.getAccruedInterest() / notional;
     double estimatedIndex = bond.getSettlement().estimatedIndex(market);
     double dirtyPriceAjusted = dirtyPriceReal * estimatedIndex / bond.getIndexStartValue();
-    double dfSettle = market.getDiscountingFactor(bond.getCurrency(), bond.getSettlementTime());
+    double dfSettle = market.getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
     double pv = dirtyPriceAjusted * bond.getCoupon().getNthPayment(0).getNotional() * dfSettle;
     return MultipleCurrencyAmount.of(bond.getCurrency(), pv);
   }

@@ -53,7 +53,7 @@ public final class CouponFixedDiscountingMarketMethod implements PricingMarketMe
   public MultipleCurrencyAmount presentValue(final CouponFixed coupon, final MarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
-    final double df = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double df = market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = coupon.getAmount() * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
   }
@@ -73,7 +73,7 @@ public final class CouponFixedDiscountingMarketMethod implements PricingMarketMe
   public PresentValueCurveSensitivityMarket presentValueCurveSensitivity(final CouponFixed coupon, final MarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
-    final double df = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double df = market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pvBar = 1.0;
     final double dfBar = coupon.getAmount() * pvBar;
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();

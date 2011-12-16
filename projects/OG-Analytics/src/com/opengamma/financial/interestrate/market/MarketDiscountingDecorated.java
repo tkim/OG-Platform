@@ -39,11 +39,11 @@ public class MarketDiscountingDecorated extends MarketBundle {
   }
 
   @Override
-  public double getDiscountingFactor(Currency ccy, Double time) {
+  public double getDiscountFactor(Currency ccy, Double time) {
     if (ccy == _ccy) {
       return _curve.getDiscountFactor(time);
     }
-    return super.getDiscountingFactor(ccy, time);
+    return super.getDiscountFactor(ccy, time);
   }
 
   @Override

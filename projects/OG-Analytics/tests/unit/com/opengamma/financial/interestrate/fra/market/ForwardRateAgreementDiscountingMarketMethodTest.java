@@ -21,6 +21,7 @@ import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
+import com.opengamma.financial.interestrate.market.MarketQuoteMarketCalculator;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarketCalculator;
 import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
@@ -59,11 +60,12 @@ public class ForwardRateAgreementDiscountingMarketMethodTest {
   private static final ForwardRateAgreementDiscountingMarketMethod METHOD = ForwardRateAgreementDiscountingMarketMethod.getInstance();
   private static final PresentValueMarketCalculator PVC = PresentValueMarketCalculator.getInstance();
   private static final PresentValueCurveSensitivityMarketCalculator PVCSC = PresentValueCurveSensitivityMarketCalculator.getInstance();
+  private static final MarketQuoteMarketCalculator MQC = MarketQuoteMarketCalculator.getInstance();
 
   @Test
   public void presentValue() {
     final double forward = MARKET.getForwardRate(EURIBOR3M, FRA.getFixingPeriodStartTime(), FRA.getFixingPeriodEndTime(), FRA.getFixingYearFraction());
-    final double dfSettle = MARKET.getDiscountingFactor(FRA.getCurrency(), FRA.getPaymentTime());
+    final double dfSettle = MARKET.getDiscountFactor(FRA.getCurrency(), FRA.getPaymentTime());
     final double expectedPv = FRA.getNotional() * dfSettle * FRA.getPaymentYearFraction() * (forward - FRA_RATE) / (1 + FRA.getPaymentYearFraction() * forward);
     final MultipleCurrencyAmount pv = METHOD.presentValue(FRA, MARKET);
     assertEquals("FRA discounting: present value", expectedPv, pv.getAmount(EUR), 1.0E-2);
@@ -134,6 +136,16 @@ public class ForwardRateAgreementDiscountingMarketMethodTest {
     final double forward = METHOD.parRate(FRA, MARKET);
     final double forwardExpected = MARKET.getForwardRate(EURIBOR3M, FRA.getFixingPeriodStartTime(), FRA.getFixingPeriodEndTime(), FRA.getFixingYearFraction());
     assertEquals("FRA discounting: par rate", forwardExpected, forward, 1.0E-10);
+  }
+
+  @Test
+  /**
+   * Tests the par or fair rate for the FRA by discounting.
+   */
+  public void marketQuoteCalculator() {
+    final double forwardMethod = METHOD.parRate(FRA, MARKET);
+    double quoteCalculator = MQC.visit(FRA, MARKET);
+    assertEquals("FRA discounting: market quote", forwardMethod, quoteCalculator, 1.0E-10);
   }
 
   // TODO: par rate sensitivity

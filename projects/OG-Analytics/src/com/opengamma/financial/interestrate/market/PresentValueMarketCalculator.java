@@ -14,7 +14,9 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.cash.market.CashDiscountingMarketMethod;
+import com.opengamma.financial.interestrate.cash.market.DepositIborDiscountingMarketMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.market.ForwardRateAgreementDiscountingMarketMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -68,6 +70,7 @@ public class PresentValueMarketCalculator extends AbstractInstrumentDerivativeVi
    * The methods used by the different instruments.
    */
   private static final CashDiscountingMarketMethod METHOD_CASH = CashDiscountingMarketMethod.getInstance();
+  private static final DepositIborDiscountingMarketMethod METHOD_DEPO_IBOR = DepositIborDiscountingMarketMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMarketMethod METHOD_FRA = ForwardRateAgreementDiscountingMarketMethod.getInstance();
   private static final CouponIborDiscountingMarketMethod METHOD_IBOR = CouponIborDiscountingMarketMethod.getInstance();
   private static final CouponFixedDiscountingMarketMethod METHOD_FIXED = CouponFixedDiscountingMarketMethod.getInstance();
@@ -89,6 +92,11 @@ public class PresentValueMarketCalculator extends AbstractInstrumentDerivativeVi
   @Override
   public MultipleCurrencyAmount visitCash(final Cash cash, final MarketBundle market) {
     return METHOD_CASH.presentValue(cash, market);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitDepositIbor(final DepositIbor deposit, final MarketBundle market) {
+    return METHOD_DEPO_IBOR.presentValue(deposit, market);
   }
 
   @Override

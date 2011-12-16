@@ -9,11 +9,14 @@ import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAP
 import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.instrument.index.IndexDeposit;
@@ -21,6 +24,7 @@ import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.LastTimeCalculator;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
@@ -59,7 +63,7 @@ public class MarketBundleBuildingTest {
   private static final PresentValueHullWhiteMarketCalculator PVC_HW = PresentValueHullWhiteMarketCalculator.getInstance();
   private static final LastTimeCalculator LTC = LastTimeCalculator.getInstance();
 
-  private static final int NB_TEST = 100;
+  private static final int NB_TEST = 2;
   /**
    * Tolerance for the price convergence (equivalent to 0.01 currency unit for 100m notional).
    */
@@ -70,36 +74,47 @@ public class MarketBundleBuildingTest {
    * Build the discounting curve in EUR from ON and TN deposits and OIS swaps. The same curve is used for discounting and OIS forward projection.
    */
   public void discounting() {
-    //TODO: transfer into market.curvebuilding?
-    InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
-    Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
+    InstrumentDerivative[] instrumentsDscOIS = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
+    double[] intrumentsDscOISTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDscOIS));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
+    Currency eur = ((Cash) instrumentsDscOIS[0]).getCurrency();
     @SuppressWarnings("unchecked")
-    IndexDeposit eonia = ((CouponOIS) ((Swap<Payment, Payment>) instrumentsDsc[2]).getSecondLeg().getNthPayment(0)).getIndex();
+    IndexDeposit eonia = ((CouponOIS) ((Swap<Payment, Payment>) instrumentsDscOIS[2]).getSecondLeg().getNthPayment(0)).getIndex();
     Map<Currency, Integer> discountingReferences = new HashMap<Currency, Integer>();
     discountingReferences.put(eur, 0);
     Map<IndexDeposit, Integer> forwardReferences = new HashMap<IndexDeposit, Integer>();
     forwardReferences.put(eonia, 0);
-    int nbInstruments = instrumentsDsc.length;
+    int nbInstruments = instrumentsDscOIS.length;
+    MarketBundle marketOIS = discountingBuild(instrumentsDscOIS, intrumentsDscOISTime, marketRateDsc, discountingReferences, forwardReferences);
 
-    MarketBundle market = discountingBuild(instrumentsDsc, intrumentsDscTime, marketRateDsc, discountingReferences, forwardReferences);
+    InstrumentDerivative[] instrumentsDscDepo = CurveBuildingInstrumentsDataSets.instrumentsDiscountingDeposit();
+    double[] intrumentsDscDepoTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDscDepo));
+    MarketBundle marketDepo = discountingBuild(instrumentsDscDepo, intrumentsDscDepoTime, marketRateDsc, discountingReferences, forwardReferences);
 
     IndexDeposit[] indexes = new IndexDeposit[] {eonia};
     final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
     final CombinedInterpolatorExtrapolator extrainterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, FLAT_EXTRAPOLATOR);
-    MarketBundle marketFromBuilder = MarketBundleBuilder.discounting(instrumentsDsc, eur, indexes, extrainterpolator, LTC, PVC);
-    MarketBundle marketFromBuilder2 = MarketBundleBuilder.discounting(instrumentsDsc, marketRateDsc, eur, indexes, extrainterpolator, LTC, PVC);
+    MarketBundle marketFromBuilder = MarketBundleBuilder.discounting(instrumentsDscOIS, eur, indexes, extrainterpolator, LTC, PVC);
+    MarketBundle marketFromBuilder2 = MarketBundleBuilder.discounting(instrumentsDscOIS, marketRateDsc, eur, indexes, extrainterpolator, LTC, PVC);
 
-    MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbInstruments];
+    MultipleCurrencyAmount[] pvOISOIS = new MultipleCurrencyAmount[nbInstruments];
+    MultipleCurrencyAmount[] pvOISDepo = new MultipleCurrencyAmount[nbInstruments];
+    MultipleCurrencyAmount[] pvDepoOIS = new MultipleCurrencyAmount[nbInstruments];
+    MultipleCurrencyAmount[] pvDepoDepo = new MultipleCurrencyAmount[nbInstruments];
     MultipleCurrencyAmount[] pvBuilder = new MultipleCurrencyAmount[nbInstruments];
     MultipleCurrencyAmount[] pvBuilder2 = new MultipleCurrencyAmount[nbInstruments];
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      pv[loopins] = PVC.visit(instrumentsDsc[loopins], market);
-      assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pv[loopins].getAmount(eur), TOLERANCE);
-      pvBuilder[loopins] = PVC.visit(instrumentsDsc[loopins], marketFromBuilder);
+      pvOISOIS[loopins] = PVC.visit(instrumentsDscOIS[loopins], marketOIS);
+      assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pvOISOIS[loopins].getAmount(eur), TOLERANCE);
+      pvOISDepo[loopins] = PVC.visit(instrumentsDscOIS[loopins], marketDepo);
+      assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pvOISDepo[loopins].getAmount(eur), TOLERANCE);
+      pvDepoOIS[loopins] = PVC.visit(instrumentsDscDepo[loopins], marketOIS);
+      assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pvDepoOIS[loopins].getAmount(eur), TOLERANCE);
+      pvDepoDepo[loopins] = PVC.visit(instrumentsDscDepo[loopins], marketDepo);
+      assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pvDepoDepo[loopins].getAmount(eur), TOLERANCE);
+      pvBuilder[loopins] = PVC.visit(instrumentsDscOIS[loopins], marketFromBuilder);
       assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pvBuilder[loopins].getAmount(eur), TOLERANCE);
-      pvBuilder2[loopins] = PVC.visit(instrumentsDsc[loopins], marketFromBuilder2);
+      pvBuilder2[loopins] = PVC.visit(instrumentsDscOIS[loopins], marketFromBuilder2);
       assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pvBuilder2[loopins].getAmount(eur), TOLERANCE);
     }
   }
@@ -117,7 +132,7 @@ public class MarketBundleBuildingTest {
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[] {extrapolator};
     String name = discountingReferences.keySet().iterator().next().toString() + " discounting";
-    MarketFinderDataBundle data = new MarketFinderDataBundle(instrumentsDsc, marketValue, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve, new String[] {name});
+    MarketFinderDataBundle data = new MarketFinderDataBundle(instrumentsDsc, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve, new String[] {name});
     MarketBundleFinderFunction func = new MarketBundleFinderFunction(PVC, data);
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, new DoubleMatrix1D(marketRateDsc));
@@ -131,8 +146,8 @@ public class MarketBundleBuildingTest {
    * The same curve is used for discounting and OIS forward projection.
    */
   public void forward3FullSwap() {
-    checkForwardFullSwap(CurveBuildingInstrumentsDataSets.instrumentsForward3FullSwap(), CurveBuildingInstrumentsDataSets.timeForward3FullSwap(),
-        CurveBuildingInstrumentsDataSets.marketRateForward3FullSwap());
+    InstrumentDerivative[] ins = CurveBuildingInstrumentsDataSets.instrumentsForward3FullSwap();
+    checkForwardFullSwap(ins, ArrayUtils.toPrimitive(LTC.visit(ins)), CurveBuildingInstrumentsDataSets.marketRateForward3FullSwap());
   }
 
   @Test
@@ -147,8 +162,8 @@ public class MarketBundleBuildingTest {
 
   public void checkForwardFullSwap(InstrumentDerivative[] instrumentsFwd, double[] intrumentsTimeFwd, double[] marketRateFwd) {
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsTimeDsc = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     int nbInstrumentsFwd = instrumentsFwd.length;
     int nbInstruments = instrumentsDsc.length + instrumentsFwd.length;
@@ -196,11 +211,11 @@ public class MarketBundleBuildingTest {
    */
   public void forward3FraSwap() {
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsTimeDsc = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FraSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FraSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FraSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
     int nbInstruments = instrumentsDsc.length + instrumentsFwd3.length;
@@ -220,24 +235,35 @@ public class MarketBundleBuildingTest {
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
     IndexDeposit eonia = ((CouponOIS) ((Swap<Payment, Payment>) instrumentsDsc[2]).getSecondLeg().getNthPayment(0)).getIndex();
-    @SuppressWarnings("unchecked")
-    IndexDeposit euribor3m = ((CouponIbor) ((Swap<Payment, Payment>) instrumentsFwd3[0]).getSecondLeg().getNthPayment(0)).getIndex();
+    IndexDeposit euribor3m = ((DepositIbor) instrumentsFwd3[0]).getIndex();
     Map<Currency, Integer> discountingReferences = new HashMap<Currency, Integer>();
     discountingReferences.put(eur, 0);
     Map<IndexDeposit, Integer> forwardReferences = new HashMap<IndexDeposit, Integer>();
     forwardReferences.put(eonia, 0);
     forwardReferences.put(euribor3m, 1);
 
-    MarketBundle market = discountingForwardBuild(PVC, instruments, 2, new int[] {nbInstrumentsDsc, nbInstrumentsFwd3}, intrumentsTime, marketRate, discountingReferences, forwardReferences);
+    int nbCurves = 2;
+    MarketBundle market = discountingForwardBuild(PVC, instruments, nbCurves, new int[] {nbInstrumentsDsc, nbInstrumentsFwd3}, intrumentsTime, marketRate, discountingReferences, forwardReferences);
+
+    final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
+    final CombinedInterpolatorExtrapolator quadraticFlat = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
+    InstrumentDerivative[][] instrumentsArray = new InstrumentDerivative[][] {instrumentsDsc, instrumentsFwd3};
+    String[] curveNames = new String[] {eur.toString() + " Discounting", euribor3m.toString()};
+    MarketBundle marketBuilder = MarketBundleBuilder.discountingForward(instrumentsArray, curveNames, discountingReferences, forwardReferences, quadraticFlat, LTC, PVC);
 
     MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbInstruments];
+    MultipleCurrencyAmount[] pvBuilder = new MultipleCurrencyAmount[nbInstruments];
     for (int loopins = 0; loopins < nbInstrumentsDsc; loopins++) {
       pv[loopins] = PVC.visit(instrumentsDsc[loopins], market);
       assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pv[loopins].getAmount(eur), TOLERANCE);
+      pvBuilder[loopins] = PVC.visit(instrumentsDsc[loopins], marketBuilder);
+      assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pvBuilder[loopins].getAmount(eur), TOLERANCE);
     }
     for (int loopins = 0; loopins < nbInstrumentsFwd3; loopins++) {
       pv[nbInstrumentsDsc + loopins] = PVC.visit(instrumentsFwd3[loopins], market);
       assertEquals("Curve building - forward curve - instrument " + loopins, 0.0, pv[nbInstrumentsDsc + loopins].getAmount(eur), TOLERANCE);
+      pvBuilder[nbInstrumentsDsc + loopins] = PVC.visit(instrumentsFwd3[loopins], marketBuilder);
+      assertEquals("Curve building - forward curve - instrument " + loopins, 0.0, pvBuilder[nbInstrumentsDsc + loopins].getAmount(eur), TOLERANCE);
     }
   }
 
@@ -247,13 +273,12 @@ public class MarketBundleBuildingTest {
    * The same curve is used for discounting and OIS forward projection.
    */
   public void forward36FullSwap() {
-
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsTimeDsc = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FullSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FullSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FullSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
     InstrumentDerivative[] instrumentsFwd6 = CurveBuildingInstrumentsDataSets.instrumentsForward6FullSwap();
@@ -320,8 +345,8 @@ public class MarketBundleBuildingTest {
   public void forward3FullSwapAfterDiscounting() {
     // Discounting
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
@@ -332,7 +357,7 @@ public class MarketBundleBuildingTest {
     forwardReferences.put(eonia, 0);
     // Forward 3M
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FullSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FullSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FullSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
     @SuppressWarnings("unchecked")
@@ -364,39 +389,57 @@ public class MarketBundleBuildingTest {
   public void forward3FutAfterDiscounting() {
     // Discounting
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
     IndexDeposit eonia = ((CouponOIS) ((Swap<Payment, Payment>) instrumentsDsc[2]).getSecondLeg().getNthPayment(0)).getIndex();
-    Map<Currency, Integer> discountingReferences = new HashMap<Currency, Integer>();
-    discountingReferences.put(eur, 0);
-    Map<IndexDeposit, Integer> forwardReferences = new HashMap<IndexDeposit, Integer>();
-    forwardReferences.put(eonia, 0);
+    Map<Currency, Integer> discountingReferencesDsc = new HashMap<Currency, Integer>();
+    discountingReferencesDsc.put(eur, 0);
+    Map<IndexDeposit, Integer> forwardReferencesDsc = new HashMap<IndexDeposit, Integer>();
+    forwardReferencesDsc.put(eonia, 0);
     // Forward 3M
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FutSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FutSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FutSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
-    @SuppressWarnings("unchecked")
-    IndexDeposit euribor3m = ((CouponIbor) ((Swap<Payment, Payment>) instrumentsFwd3[0]).getSecondLeg().getNthPayment(0)).getIndex();
+    IndexDeposit euribor3m = ((DepositIbor) instrumentsFwd3[0]).getIndex();
     Map<Currency, Integer> discountingReferencesFwd = new HashMap<Currency, Integer>();
     Map<IndexDeposit, Integer> forwardReferencesFwd = new HashMap<IndexDeposit, Integer>();
     forwardReferencesFwd.put(euribor3m, 0);
     // Curve building
-    MarketBundle marketDsc = discountingBuild(instrumentsDsc, intrumentsDscTime, marketRateDsc, discountingReferences, forwardReferences);
+    MarketBundle marketDsc = discountingBuild(instrumentsDsc, intrumentsDscTime, marketRateDsc, discountingReferencesDsc, forwardReferencesDsc);
     MarketBundle market = discountingForwardBuild(PVC, marketDsc, instrumentsFwd3, intrumentsTimeFwd3, marketRateFwd3, discountingReferencesFwd, forwardReferencesFwd);
+
+    final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
+    final CombinedInterpolatorExtrapolator extrainterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, FLAT_EXTRAPOLATOR);
+
+    String[][] curveNames = new String[][] { {eur.toString() + " Discounting"}, {euribor3m.toString()}};
+    List<Map<Currency, Integer>> discountingReferences = new ArrayList<Map<Currency, Integer>>();
+    discountingReferences.add(discountingReferencesDsc);
+    discountingReferences.add(discountingReferencesFwd);
+    List<Map<IndexDeposit, Integer>> forwardReferences = new ArrayList<Map<IndexDeposit, Integer>>();
+    forwardReferences.add(forwardReferencesDsc);
+    forwardReferences.add(forwardReferencesFwd);
+
+    MarketBundle marketBuilder = MarketBundleBuilder.discountingForwardConsecutive(new InstrumentDerivative[][][] { {instrumentsDsc}, {instrumentsFwd3}}, curveNames, discountingReferences,
+        forwardReferences, extrainterpolator, LTC, PVC);
 
     int nbInstruments = nbInstrumentsDsc + nbInstrumentsFwd3;
     MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbInstruments];
+    MultipleCurrencyAmount[] pvBuilder = new MultipleCurrencyAmount[nbInstruments];
     for (int loopins = 0; loopins < nbInstrumentsDsc; loopins++) {
       pv[loopins] = PVC.visit(instrumentsDsc[loopins], market);
       assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pv[loopins].getAmount(eur), TOLERANCE);
+      pvBuilder[loopins] = PVC.visit(instrumentsDsc[loopins], marketBuilder);
+      assertEquals("Curve building - discounting curve - instrument " + loopins, 0.0, pvBuilder[loopins].getAmount(eur), TOLERANCE);
     }
     for (int loopins = 0; loopins < nbInstrumentsFwd3; loopins++) {
       pv[nbInstrumentsDsc + loopins] = PVC.visit(instrumentsFwd3[loopins], market);
       assertEquals("Curve building - forward curve - instrument " + loopins, 0.0, pv[nbInstrumentsDsc + loopins].getAmount(eur), TOLERANCE);
+      pvBuilder[nbInstrumentsDsc + loopins] = PVC.visit(instrumentsFwd3[loopins], marketBuilder);
+      assertEquals("Curve building - forward curve - instrument " + loopins, 0.0, pvBuilder[nbInstrumentsDsc + loopins].getAmount(eur), TOLERANCE);
     }
   }
 
@@ -412,8 +455,8 @@ public class MarketBundleBuildingTest {
     HullWhiteOneFactorPiecewiseConstantParameters param = new HullWhiteOneFactorPiecewiseConstantParameters(mr, sigma, new double[] {1.0});
     // Discounting
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
@@ -424,11 +467,10 @@ public class MarketBundleBuildingTest {
     forwardReferences.put(eonia, 0);
     // Forward 3M
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FutSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FutSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FutSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
-    @SuppressWarnings("unchecked")
-    IndexDeposit euribor3m = ((CouponIbor) ((Swap<Payment, Payment>) instrumentsFwd3[0]).getSecondLeg().getNthPayment(0)).getIndex();
+    IndexDeposit euribor3m = ((DepositIbor) instrumentsFwd3[0]).getIndex();
     Map<Currency, Integer> discountingReferencesFwd = new HashMap<Currency, Integer>();
     Map<IndexDeposit, Integer> forwardReferencesFwd = new HashMap<IndexDeposit, Integer>();
     forwardReferencesFwd.put(euribor3m, 0);
@@ -462,8 +504,8 @@ public class MarketBundleBuildingTest {
   public void forward6AfterFprward3AfterDiscounting() {
     // Discounting
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
@@ -474,7 +516,7 @@ public class MarketBundleBuildingTest {
     forwardReferences.put(eonia, 0);
     // Forward 3M
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FullSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FullSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FullSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
     @SuppressWarnings("unchecked")
@@ -540,7 +582,7 @@ public class MarketBundleBuildingTest {
     for (Currency ccy : discountingReferences.keySet()) {
       name[discountingReferences.get(ccy)] = ccy.toString() + " discounting";
     }
-    MarketFinderDataBundle data = new MarketFinderDataBundle(instruments, marketValue, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve, name);
+    MarketFinderDataBundle data = new MarketFinderDataBundle(instruments, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve, name);
     MarketBundleFinderFunction func = new MarketBundleFinderFunction(pvc, data);
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, new DoubleMatrix1D(marketRate));
@@ -561,8 +603,7 @@ public class MarketBundleBuildingTest {
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[] {extrapolator};
     String name = forwardReferences.keySet().iterator().next().toString();
-    MarketFinderDataBundle data = new MarketFinderDataBundle(knownMarket, instruments, marketValue, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve,
-        new String[] {name});
+    MarketFinderDataBundle data = new MarketFinderDataBundle(knownMarket, instruments, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve, new String[] {name});
     MarketBundleFinderFunction func = new MarketBundleFinderFunction(pvc, data);
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, new DoubleMatrix1D(marketRate));
@@ -576,8 +617,8 @@ public class MarketBundleBuildingTest {
    */
   public void inflation1() {
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
     IndexDeposit eonia = ((CouponOIS) ((Swap<Payment, Payment>) instrumentsDsc[2]).getSecondLeg().getNthPayment(0)).getIndex();
@@ -629,8 +670,8 @@ public class MarketBundleBuildingTest {
     double[][] nodePointsPriceCurve = new double[][] {nodeTime};
     double[][] knownPointsPriceCurveArray = new double[][] {knownPointsPriceCurve};
     String name = priceIndexReferences.keySet().iterator().next().toString();
-    MarketFinderDataBundle dataInfl = new MarketFinderDataBundle(knownMarket, instruments, marketValue, priceIndexReferences, nodePointsPriceCurve, interpolatorsPriceCurve,
-        knownPointsPriceCurveArray, new String[] {name});
+    MarketFinderDataBundle dataInfl = new MarketFinderDataBundle(knownMarket, instruments, priceIndexReferences, nodePointsPriceCurve, interpolatorsPriceCurve, knownPointsPriceCurveArray,
+        new String[] {name});
     double[] indexStartValue = new double[nbInstruments];
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
       indexStartValue[loopins] = knownPointsPriceCurve[0] * Math.pow(marketRate[loopins], loopins);
@@ -642,7 +683,7 @@ public class MarketBundleBuildingTest {
     return MarketBundleBuildingFunction.build(dataInfl, yieldCurveNodes);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Performance.
    */
@@ -650,8 +691,8 @@ public class MarketBundleBuildingTest {
     long startTime, endTime;
 
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsTimeDsc = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
 
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
@@ -708,11 +749,11 @@ public class MarketBundleBuildingTest {
     long startTime, endTime;
 
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsTimeDsc = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FullSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FullSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FullSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
     int nbInstruments = instrumentsDsc.length + instrumentsFwd3.length;
@@ -761,11 +802,11 @@ public class MarketBundleBuildingTest {
     long startTime, endTime;
 
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsTimeDsc = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FraSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FraSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FraSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
     int nbInstruments = instrumentsDsc.length + instrumentsFwd3.length;
@@ -787,8 +828,7 @@ public class MarketBundleBuildingTest {
     @SuppressWarnings("unchecked")
     IndexDeposit eonia = ((CouponOIS) ((Swap<Payment, Payment>) instrumentsDsc[2]).getSecondLeg().getNthPayment(0)).getIndex();
 
-    @SuppressWarnings("unchecked")
-    IndexDeposit euribor3m = ((CouponIbor) ((Swap<Payment, Payment>) instrumentsFwd3[0]).getSecondLeg().getNthPayment(0)).getIndex();
+    IndexDeposit euribor3m = ((DepositIbor) instrumentsFwd3[0]).getIndex();
     Map<Currency, Integer> discountingReferencesFwd = new HashMap<Currency, Integer>();
     discountingReferencesFwd.put(eur, 0);
     Map<IndexDeposit, Integer> forwardReferencesFwd = new HashMap<IndexDeposit, Integer>();
@@ -814,8 +854,8 @@ public class MarketBundleBuildingTest {
     long startTime, endTime;
     // Discounting
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
@@ -826,7 +866,7 @@ public class MarketBundleBuildingTest {
     forwardReferences.put(eonia, 0);
     // Forward 3M
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FullSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FullSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FullSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
 
@@ -859,8 +899,8 @@ public class MarketBundleBuildingTest {
     long startTime, endTime;
     // Discounting
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
@@ -871,11 +911,10 @@ public class MarketBundleBuildingTest {
     forwardReferences.put(eonia, 0);
     // Forward 3M
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FutSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FutSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FutSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
-    @SuppressWarnings("unchecked")
-    IndexDeposit euribor3m = ((CouponIbor) ((Swap<Payment, Payment>) instrumentsFwd3[0]).getSecondLeg().getNthPayment(0)).getIndex();
+    IndexDeposit euribor3m = ((DepositIbor) instrumentsFwd3[0]).getIndex();
     Map<Currency, Integer> discountingReferencesFwd = new HashMap<Currency, Integer>();
     Map<IndexDeposit, Integer> forwardReferencesFwd = new HashMap<IndexDeposit, Integer>();
     forwardReferencesFwd.put(euribor3m, 0);
@@ -906,8 +945,8 @@ public class MarketBundleBuildingTest {
     HullWhiteOneFactorPiecewiseConstantParameters param = new HullWhiteOneFactorPiecewiseConstantParameters(mr, sigma, new double[] {1.0});
     // Discounting
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
@@ -918,11 +957,10 @@ public class MarketBundleBuildingTest {
     forwardReferences.put(eonia, 0);
     // Forward 3M
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FutSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FutSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FutSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
-    @SuppressWarnings("unchecked")
-    IndexDeposit euribor3m = ((CouponIbor) ((Swap<Payment, Payment>) instrumentsFwd3[0]).getSecondLeg().getNthPayment(0)).getIndex();
+    IndexDeposit euribor3m = ((DepositIbor) instrumentsFwd3[0]).getIndex();
     Map<Currency, Integer> discountingReferencesFwd = new HashMap<Currency, Integer>();
     Map<IndexDeposit, Integer> forwardReferencesFwd = new HashMap<IndexDeposit, Integer>();
     forwardReferencesFwd.put(euribor3m, 0);
@@ -951,11 +989,11 @@ public class MarketBundleBuildingTest {
     long startTime, endTime;
 
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsTimeDsc = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FullSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FullSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FullSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
     InstrumentDerivative[] instrumentsFwd6 = CurveBuildingInstrumentsDataSets.instrumentsForward6FullSwap();
@@ -1016,8 +1054,8 @@ public class MarketBundleBuildingTest {
 
     // Discounting
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
@@ -1028,7 +1066,7 @@ public class MarketBundleBuildingTest {
     forwardReferences.put(eonia, 0);
     // Forward 3M
     InstrumentDerivative[] instrumentsFwd3 = CurveBuildingInstrumentsDataSets.instrumentsForward3FullSwap();
-    double[] intrumentsTimeFwd3 = CurveBuildingInstrumentsDataSets.timeForward3FullSwap();
+    double[] intrumentsTimeFwd3 = ArrayUtils.toPrimitive(LTC.visit(instrumentsFwd3));
     double[] marketRateFwd3 = CurveBuildingInstrumentsDataSets.marketRateForward3FullSwap();
     int nbInstrumentsFwd3 = instrumentsFwd3.length;
     @SuppressWarnings("unchecked")
@@ -1071,8 +1109,8 @@ public class MarketBundleBuildingTest {
     long startTime, endTime;
 
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
     IndexDeposit eonia = ((CouponOIS) ((Swap<Payment, Payment>) instrumentsDsc[2]).getSecondLeg().getNthPayment(0)).getIndex();

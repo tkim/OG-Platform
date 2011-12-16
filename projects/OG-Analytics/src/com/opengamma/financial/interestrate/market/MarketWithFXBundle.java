@@ -54,8 +54,8 @@ public class MarketWithFXBundle extends MarketBundle {
    * @return The forward exchange rate: 1.0 * ccy1 = x * ccy2.
    */
   public double forwardForexRate(final Currency ccy1, final Currency ccy2, final double time) {
-    final double dfDomestic = getDiscountingFactor(ccy2, time);
-    final double dfForeign = getDiscountingFactor(ccy1, time);
+    final double dfDomestic = getDiscountFactor(ccy2, time);
+    final double dfForeign = getDiscountFactor(ccy1, time);
     return _fxRates.getFxRate(ccy1, ccy2) * dfForeign / dfDomestic;
   }
 

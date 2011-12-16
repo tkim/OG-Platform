@@ -171,7 +171,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     double weight = 1.0 - (spot.getDayOfMonth() - 1.0) / spot.getMonthOfYear().getLastDayOfMonth(spot.isLeapYear());
     double estimatedIndex = weight * estimatedIndexMonth0 + (1 - weight) * estimatedIndexMonth1;
     double pvAtSettle = dirtyReal * estimatedIndex / BOND_SECURITY_TIPS_1.getIndexStartValue() * NOTIONAL_TIPS_1;
-    double dfSettle = MARKET.getDiscountingFactor(BOND_SECURITY_TIPS_1.getCurrency(), BOND_SECURITY_TIPS_1.getSettlementTime());
+    double dfSettle = MARKET.getDiscountFactor(BOND_SECURITY_TIPS_1.getCurrency(), BOND_SECURITY_TIPS_1.getSettlementTime());
     double pvExpected = pvAtSettle * dfSettle;
     assertEquals("Inflation Capital Indexed bond: present value from clean real price", pvExpected, pv.getAmount(USD), 1.0E-6);
   }

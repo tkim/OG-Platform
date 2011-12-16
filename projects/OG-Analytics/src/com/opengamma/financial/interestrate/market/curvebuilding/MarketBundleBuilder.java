@@ -6,7 +6,10 @@
 package com.opengamma.financial.interestrate.market.curvebuilding;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
@@ -64,7 +67,7 @@ public class MarketBundleBuilder {
     for (int loopindex = 0; loopindex < indexes.length; loopindex++) {
       forwardReferences.put(indexes[loopindex], 0);
     }
-    MarketFinderDataBundle data = new MarketFinderDataBundle(instruments, marketValue, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve, new String[] {name});
+    MarketFinderDataBundle data = new MarketFinderDataBundle(instruments, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve, new String[] {name});
     MarketBundleFinderFunction func = new MarketBundleFinderFunction(presentValueCalculator, data);
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, new DoubleMatrix1D(startRate));
@@ -90,6 +93,59 @@ public class MarketBundleBuilder {
       startRate[loopins] = 0.025;
     }
     return discounting(instruments, startRate, ccy, indexes, interpolator, nodeTimeCalculator, presentValueCalculator);
+  }
+
+  public static MarketBundle discountingForward(final InstrumentDerivative[][] instruments, final String[] curveNames, Map<Currency, Integer> discountingReferences,
+      Map<IndexDeposit, Integer> forwardReferences, Interpolator1D interpolator, InstrumentDerivativeVisitor<Object, Double> nodeTimeCalculator,
+      InstrumentDerivativeVisitor<MarketBundle, MultipleCurrencyAmount> presentValueCalculator) {
+    MarketBundle market = new MarketBundle();
+    return discountingForward(market, instruments, curveNames, discountingReferences, forwardReferences, interpolator, nodeTimeCalculator, presentValueCalculator);
+  }
+
+  public static MarketBundle discountingForward(final MarketBundle knownMarket, final InstrumentDerivative[][] instruments, final String[] curveNames, Map<Currency, Integer> discountingReferences,
+      Map<IndexDeposit, Integer> forwardReferences, Interpolator1D interpolator, InstrumentDerivativeVisitor<Object, Double> nodeTimeCalculator,
+      InstrumentDerivativeVisitor<MarketBundle, MultipleCurrencyAmount> presentValueCalculator) {
+    int nbCurve = instruments.length;
+    int nbInstruments = 0;
+    int[] nbInstrumentsByCurve = new int[nbCurve];
+    for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
+      nbInstrumentsByCurve[loopcurve] = instruments[loopcurve].length;
+      nbInstruments += nbInstrumentsByCurve[loopcurve];
+    }
+    double[][] nodePointsYieldCurve = new double[nbCurve][];
+    for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
+      nodePointsYieldCurve[loopcurve] = ArrayUtils.toPrimitive(nodeTimeCalculator.visit(instruments[loopcurve]));
+    }
+    Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[nbCurve];
+    for (int loopins = 0; loopins < nbCurve; loopins++) {
+      interpolatorsYieldCurve[loopins] = interpolator;
+    }
+    InstrumentDerivative[] instrumentsVector = new InstrumentDerivative[nbInstruments];
+    int loopvect = 0;
+    for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
+      for (int loopins = 0; loopins < nbInstrumentsByCurve[loopcurve]; loopins++) {
+        instrumentsVector[loopvect++] = instruments[loopcurve][loopins];
+      }
+    }
+    MarketFinderDataBundle data = new MarketFinderDataBundle(knownMarket, instrumentsVector, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve, curveNames);
+    MarketBundleFinderFunction func = new MarketBundleFinderFunction(presentValueCalculator, data);
+    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
+    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, new DoubleMatrix1D(new double[nbInstruments]));
+    MarketBundle market = MarketBundleBuildingFunction.build(data, yieldCurveNodes);
+    return market;
+
+  }
+
+  public static MarketBundle discountingForwardConsecutive(final InstrumentDerivative[][][] instruments, final String[][] curveNames, List<Map<Currency, Integer>> discountingReferences,
+      List<Map<IndexDeposit, Integer>> forwardReferences, Interpolator1D interpolator, InstrumentDerivativeVisitor<Object, Double> nodeTimeCalculator,
+      InstrumentDerivativeVisitor<MarketBundle, MultipleCurrencyAmount> presentValueCalculator) {
+    int nbStep = instruments.length;
+    MarketBundle market = new MarketBundle();
+    for (int loopstep = 0; loopstep < nbStep; loopstep++) {
+      market = discountingForward(market, instruments[loopstep], curveNames[loopstep], discountingReferences.get(loopstep), forwardReferences.get(loopstep), interpolator, nodeTimeCalculator,
+          presentValueCalculator);
+    }
+    return market;
   }
 
 }

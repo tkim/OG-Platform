@@ -55,7 +55,7 @@ public final class CouponIborGearingDiscountingMarketMethod implements PricingMa
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
     final double forward = market.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
-    final double df = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double df = market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double value = (coupon.getNotional() * coupon.getPaymentYearFraction() * (coupon.getFactor() * forward) + coupon.getSpreadAmount()) * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), value);
   }
@@ -76,7 +76,7 @@ public final class CouponIborGearingDiscountingMarketMethod implements PricingMa
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Curves");
     final YieldAndDiscountCurve forwardCurve = market.getCurve(coupon.getIndex());
-    final double df = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double df = market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double dfForwardStart = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime());
     final double dfForwardEnd = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime());
     final double forward = (dfForwardStart / dfForwardEnd - 1.0) / coupon.getFixingAccrualFactor();

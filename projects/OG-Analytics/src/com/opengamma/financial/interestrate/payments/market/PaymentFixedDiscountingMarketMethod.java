@@ -54,7 +54,7 @@ public final class PaymentFixedDiscountingMarketMethod implements PricingMarketM
   public MultipleCurrencyAmount presentValue(final PaymentFixed payment, final MarketBundle market) {
     Validate.notNull(payment, "Coupon");
     Validate.notNull(market, "Market");
-    final double df = market.getDiscountingFactor(payment.getCurrency(), payment.getPaymentTime());
+    final double df = market.getDiscountFactor(payment.getCurrency(), payment.getPaymentTime());
     final double pv = payment.getAmount() * df;
     return MultipleCurrencyAmount.of(payment.getCurrency(), pv);
   }
@@ -74,7 +74,7 @@ public final class PaymentFixedDiscountingMarketMethod implements PricingMarketM
   public PresentValueCurveSensitivityMarket presentValueCurveSensitivity(final PaymentFixed payment, final MarketBundle market) {
     Validate.notNull(payment, "Coupon");
     Validate.notNull(market, "Market");
-    final double df = market.getDiscountingFactor(payment.getCurrency(), payment.getPaymentTime());
+    final double df = market.getDiscountFactor(payment.getCurrency(), payment.getPaymentTime());
     final double pvBar = 1.0;
     final double dfBar = payment.getAmount() * pvBar;
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();

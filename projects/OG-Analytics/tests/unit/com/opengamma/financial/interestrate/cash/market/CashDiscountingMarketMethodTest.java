@@ -16,11 +16,15 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.instrument.cash.DepositDefinition;
+import com.opengamma.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
+import com.opengamma.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
+import com.opengamma.financial.interestrate.market.MarketQuoteMarketCalculator;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarketCalculator;
 import com.opengamma.financial.interestrate.market.PresentValueMarketCalculator;
@@ -42,6 +46,7 @@ public class CashDiscountingMarketMethodTest {
   private static final IndexDeposit[] INDEXES = MarketDataSets.getDepositIndexes();
   private static final IborIndex EURIBOR3M = (IborIndex) INDEXES[0];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
+  private static final GeneratorDeposit GENERATOR_EUR = new EURDeposit(CALENDAR_EUR);
   private static final DayCount DAY_COUNT_COUPON = EURIBOR3M.getDayCount();
   private static final int SETTLEMENT_DAYS = EURIBOR3M.getSpotLag();
   private static final Currency EUR = EURIBOR3M.getCurrency();
@@ -56,22 +61,80 @@ public class CashDiscountingMarketMethodTest {
   private static final double SPOT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, SPOT_DATE);
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
 
+  private static final DepositDefinition DEPOSIT_DEFINITION = DepositDefinition.fromTrade(REFERENCE_DATE, TENOR, NOTIONAL, RATE, GENERATOR_EUR);
   private static final Cash DEPOSIT = new Cash(EUR, SPOT_TIME, PAYMENT_TIME, NOTIONAL, RATE, ACCRUAL_FACTOR_PAYMENT, "Not used");
 
-  private static final CashDiscountingMarketMethod METHOD = CashDiscountingMarketMethod.getInstance();
+  private static final CashDiscountingMarketMethod METHOD_DEPOSIT = CashDiscountingMarketMethod.getInstance();
   private static final PresentValueMarketCalculator PVC = PresentValueMarketCalculator.getInstance();
   private static final PresentValueCurveSensitivityMarketCalculator PVCSC = PresentValueCurveSensitivityMarketCalculator.getInstance();
+  private static final MarketQuoteMarketCalculator MQC = MarketQuoteMarketCalculator.getInstance();
+
+  private static final double TOLERANCE_PRICE = 1.0E-2;
+  private static final double TOLERANCE_RATE = 1.0E-8;
 
   @Test
   /**
    * Tests the present value.
    */
-  public void presentValue() {
-    MultipleCurrencyAmount pv = METHOD.presentValue(DEPOSIT, MARKET);
-    double dfStart = MARKET.getCurve(EUR).getDiscountFactor(DEPOSIT.getStartTime());
-    double dfEnd = MARKET.getCurve(EUR).getDiscountFactor(DEPOSIT.getEndTime());
+  public void presentValueTrade() {
+    MultipleCurrencyAmount pv = METHOD_DEPOSIT.presentValue(DEPOSIT, MARKET);
+    double dfStart = MARKET.getDiscountFactor(EUR, DEPOSIT.getStartTime());
+    double dfEnd = MARKET.getDiscountFactor(EUR, DEPOSIT.getEndTime());
     double pvExpected = -NOTIONAL * dfStart + NOTIONAL * (1.0 + ACCRUAL_FACTOR_PAYMENT * RATE) * dfEnd;
-    assertEquals("Cash: pv by discounting", pvExpected, pv.getAmount(EUR), 1.0E-2);
+    assertEquals("Cash: pv by discounting", pvExpected, pv.getAmount(EUR), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests present value.
+   */
+  public void presentValueBetweenTradeAndSettle() {
+    ZonedDateTime referenceDate = DateUtils.getUTCDate(2010, 11, 9);
+    Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, "Not used");
+    MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, MARKET);
+    double dfStart = MARKET.getDiscountFactor(EUR, deposit.getStartTime());
+    double dfEnd = MARKET.getDiscountFactor(EUR, deposit.getEndTime());
+    double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd - NOTIONAL * dfStart;
+    assertEquals("DepositDefinition: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests present value.
+   */
+  public void presentValueSettle() {
+    ZonedDateTime referenceDate = SPOT_DATE;
+    Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, "Not used");
+    MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, MARKET);
+    double dfEnd = MARKET.getDiscountFactor(EUR, deposit.getEndTime());
+    double dfStart = MARKET.getDiscountFactor(EUR, deposit.getStartTime());
+    double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd - NOTIONAL * dfStart;
+    assertEquals("DepositDefinition: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests present value.
+   */
+  public void presentValueBetweenSettleMaturity() {
+    ZonedDateTime referenceDate = DateUtils.getUTCDate(2010, 11, 30);
+    Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, "Not used");
+    MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, MARKET);
+    double dfEnd = MARKET.getDiscountFactor(EUR, deposit.getEndTime());
+    double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd;
+    assertEquals("DepositDefinition: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests present value.
+   */
+  public void presentValueMaturity() {
+    ZonedDateTime referenceDate = PAYMENT_DATE;
+    Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, "Not used");
+    MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, MARKET);
+    double pvExpected = NOTIONAL + deposit.getInterestAmount();
+    assertEquals("DepositDefinition: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PRICE);
   }
 
   @Test
@@ -79,7 +142,7 @@ public class CashDiscountingMarketMethodTest {
    * Compare the present value from the method and from the standard calculator.
    */
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD.presentValue(DEPOSIT, MARKET);
+    MultipleCurrencyAmount pvMethod = METHOD_DEPOSIT.presentValue(DEPOSIT, MARKET);
     MultipleCurrencyAmount pvCalculator = PVC.visit(DEPOSIT, MARKET);
     assertEquals("Coupon Fixed: pv by discounting", pvMethod.size(), pvCalculator.size());
     assertEquals("Coupon Fixed: pv by discounting", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), 1.0E-2);
@@ -90,14 +153,15 @@ public class CashDiscountingMarketMethodTest {
    * Tests the present value curve sensitivity by discounting.
    */
   public void presentValueCurveSensitivity() {
-    PresentValueCurveSensitivityMarket pvcs = METHOD.presentValueCurveSensitivity(DEPOSIT, MARKET);
+    PresentValueCurveSensitivityMarket pvcs = METHOD_DEPOSIT.presentValueCurveSensitivity(DEPOSIT, MARKET);
     pvcs = pvcs.clean();
     final double deltaTolerancePrice = 1.0E+0;
     // Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1.0E-6;
     // Discounting curve sensitivity
     final double[] nodeTimesDisc = new double[] {DEPOSIT.getStartTime(), DEPOSIT.getEndTime()};
-    final double[] sensiDiscMethod = SensitivityFiniteDifferenceMarket.curveSensitivity(DEPOSIT, MARKET, DEPOSIT.getCurrency(), nodeTimesDisc, deltaShift, METHOD, FiniteDifferenceType.CENTRAL);
+    final double[] sensiDiscMethod = SensitivityFiniteDifferenceMarket
+        .curveSensitivity(DEPOSIT, MARKET, DEPOSIT.getCurrency(), nodeTimesDisc, deltaShift, METHOD_DEPOSIT, FiniteDifferenceType.CENTRAL);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiDiscMethod.length);
     final List<DoublesPair> sensiPvDisc = pvcs.getYieldCurveSensitivities().get(MARKET.getCurve(DEPOSIT.getCurrency()).getCurve().getName());
     for (int looptime = 0; looptime < nodeTimesDisc.length; looptime++) {
@@ -111,9 +175,31 @@ public class CashDiscountingMarketMethodTest {
    * Compare the present value curve sensitivity from the method and from the standard calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    PresentValueCurveSensitivityMarket pvcsMethod = METHOD.presentValueCurveSensitivity(DEPOSIT, MARKET);
+    PresentValueCurveSensitivityMarket pvcsMethod = METHOD_DEPOSIT.presentValueCurveSensitivity(DEPOSIT, MARKET);
     PresentValueCurveSensitivityMarket pvcsCalculator = PVCSC.visit(DEPOSIT, MARKET);
     assertEquals("Sensitivity cash pv to curve", pvcsMethod, pvcsCalculator);
+  }
+
+  @Test
+  /**
+   * Tests the par rate.
+   */
+  public void parRate() {
+    double rateMethod = METHOD_DEPOSIT.parRate(DEPOSIT, MARKET);
+    double dfStart = MARKET.getDiscountFactor(EUR, DEPOSIT.getStartTime());
+    double dfEnd = MARKET.getDiscountFactor(EUR, DEPOSIT.getEndTime());
+    double rateExpected = (dfStart / dfEnd - 1) / DEPOSIT.getAccrualFactor();
+    assertEquals("Cash: rate by discounting", rateExpected, rateMethod, TOLERANCE_RATE);
+  }
+
+  @Test
+  /**
+   * Tests the par rate.
+   */
+  public void marketQuote() {
+    double rateMethod = METHOD_DEPOSIT.parRate(DEPOSIT, MARKET);
+    double marketQuote = MQC.visit(DEPOSIT, MARKET);
+    assertEquals("Cash: rate by discounting", rateMethod, marketQuote, TOLERANCE_RATE);
   }
 
 }

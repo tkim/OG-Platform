@@ -53,7 +53,7 @@ public final class CouponOISDiscountingMarketMethod implements PricingMarketMeth
   public MultipleCurrencyAmount presentValue(final CouponOIS coupon, final MarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
-    final double df = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double df = market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double forward = market.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor());
     final double pv = (coupon.getNotionalAccrued() * (1 + coupon.getFixingPeriodAccrualFactor() * forward) - coupon.getNotional()) * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
@@ -74,7 +74,7 @@ public final class CouponOISDiscountingMarketMethod implements PricingMarketMeth
   public PresentValueCurveSensitivityMarket presentValueCurveSensitivity(final CouponOIS coupon, final MarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
-    final double df = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double df = market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double dfForwardStart = market.getCurve(coupon.getIndex()).getDiscountFactor(coupon.getFixingPeriodStartTime());
     final double dfForwardEnd = market.getCurve(coupon.getIndex()).getDiscountFactor(coupon.getFixingPeriodEndTime());
     final double accruedFwd = dfForwardStart / dfForwardEnd;

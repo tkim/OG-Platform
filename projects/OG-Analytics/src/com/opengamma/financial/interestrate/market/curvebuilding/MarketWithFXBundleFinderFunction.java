@@ -10,6 +10,7 @@ import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketWithFXBundle;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -40,10 +41,11 @@ public class MarketWithFXBundleFinderFunction extends Function1D<DoubleMatrix1D,
   public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
     MarketBundle market = MarketBundleBuildingFunction.build(_data, x);
     MarketWithFXBundle marketFX = (MarketWithFXBundle) market;
+    Currency convertionCcy = marketFX.getCurrencies().iterator().next();
+    //Implementation note: the convertion can be done in any currency; the calibrated pv should be equal to 0.
     final double[] residual = new double[_data.getNbInstruments()];
     for (int loopins = 0; loopins < _data.getNbInstruments(); loopins++) {
-      residual[loopins] = marketFX.getFXMatrix().convert(_calculator.visit(_data.getInstruments()[loopins], market), _data.getMarketValue()[loopins].getCurrency()).getAmount()
-          - _data.getMarketValue()[loopins].getAmount();
+      residual[loopins] = marketFX.getFXMatrix().convert(_calculator.visit(_data.getInstruments()[loopins], market), convertionCcy).getAmount();
     }
     return new DoubleMatrix1D(residual);
   }

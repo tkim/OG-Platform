@@ -12,6 +12,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -19,6 +20,7 @@ import com.opengamma.financial.forex.market.PresentValueForexMarketCalculator;
 import com.opengamma.financial.forex.method.FXMatrix;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.LastTimeCalculator;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketWithFXBundle;
@@ -42,6 +44,7 @@ public class MarketBundleForexBuildingTest {
   private static final int STEPS = 100;
 
   private static final PresentValueForexMarketCalculator PVFC = PresentValueForexMarketCalculator.getInstance();
+  private static final LastTimeCalculator LTC = LastTimeCalculator.getInstance();
 
   private static final int NB_TEST = 100;
   /**
@@ -55,8 +58,8 @@ public class MarketBundleForexBuildingTest {
    */
   public void discounting() {
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
     @SuppressWarnings("unchecked")
     IndexDeposit eonia = ((CouponOIS) ((Swap<Payment, Payment>) instrumentsDsc[2]).getSecondLeg().getNthPayment(0)).getIndex();
@@ -81,8 +84,8 @@ public class MarketBundleForexBuildingTest {
    */
   public void discountingForeign() {
     InstrumentDerivative[] instrumentsDscEUR = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsDscEURTime = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDscEUR = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsDscEURTime = ArrayUtils.toPrimitive(LTC.visit(instrumentsDscEUR));
+    double[] marketRateDscEUR = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     Currency eur = ((Cash) instrumentsDscEUR[0]).getCurrency();
     @SuppressWarnings("unchecked")
     IndexDeposit eonia = ((CouponOIS) ((Swap<Payment, Payment>) instrumentsDscEUR[2]).getSecondLeg().getNthPayment(0)).getIndex();
@@ -131,8 +134,7 @@ public class MarketBundleForexBuildingTest {
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     Interpolator1D[] interpolatorsYieldCurve = new Interpolator1D[] {extrapolator};
     String name = discountingReferences.keySet().iterator().next().toString() + " discounting";
-    MarketFinderDataBundle data = new MarketFinderDataBundle(marketKnown, instrumentsDsc, marketValue, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve,
-        new String[] {name});
+    MarketFinderDataBundle data = new MarketFinderDataBundle(marketKnown, instrumentsDsc, discountingReferences, forwardReferences, nodePointsYieldCurve, interpolatorsYieldCurve, new String[] {name});
     MarketWithFXBundleFinderFunction func = new MarketWithFXBundleFinderFunction(PVFC, data);
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, new DoubleMatrix1D(marketRateDsc));
@@ -148,8 +150,8 @@ public class MarketBundleForexBuildingTest {
     long startTime, endTime;
 
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsTimeDsc = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
 
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();
@@ -179,8 +181,8 @@ public class MarketBundleForexBuildingTest {
     long startTime, endTime;
 
     InstrumentDerivative[] instrumentsDsc = CurveBuildingInstrumentsDataSets.instrumentsDiscountingOIS();
-    double[] intrumentsTimeDsc = CurveBuildingInstrumentsDataSets.timeDiscounting();
-    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscounting();
+    double[] intrumentsTimeDsc = ArrayUtils.toPrimitive(LTC.visit(instrumentsDsc));
+    double[] marketRateDsc = CurveBuildingInstrumentsDataSets.marketRateDiscountingOIS();
     int nbInstrumentsDsc = instrumentsDsc.length;
 
     Currency eur = ((Cash) instrumentsDsc[0]).getCurrency();

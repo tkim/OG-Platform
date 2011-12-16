@@ -82,7 +82,7 @@ public class CouponOISDiscountingMarketMethodTest {
    */
   public void presentValueNotStarted() {
     MultipleCurrencyAmount pv = METHOD.presentValue(COUPON, MARKET);
-    double df = MARKET.getDiscountingFactor(COUPON.getCurrency(), COUPON.getPaymentTime());
+    double df = MARKET.getDiscountFactor(COUPON.getCurrency(), COUPON.getPaymentTime());
     final double dfForwardStart = MARKET.getCurve(EONIA).getDiscountFactor(COUPON.getFixingPeriodStartTime());
     final double dfForwardEnd = MARKET.getCurve(EONIA).getDiscountFactor(COUPON.getFixingPeriodEndTime());
     final double accruedFwd = dfForwardStart / dfForwardEnd;
@@ -107,7 +107,7 @@ public class CouponOISDiscountingMarketMethodTest {
    */
   public void presentValueStarted() {
     MultipleCurrencyAmount pv = METHOD.presentValue(EONIA_COUPON_2, MARKET);
-    double df = MARKET.getDiscountingFactor(EONIA_COUPON_2.getCurrency(), EONIA_COUPON_2.getPaymentTime());
+    double df = MARKET.getDiscountFactor(EONIA_COUPON_2.getCurrency(), EONIA_COUPON_2.getPaymentTime());
     final double dfForwardStart = MARKET.getCurve(EONIA).getDiscountFactor(EONIA_COUPON_2.getFixingPeriodStartTime());
     final double dfForwardEnd = MARKET.getCurve(EONIA).getDiscountFactor(EONIA_COUPON_2.getFixingPeriodEndTime());
     final double accruedFwd = dfForwardStart / dfForwardEnd;

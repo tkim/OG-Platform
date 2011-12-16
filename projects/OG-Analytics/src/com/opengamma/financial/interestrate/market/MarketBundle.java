@@ -88,7 +88,7 @@ public class MarketBundle {
    * @param time The time.
    * @return The discount factor.
    */
-  public double getDiscountingFactor(Currency ccy, Double time) {
+  public double getDiscountFactor(Currency ccy, Double time) {
     if (_discountingCurves.containsKey(ccy)) {
       return _discountingCurves.get(ccy).getDiscountFactor(time);
     }
