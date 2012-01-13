@@ -15,6 +15,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.user.rest.RemoteClient;
@@ -26,6 +27,7 @@ import com.opengamma.language.invoke.ResultConverter;
 import com.opengamma.language.invoke.ValueConverter;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.livedata.LiveDataDefinitionFilter;
+import com.opengamma.language.livedata.LiveDataDispatcher;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
 import com.opengamma.language.procedure.ProcedureDefinitionFilter;
 import com.opengamma.util.ArgumentChecker;
@@ -56,6 +58,10 @@ public class MutableGlobalContext extends GlobalContext {
   }
 
   // Standard context members
+
+  public void setAvailableOutputsProvider(final AvailableOutputsProvider availableOutputsProvider) {
+    removeOrReplaceValue(AVAILABLE_OUTPUTS_PROVIDER, availableOutputsProvider);
+  }
 
   public void setClient(final RemoteClient client) {
     removeOrReplaceValue(CLIENT, client);
@@ -93,6 +99,11 @@ public class MutableGlobalContext extends GlobalContext {
   public void setLiveDataDefinitionFilter(final LiveDataDefinitionFilter liveDataDefinitionFilter) {
     ArgumentChecker.notNull(liveDataDefinitionFilter, "liveDataDefinitionFilter");
     replaceValue(LIVEDATA_DEFINITION_FILTER, liveDataDefinitionFilter);
+  }
+
+  public void setLiveDataDispatcher(final LiveDataDispatcher liveDataDispatcher) {
+    ArgumentChecker.notNull(liveDataDispatcher, "liveDataDispatcher");
+    replaceValue(LIVEDATA_DISPATCHER, liveDataDispatcher);
   }
 
   public void setLiveDataParameterConverter(final ParameterConverter parameterConverter) {

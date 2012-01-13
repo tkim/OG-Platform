@@ -17,6 +17,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.user.rest.RemoteClient;
@@ -32,8 +33,10 @@ import com.opengamma.language.invoke.ResultConverter;
 import com.opengamma.language.invoke.TypeConverterProvider;
 import com.opengamma.language.invoke.ValueConverter;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
+import com.opengamma.language.livedata.BlockingLiveDataDispatcher;
 import com.opengamma.language.livedata.DefaultLiveDataDefinitionFilter;
 import com.opengamma.language.livedata.LiveDataDefinitionFilter;
+import com.opengamma.language.livedata.LiveDataDispatcher;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
 import com.opengamma.language.procedure.DefaultProcedureDefinitionFilter;
 import com.opengamma.language.procedure.ProcedureDefinitionFilter;
@@ -43,6 +46,11 @@ import com.opengamma.language.procedure.ProcedureDefinitionFilter;
  * OpenGamma installation the language integration framework is connecting to.
  */
 public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> {
+
+  /**
+   * Name under which the available outputs provider is bound.
+   */
+  protected static final String AVAILABLE_OUTPUTS_PROVIDER = "availableOutputsProvider";
 
   /**
    * Name under which the shared engine client is bound.
@@ -98,6 +106,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which a live data specific result converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String LIVEDATA_RESULT_CONVERTER = "liveDataResultConverter";
+
+  /**
+   * Name under which a live data dispatcher is bound.
+   */
+  protected static final String LIVEDATA_DISPATCHER = "liveDataDispatcher";
 
   /**
    * Name under which a market data snapshot source is bound.
@@ -174,12 +187,13 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   /* package */GlobalContext() {
     super(null);
-    setValue(FUNCTION_PROVIDER, AggregatingFunctionProvider.cachingInstance());
-    setValue(LIVEDATA_PROVIDER, AggregatingLiveDataProvider.cachingInstance());
-    setValue(PROCEDURE_PROVIDER, AggregatingProcedureProvider.cachingInstance());
     setValue(FUNCTION_DEFINITION_FILTER, new DefaultFunctionDefinitionFilter());
+    setValue(FUNCTION_PROVIDER, AggregatingFunctionProvider.cachingInstance());
     setValue(LIVEDATA_DEFINITION_FILTER, new DefaultLiveDataDefinitionFilter());
+    setValue(LIVEDATA_DISPATCHER, new BlockingLiveDataDispatcher());
+    setValue(LIVEDATA_PROVIDER, AggregatingLiveDataProvider.cachingInstance());
     setValue(PROCEDURE_DEFINITION_FILTER, new DefaultProcedureDefinitionFilter());
+    setValue(PROCEDURE_PROVIDER, AggregatingProcedureProvider.cachingInstance());
     setValue(TYPE_CONVERTER_PROVIDER, new AggregatingTypeConverterProvider());
     setValue(VALUE_CONVERTER, new DefaultValueConverter());
   }
@@ -265,6 +279,10 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   // Standard context members
 
+  public AvailableOutputsProvider getAvailableOutputsProvider() {
+    return getValue(AVAILABLE_OUTPUTS_PROVIDER);
+  }
+
   public RemoteClient getClient() {
     return getValue(CLIENT);
   }
@@ -299,6 +317,10 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public LiveDataDefinitionFilter getLiveDataDefinitionFilter() {
     return getValue(LIVEDATA_DEFINITION_FILTER);
+  }
+
+  public LiveDataDispatcher getLiveDataDispatcher() {
+    return getValue(LIVEDATA_DISPATCHER);
   }
 
   public ParameterConverter getLiveDataParameterConverter() {

@@ -23,7 +23,8 @@
             console.warn.apply(console, Array.prototype.slice.call(arguments));
         } : log.partial('[warning]'),
         top_level = window, default_module = {
-            live_data_root: '/jax/', html_root: '/prototype/modules/', obj: function () {return default_obj;}
+            live_data_root: '/jax/', html_root: '/prototype/modules/', data_root: '/prototype/',
+            obj: function () {return default_obj;}
         };
     $.extend(default_obj, {warn: warn, log: log});
     /** @private */
@@ -41,9 +42,11 @@
     };
     $.extend({
         outer: function (node) {
-            if (!node) return '';
-            if (node.outerHTML) return node.outerHTML; else var div = document.createElement('div');
-            return div.appendChild(node.cloneNode(true)), div.innerHTML;
+            return  !node ? ''
+                : node.outerHTML ? node.outerHTML
+                    : node.xml ? node.xml
+                        : 'XMLSerializer' in window ? (new XMLSerializer()).serializeToString(node)
+                            : '';
         },
         register_module: function (module) {
             var self = 'register_module', name = module.name, new_module, levels, last, last_parent;
