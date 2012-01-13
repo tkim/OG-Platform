@@ -19,12 +19,12 @@ import com.opengamma.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.index.GeneratorDeposit;
+import com.opengamma.financial.instrument.index.GeneratorSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.index.IndexSwap;
-import com.opengamma.financial.instrument.index.SwapGenerator;
 import com.opengamma.financial.instrument.index.generator.EUR1YEURIBOR3M;
 import com.opengamma.financial.instrument.index.generator.EUR1YEURIBOR6M;
 import com.opengamma.financial.instrument.index.generator.EURDeposit;
@@ -68,8 +68,8 @@ public class CurveBuildingInstrumentsDataSets {
   private static final IndexDeposit[] INDEXES = new IndexDeposit[] {EURIBOR_3M, EURIBOR_6M, USDLIBOR_3M, EONIA};
   private static final IndexPrice EUR_HICPXT = new EurolandHicpXT();
 
-  private static final SwapGenerator EUR1YEURIBOR6M = new EUR1YEURIBOR6M(CALENDAR_EUR);
-  private static final SwapGenerator EUR1YEURIBOR3M = new EUR1YEURIBOR3M(CALENDAR_EUR);
+  private static final GeneratorSwap EUR1YEURIBOR6M = new EUR1YEURIBOR6M(CALENDAR_EUR);
+  private static final GeneratorSwap EUR1YEURIBOR3M = new EUR1YEURIBOR3M(CALENDAR_EUR);
 
   private static final Currency EUR = EURIBOR_3M.getCurrency();
   private static final int SETTLEMENT_DAYS_EUR = EURIBOR_3M.getSpotLag();
