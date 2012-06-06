@@ -189,8 +189,8 @@ import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedDailyPnLFu
 import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.ValueGreekSensitivityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.ValueGreekSensitivityPnLFunction;
-import com.opengamma.financial.analytics.model.pnl.YieldCurveNodeSensitivityPnLDefaults;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
+import com.opengamma.financial.analytics.model.pnl.YieldCurveNodeSensitivityPnLDefaults;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPresentValueFunction;
@@ -283,7 +283,6 @@ import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.DefaultCurrencyInjectionFunction;
 import com.opengamma.financial.currency.FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction;
-import com.opengamma.financial.currency.PnlSeriesCurrencyConversionFunction;
 import com.opengamma.financial.currency.PortfolioNodeCurrencyConversionFunction;
 import com.opengamma.financial.currency.PortfolioNodeDefaultCurrencyFunction;
 import com.opengamma.financial.currency.PositionCurrencyConversionFunction;
@@ -649,7 +648,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SimpleFuturePnLDefaultPropertiesFunction.class, "FUNDING", defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(SimpleFXFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(SimpleFXFuturePnLDefaultPropertiesFunction.class, "FUNDING", "FUNDING", defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(YieldCurveNodePnLFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(YieldCurveNodePnLFunction.class));
     functionConfigs.add(functionConfiguration(YieldCurveNodeSensitivityPnLDefaults.class, "FORWARD_3M", "FUNDING", defaultCurveCalculationMethod, defaultSamplingPeriodName,
         defaultScheduleName, defaultSamplingCalculatorName, "USD", "EUR", "AUD"));
     functionConfigs.add(functionConfiguration(YieldCurveNodeSensitivityPnLDefaults.class, "FORWARD_6M", "FUNDING", defaultCurveCalculationMethod, defaultSamplingPeriodName,
@@ -1133,14 +1132,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionBlackDefaultPropertiesFunction.class.getName(),
-        Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD", "EUR")));  // TODO Change FORWARD_3M to FUTURES once available in db
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaultPropertiesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD", "EUR"));
+    // TODO Change FORWARD_3M to FUTURES once available in db
     functionConfigs.add(functionConfiguration(SwaptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackPV01Function.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackImpliedVolatilityFunction.class));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionBlackDefaultPropertiesFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD")));
+    functionConfigs.add(functionConfiguration(SwaptionBlackDefaultPropertiesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD", "EUR"));
   }
 
   private static void addFixedIncomeInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
