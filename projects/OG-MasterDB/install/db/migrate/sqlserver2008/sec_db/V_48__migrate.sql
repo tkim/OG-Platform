@@ -10,7 +10,7 @@ START TRANSACTION;
   );
   
   INSERT INTO sec_contract_category (ID, NAME)
-  SELECT sec_bondfuturetype.name.id, sec_bondfuturetype.name 
+  SELECT sec_bondfuturetype.id, sec_bondfuturetype.name 
   FROM sec_future
   INNER JOIN sec_bondfuturetype ON sec_future.bondtype_id = sec_bondfuturetype.id;
   
