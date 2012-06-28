@@ -16,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
@@ -85,13 +86,17 @@ public abstract class DbTest implements TableCreationCallback {
    */
   @BeforeMethod
   public void setUp() throws Exception {
-    String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
-    if ((prevVersion == null) || !prevVersion.equals(getDatabaseVersion())) {
-      s_databaseTypeVersion.put(getDatabaseType(), getDatabaseVersion());
-      _dbtool.setCreateVersion(getDatabaseVersion());
-      _dbtool.dropTestSchema();
-      _dbtool.createTestSchema();
-      _dbtool.createTestTables(this);
+    try {
+      String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
+      if ((prevVersion == null) || !prevVersion.equals(getDatabaseVersion())) {
+        s_databaseTypeVersion.put(getDatabaseType(), getDatabaseVersion());
+        _dbtool.setCreateVersion(getDatabaseVersion());
+        _dbtool.dropTestSchema();
+        _dbtool.createTestSchema();
+        _dbtool.createTestTables(this);
+      }
+    } catch (SkipException e) {
+      s_logger.info(e.getMessage());
     }
     _dbtool.clearTestTables();
   }
