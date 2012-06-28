@@ -18,7 +18,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.testng.SkipException;
 import org.testng.annotations.*;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -83,18 +82,13 @@ public abstract class DbTest implements TableCreationCallback {
    */
   @BeforeMethod
   public void setUp() throws Exception {
-    try {
-      String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
-      if ((prevVersion == null) || !prevVersion.equals(getDatabaseVersion())) {
-        s_databaseTypeVersion.put(getDatabaseType(), getDatabaseVersion());
-        _dbtool.setCreateVersion(getDatabaseVersion());
-        _dbtool.dropTestSchema();
-        _dbtool.createTestSchema();
-        _dbtool.createTestTables(this);
-      }
-    } catch (SkipException e) {
-      s_logger.info(e.getMessage());
-      skip = true;
+    String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
+    if ((prevVersion == null) || !prevVersion.equals(getDatabaseVersion())) {
+      s_databaseTypeVersion.put(getDatabaseType(), getDatabaseVersion());
+      _dbtool.setCreateVersion(getDatabaseVersion());
+      _dbtool.dropTestSchema();
+      _dbtool.createTestSchema();
+      _dbtool.createTestTables(this);
     }
     _dbtool.clearTestTables();
   }
@@ -190,56 +184,56 @@ public abstract class DbTest implements TableCreationCallback {
 
   //-------------------------------------------------------------------------  
   private static boolean checkScripts(String databaseType, int versionsBack) {
-      DbTool dbtool = TestProperties.getDbTool("hsqldb");
-      dbtool.setJdbcUrl(dbtool.getTestDatabaseUrl());
-      if (isScriptPublished()) {
-        dbtool.addDbScriptDirectory(SCRIPT_INSTALL_DIR.getAbsolutePath());
-      } else {
-        dbtool.addDbScriptDirectory(DbTool.getWorkingDirectory());
-      }
-      dbtool.getScriptDirs();
-      int minVersionDifference = Integer.MAX_VALUE;
-      for (Map<Integer, Pair<File, File>> versions : dbtool.getScriptDirs().values()) {
-        int min = Integer.MAX_VALUE;
-        int max = Integer.MIN_VALUE;
-        for (Integer v : versions.keySet()) {
-          min =  v < min ? v : min; 
-          max =  v > max ? v : max;
-        }
-        minVersionDifference = minVersionDifference > (max - min) ? (max - min) : minVersionDifference;
-      }      
-      return minVersionDifference >= versionsBack;
+    DbTool dbtool = TestProperties.getDbTool(databaseType);
+    dbtool.setJdbcUrl(dbtool.getTestDatabaseUrl());
+    if (isScriptPublished()) {
+      dbtool.addDbScriptDirectory(SCRIPT_INSTALL_DIR.getAbsolutePath());
+    } else {
+      dbtool.addDbScriptDirectory(DbTool.getWorkingDirectory());
     }
+   
+    int minVersionDifference = Integer.MAX_VALUE;
+    for (Map<Integer, Pair<File, File>> versions : dbtool.getScriptDirs().values()) {
+      int min = Integer.MAX_VALUE;
+      int max = Integer.MIN_VALUE;
+      for (Integer v : versions.keySet()) {
+        min = v < min ? v : min;
+        max = v > max ? v : max;
+      }
+      minVersionDifference = minVersionDifference > (max - min) ? (max - min) : minVersionDifference;
+    }
+    return minVersionDifference >= versionsBack;
+  }
 
   private static Object[][] checkScripts(Collection<Object[]> parameters) {
     Collection<Object[]> filteredParameters = newArrayList();
     for (Object[] parameter : parameters) {
       String databaseType = (String) parameter[0];
       int versionsBack = Integer.parseInt((String) parameter[1]);
-      if(checkScripts(databaseType, versionsBack)){
+      if (checkScripts(databaseType, versionsBack)) {
         filteredParameters.add(parameter);
       }
     }
-    Object[][] array = new Object[parameters.size()][];
-    parameters.toArray(array);
+    Object[][] array = new Object[filteredParameters.size()][];
+    filteredParameters.toArray(array);
     return array;
   }
-  
+
   @DataProvider(name = "localDatabase")
   public static Object[][] data_localDatabase() {
-    Collection<Object[]> parameters = getParameters("hsqldb", 0);        
-    return checkScripts(parameters);    
+    Collection<Object[]> parameters = getParameters("hsqldb", 0);
+    return checkScripts(parameters);
   }
 
   @DataProvider(name = "databases")
   public static Object[][] data_databases() {
-    Collection<Object[]> parameters = getParameters();    
+    Collection<Object[]> parameters = getParameters(3);
     return checkScripts(parameters);
   }
 
   @DataProvider(name = "databasesMoreVersions")
   public static Object[][] data_databasesMoreVersions() {
-    Collection<Object[]> parameters = getParameters(3);        
+    Collection<Object[]> parameters = getParameters(3);
     return checkScripts(parameters);
   }
 

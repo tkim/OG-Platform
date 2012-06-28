@@ -677,7 +677,7 @@ public class DbTool extends Task {
     int targetVersion = getTargetVersion() == null ? 0 : getTargetVersion();
     int createVersion = getCreateVersion() == null ? targetVersion : getCreateVersion();
     if ((highestVersion - lowestVersion) < targetVersion || (highestVersion - lowestVersion) < createVersion) {
-      throw new SkipException("Skipping schema creation because I can't go " + createVersion + " back where I have only " + (highestVersion - lowestVersion) + " versions.");
+      s_logger.info("Skipping schema creation because I can't go " + createVersion + " back where I have only " + (highestVersion - lowestVersion) + " versions.");
     } else {
       createTables(database, dbScripts, highestVersion, targetVersion, createVersion, catalog, schema, callback);
     }
