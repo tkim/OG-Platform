@@ -1,0 +1,1126 @@
+repo_name: tkim/OG-Platform
+report_id: 913392929eb30f58677d755af9d5bb79
+version: 0.1
+repo_type: Public
+timestamp: '2024-02-25T15:00:50+00:00'
+requested_by: jodastephen
+provider: github
+branch: master
+detected_tools_count: 93
+tools:
+- name: CSS 3
+  description: The latest evolution of the Cascading Style Sheets language
+  website_url: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS3
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/6727/css.png
+  detection_source_url: https://github.com/tkim/OG-Platform
+  detection_source: Repo Metadata
+- name: Groovy
+  description: A multi-faceted language for the Java platform
+  website_url: https://groovy-lang.org/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/997/default_7ff5fcd857f42ad25149f659693d8930bffddf14.png
+  detection_source_url: https://github.com/tkim/OG-Platform
+  detection_source: Repo Metadata
+- name: Java
+  description: A concurrent, class-based, object-oriented, language specifically designed
+    to have as few implementation dependencies as possible
+  website_url: https://www.java.com
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/995/K85ZWV2F.png
+  detection_source_url: https://github.com/tkim/OG-Platform
+  detection_source: Repo Metadata
+- name: JavaScript
+  description: Lightweight, interpreted, object-oriented language with first-class
+    functions
+  website_url: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1209/javascript.jpeg
+  detection_source_url: https://github.com/tkim/OG-Platform
+  detection_source: Repo Metadata
+- name: SQL
+  description: It is a domain-specific language used in programming
+  website_url: https://en.wikipedia.org/wiki/SQL
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/2271/default_068d33483bba6b81ee13fbd4dc7aab9780896a54.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-MasterDB/src/main/resources/db/create/hsqldb/cfg/V_43__create_cfg.sql
+  detection_source: projects/OG-MasterDB/src/main/resources/db/create/hsqldb/cfg/V_43__create_cfg.sql
+  last_updated_by: Daniel Kwiecinski
+  last_updated_on: 2012-03-07 12:16:07.000000000 Z
+- name: Apache FreeMarker
+  description: A free Java-based template engine
+  website_url: http://freemarker.incubator.apache.org/index.html
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Java Tools
+  image_url: https://img.stackshare.io/service/4456/ymCgaIO0_400x400.jpg
+  detection_source_url: https://github.com/tkim/OG-Platform
+  detection_source: Repo Metadata
+- name: Spring Framework
+  description: An application framework and inversion of control container for the
+    Java platform
+  website_url: https://spring.io/projects/spring-framework
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Frameworks (Full Stack)
+  image_url: https://img.stackshare.io/service/2006/spring-framework-project-logo.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: guava
+  description: Google Core Libraries for Java 6+
+  website_url: https://github.com/google/guava
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Java Tools
+  image_url: https://img.stackshare.io/service/2970/wBjKn0ol.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2012-06-21 18:30:38.000000000 Z
+- name: ActiveMQ
+  description: A message broker written in Java together with a full JMS client
+  website_url: http://activemq.apache.org/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Message Queue
+  image_url: https://img.stackshare.io/service/1062/default_08edb6f82e2c79424efc1e297ab096e50acd8e0b.jpg
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/examples/examples-bloomberg/pom.xml
+  detection_source: examples/examples-bloomberg/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-08 16:15:20.000000000 Z
+- name: Apache Derby
+  description: An open source relational database implemented entirely in Java
+  website_url: https://db.apache.org/derby/index.html
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/7309/derby.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Integration/pom.xml
+  detection_source: projects/OG-Integration/pom.xml
+  last_updated_by: Jonathan Senior
+  last_updated_on: 2012-09-13 18:51:19.000000000 Z
+- name: Ehcache
+  description: Java's Most Widely-Used Cache
+  website_url: http://ehcache.org/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Cache
+  image_url: https://img.stackshare.io/service/3093/EhcacheTwitterIcon.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2012-06-21 18:30:38.000000000 Z
+- name: HSQLDB
+  description: Leading SQL relational database software written in Java
+  website_url: http://hsqldb.org
+  open_source: false
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/6958/yQ4763oZ_400x400.jpg
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/examples/examples-bloomberg/pom.xml
+  detection_source: examples/examples-bloomberg/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2012-06-28 18:30:51.000000000 Z
+- name: Hibernate
+  description: Idiomatic persistence for Java and relational databases.
+  website_url: http://hibernate.org/
+  open_source: false
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Object Relational Mapper (ORM)
+  image_url: https://img.stackshare.io/service/1756/1uNl_IZX.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Financial/hibernate.cfg.xml
+  detection_source: projects/OG-Financial/hibernate.cfg.xml
+  last_updated_by: Martin Traverse
+  last_updated_on: 2012-08-31 18:32:40.000000000 Z
+- name: MongoDB
+  description: The database for giant ideas
+  website_url: http://www.mongodb.com/
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/1030/leaf-360x360.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Bloomberg/src/main/java/com/opengamma/bbg/referencedata/cache/MongoDBReferenceDataCache.java
+  detection_source: projects/OG-Bloomberg/src/main/java/com/opengamma/bbg/referencedata/cache/MongoDBReferenceDataCache.java
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2012-08-16 13:40:41.000000000 Z
+- name: PostgreSQL
+  description: A powerful, open source object-relational database system
+  website_url: http://www.postgresql.org/
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/1028/ASOhU5xJ.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-UtilDB/pom.xml
+  detection_source: projects/OG-UtilDB/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-03-11 19:56:14.000000000 Z
+- name: RabbitMQ
+  description: Open source multiprotocol messaging broker
+  website_url: http://www.rabbitmq.com/
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Message Queue
+  image_url: https://img.stackshare.io/service/1061/default_df93e9a30d27519161b39d8c1d5c223c1642d187.jpg
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2012-06-21 18:30:38.000000000 Z
+- name: Redis
+  description: Open source (BSD licensed), in-memory data structure store
+  website_url: http://redis.io/
+  license: BSD-3-Clause
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: In-Memory Databases
+  image_url: https://img.stackshare.io/service/1031/default_cbce472cd134adc6688572f999e9122b9657d4ba.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Julian Howarth
+  last_updated_on: 2013-04-24 13:40:14.000000000 Z
+- name: CometD
+  description: WebSocket &amp; HTTP, highly scalable and clustered web messaging framework
+  website_url: http://cometd.org/
+  open_source: false
+  hosted_saas: false
+  category: Application Hosting
+  sub_category: Realtime Backend / API
+  image_url: https://img.stackshare.io/service/3428/GcP1zCOK_400x400.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Web/pom.xml
+  detection_source: projects/OG-Web/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2012-06-28 15:02:55.000000000 Z
+- name: Eclipse
+  description: IDE for Java EE Developers
+  website_url: https://www.eclipse.org/
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Integrated Development Environment
+  image_url: https://img.stackshare.io/service/1446/8cyY6D_m.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Web/pom.xml
+  detection_source: projects/OG-Web/pom.xml
+  last_updated_by: Jonathan Senior
+  last_updated_on: 2012-09-18 08:47:21.000000000 Z
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/tkim/OG-Platform
+  detection_source: Repo Metadata
+- name: Log4j
+  description: A Java-based logging utility
+  website_url: https://logging.apache.org/log4j/2.x/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Monitoring
+  sub_category: Logging Tools
+  image_url: https://img.stackshare.io/service/2804/Coralogix-log4j-integration.jpg
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2012-06-21 18:30:38.000000000 Z
+- name: Logback
+  description: A logging framework for Java applications
+  website_url: https://logback.qos.ch/
+  open_source: false
+  hosted_saas: false
+  category: Monitoring
+  sub_category: Log Management
+  image_url: https://img.stackshare.io/service/2923/05518ecaa42841e834421e9d6987b04f_400x400.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/examples/examples-bloomberg/src/main/resources/com/opengamma/examples/bloomberg/server/logback.xml
+  detection_source: examples/examples-bloomberg/src/main/resources/com/opengamma/examples/bloomberg/server/logback.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-11 16:12:16.000000000 Z
+- name: Mockito
+  description: Tasty mocking framework for unit tests in Java
+  website_url: https://site.mockito.org/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Testing Frameworks
+  image_url: https://img.stackshare.io/service/2021/4y634TJm_400x400.jpg
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/pom.xml
+  detection_source: pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-08 16:15:20.000000000 Z
+- name: SLF4J
+  description: Simple logging facade for Java
+  website_url: http://slf4j.org/
+  open_source: false
+  hosted_saas: false
+  category: Monitoring
+  sub_category: Log Management
+  image_url: https://img.stackshare.io/service/2805/05518ecaa42841e834421e9d6987b04f_400x400.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2012-06-21 18:30:38.000000000 Z
+- name: TestNG
+  description: A testing framework inspired from JUnit and NUnit
+  website_url: http://testng.org/doc/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Testing Frameworks
+  image_url: https://img.stackshare.io/service/8900/no-img-open-source.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/pom.xml
+  detection_source: pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-14 18:04:55.000000000 Z
+- name: Shell
+  description: A shell is a text-based terminal, used for manipulating programs and
+    files. Shell scripts typically manage program execution.
+  website_url: https://en.wikipedia.org/wiki/Shell_script
+  open_source: false
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/4631/default_c2062d40130562bdc836c13dbca02d318205a962.png
+  detection_source_url: https://github.com/tkim/OG-Platform
+  detection_source: Repo Metadata
+- name: ch.qos.logback:logback-classic
+  description: Logback-classic module
+  license: EPL-1.0,LGPL-2.1+
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-04-16 11:26:29.000000000 Z
+- name: ch.qos.logback:logback-core
+  description: Logback-core module
+  license: EPL-1.0,LGPL-2.1+
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-25 16:32:44.000000000 Z
+- name: colt:colt
+  open_source: false
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Analytics/pom.xml
+  detection_source: projects/OG-Analytics/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2012-06-27 17:23:50.000000000 Z
+- name: com.codahale.metrics:metrics-core
+  description: Metrics is a Java library which gives you unparalleled insight into
+    what your code does in production
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-25 16:32:44.000000000 Z
+- name: com.google.guava:guava
+  description: Guava is a suite of core and expanded libraries that include utility
+    classes
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-14 16:22:46.000000000 Z
+- name: com.googlecode.json-simple:json-simple
+  description: A simple Java toolkit for JSON
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Analytics/pom.xml
+  detection_source: projects/OG-Analytics/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-05-29 13:49:19.000000000 Z
+- name: com.jolbox:bonecp
+  description: Lightweight connection pool
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-UtilDB/pom.xml
+  detection_source: projects/OG-UtilDB/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-05-29 13:49:19.000000000 Z
+- name: com.rabbitmq:amqp-client
+  description: The RabbitMQ Java client library allows Java applications to interface
+    with RabbitMQ
+  license: Apache-2.0,GPL-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-14 16:22:46.000000000 Z
+- name: com.sleepycat:je
+  description: Berkeley DB Java Edition is a open source, transactional storage solution
+    for Java applications
+  open_source: false
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Engine/pom.xml
+  detection_source: projects/OG-Engine/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-05-29 13:49:19.000000000 Z
+- name: com.sun.jersey.contribs:jersey-multipart
+  license: CNRI-Python-GPL-Compatible
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: com.sun.jersey.contribs:jersey-spring
+  license: CNRI-Python-GPL-Compatible
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: com.sun.jersey:jersey-client
+  license: CNRI-Python-GPL-Compatible
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: com.sun.jersey:jersey-servlet
+  license: CNRI-Python-GPL-Compatible
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: com.yahoo.platform.yui:yuicompressor
+  description: POM was created by Sonatype Nexus
+  open_source: false
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Web/pom.xml
+  detection_source: projects/OG-Web/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-09 14:03:51.000000000 Z
+- name: commons-cli:commons-cli
+  description: Apache Commons CLI provides a simple API for presenting
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-09 14:03:51.000000000 Z
+- name: commons-codec:commons-codec
+  description: The Apache Commons Codec package contains simple encoder and decoders
+    for various formats such as Base64 and Hexadecimal
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-09 14:03:51.000000000 Z
+- name: commons-collections:commons-collections
+  description: Types that extend and augment the Java Collections Framework
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-10 12:54:34.000000000 Z
+- name: commons-io:commons-io
+  description: The Apache Commons IO library contains utility classes
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-09 14:03:51.000000000 Z
+- name: commons-lang:commons-lang
+  description: Commons Lang
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-09 14:03:51.000000000 Z
+- name: de.odysseus.juel:juel-api
+  description: Java Unified Expression Language
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Financial/pom.xml
+  detection_source: projects/OG-Financial/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-25 16:32:44.000000000 Z
+- name: de.odysseus.juel:juel-impl
+  description: Java Unified Expression Language
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Financial/pom.xml
+  detection_source: projects/OG-Financial/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-25 16:32:44.000000000 Z
+- name: it.unimi.dsi:fastutil
+  description: Fastutil extends the Java Collections Framework by providing type-specific
+    maps
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-09 14:03:51.000000000 Z
+- name: javax.jms:jms-api
+  license: GPL-2.0-with-classpath-exception
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: javax.servlet:javax.servlet-api
+  description: Java.net - The Source for Java Technology Collaboration
+  license: GPL-2.0-with-classpath-exception
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: net.sf.ehcache:ehcache-core
+  description: This is the ehcache core module
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-25 16:32:44.000000000 Z
+- name: net.sf.opencsv:opencsv
+  description: A simple library for reading and writing CSV in Java
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-14 16:22:46.000000000 Z
+- name: org.antlr:antlr
+  description: The ANTLR 3 tool
+  license: LAL-1.3
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Financial/pom.xml
+  detection_source: projects/OG-Financial/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-25 16:32:44.000000000 Z
+- name: org.apache.activemq:activemq-core
+  open_source: false
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Financial/pom.xml
+  detection_source: projects/OG-Financial/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-08 16:15:20.000000000 Z
+- name: org.apache.activemq:activemq-pool
+  description: ActiveMQ Pooled ConnectionFactory
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/examples/examples-bloomberg/pom.xml
+  detection_source: examples/examples-bloomberg/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-12 21:49:05.000000000 Z
+- name: org.apache.ant:ant
+  description: Master POM
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-05-30 16:29:29.000000000 Z
+- name: org.apache.commons:commons-math
+  description: The Math project is a library of lightweight
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Analytics/pom.xml
+  detection_source: projects/OG-Analytics/pom.xml
+  last_updated_by: Jonathan Senior
+  last_updated_on: 2012-10-05 17:22:41.000000000 Z
+- name: org.apache.derby:derby
+  description: Contains the core Apache Derby database engine
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Integration/pom.xml
+  detection_source: projects/OG-Integration/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-14 19:39:23.000000000 Z
+- name: org.apache.httpcomponents:httpclient
+  description: Apache HttpComponents Client
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-05-30 16:29:29.000000000 Z
+- name: org.apache.httpcomponents:httpcore-nio
+  description: HttpComponents Core
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-25 16:32:44.000000000 Z
+- name: org.apache.poi:poi
+  description: Apache POI - Java API To Access Microsoft Format Files
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Analytics/pom.xml
+  detection_source: projects/OG-Analytics/pom.xml
+  last_updated_by: Jonathan Senior
+  last_updated_on: 2012-10-05 17:22:41.000000000 Z
+- name: org.apache.xbean:xbean-spring
+  description: Xbean-spring provides a schema-driven proprietary namespace handler
+    for spring contexts
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/examples/examples-bloomberg/pom.xml
+  detection_source: examples/examples-bloomberg/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-12 21:49:05.000000000 Z
+- name: org.codehaus.groovy:groovy-all
+  description: 'Groovy: A powerful, dynamic language for the JVM'
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Integration/pom.xml
+  detection_source: projects/OG-Integration/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-14 19:39:23.000000000 Z
+- name: org.cometd.java:cometd-java-server
+  description: The CometD project is a scalable web messaging bus that uses WebSocket
+    and HTTP AJAX push technology patterns known as "Comet" techniques
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Web/pom.xml
+  detection_source: projects/OG-Web/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 14:54:34.000000000 Z
+- name: org.eclipse.jetty:jetty-servlets
+  description: Utility Servlets from Jetty
+  license: Apache-2.0,EPL-1.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Web/pom.xml
+  detection_source: projects/OG-Web/pom.xml
+  last_updated_by: Jonathan Senior
+  last_updated_on: 2012-09-18 08:47:21.000000000 Z
+- name: org.eclipse.jetty:jetty-webapp
+  description: Jetty web application support
+  license: Apache-2.0,EPL-1.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Web/pom.xml
+  detection_source: projects/OG-Web/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-04 16:31:22.000000000 Z
+- name: org.freemarker:freemarker
+  description: FreeMarker is a "template engine"; a generic tool to generate text
+    output based on templates
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-05-30 16:29:29.000000000 Z
+- name: org.hibernate:hibernate-ehcache
+  description: Integration for using Ehcache 2.x as a Hibernate second-level-cache
+    provider
+  license: LGPL-2.0-only,GPL-3.0-or-later
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-UtilDB/pom.xml
+  detection_source: projects/OG-UtilDB/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-03-11 19:56:14.000000000 Z
+- name: org.hsqldb:hsqldb
+  description: HSQLDB - Lightweight 100% Java SQL Database Engine
+  license: Zed,TMate
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/examples/examples-bloomberg/pom.xml
+  detection_source: examples/examples-bloomberg/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-12 21:49:05.000000000 Z
+- name: org.joda:joda-convert
+  description: Library to convert Objects to and from String
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-05-30 16:29:29.000000000 Z
+- name: org.mindrot:jbcrypt
+  description: OpenBSD-style Blowfish password hashing for Java
+  license: ISC
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Core/pom.xml
+  detection_source: projects/OG-Core/pom.xml
+  last_updated_by: Jonathan Senior
+  last_updated_on: 2012-09-03 10:28:56.000000000 Z
+- name: org.mockito:mockito-core
+  description: Mockito mock objects library core API and implementation
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/pom.xml
+  detection_source: pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-12 16:09:01.000000000 Z
+- name: org.mongodb:mongo-java-driver
+  description: The MongoDB Java driver
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Component/pom.xml
+  detection_source: projects/OG-Component/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-25 16:32:44.000000000 Z
+- name: org.quartz-scheduler:quartz
+  description: Enterprise Job Scheduler
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Integration/pom.xml
+  detection_source: projects/OG-Integration/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-14 19:39:23.000000000 Z
+- name: org.slf4j:jcl-over-slf4j
+  description: JCL 1.2 implemented over SLF4J
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-05-30 16:29:29.000000000 Z
+- name: org.slf4j:log4j-over-slf4j
+  description: Log4j implemented over SLF4J
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-05-30 16:29:29.000000000 Z
+- name: org.slf4j:slf4j-api
+  description: The slf4j API
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: org.springframework.amqp:spring-amqp
+  description: Spring AMQP Core
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: org.springframework.amqp:spring-rabbit
+  description: Spring RabbitMQ Support
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: org.springframework.security:spring-security-core
+  description: Spring-security-core
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Security/pom.xml
+  detection_source: projects/OG-Security/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-09 14:03:51.000000000 Z
+- name: org.springframework:spring-beans
+  description: Spring Beans
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: org.springframework:spring-context
+  description: Spring Context
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: org.springframework:spring-context-support
+  description: Spring Context Support
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: org.springframework:spring-core
+  description: Spring Core
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: org.springframework:spring-expression
+  description: Spring Expression Language
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Kostas Georgiou
+  last_updated_on: 2013-07-15 15:44:51.000000000 Z
+- name: org.springframework:spring-jms
+  description: Spring JMS
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: org.springframework:spring-orm
+  description: Spring Object/Relational Mapping
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-UtilDB/pom.xml
+  detection_source: projects/OG-UtilDB/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-03-11 19:56:14.000000000 Z
+- name: org.springframework:spring-test
+  description: Spring TestContext Framework
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: org.springframework:spring-web
+  description: Spring Web
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-06-26 18:42:26.000000000 Z
+- name: org.testng:testng
+  description: Testing framework for Java
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/pom.xml
+  detection_source: pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-07-14 18:04:55.000000000 Z
+- name: org.threeten:threetenbp
+  description: Backport of JSR-310 from JDK 8 to JDK 7 and JDK 6
+  license: BSD-3-Clause
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-TimeSeries/pom.xml
+  detection_source: projects/OG-TimeSeries/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-03-22 15:03:09.000000000 Z
+- name: postgresql:postgresql
+  description: The PostgreSQL Driver JDBC4
+  license: DSDP
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-UtilDB/pom.xml
+  detection_source: projects/OG-UtilDB/pom.xml
+  last_updated_by: Stephen Colebourne
+  last_updated_on: 2013-03-11 19:56:14.000000000 Z
+- name: redis.clients:jedis
+  description: Jedis is a blazingly small and sane Redis java client
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/tkim/OG-Platform/blob/master/projects/OG-Util/pom.xml
+  detection_source: projects/OG-Util/pom.xml
+  last_updated_by: Julian Howarth
+  last_updated_on: 2013-04-24 13:40:14.000000000 Z
